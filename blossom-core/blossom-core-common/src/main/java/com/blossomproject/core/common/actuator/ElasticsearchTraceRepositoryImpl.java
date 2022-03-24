@@ -7,24 +7,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.trace.http.HttpTrace;
-import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.util.AntPathMatcher;
-
-import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -33,6 +15,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.trace.http.HttpTrace;
+import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.util.AntPathMatcher;
 
 /**
  * An implementation of {@link ElasticsearchTraceRepository}
@@ -42,8 +42,8 @@ import java.util.stream.Collectors;
 public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepository implements
   ElasticsearchTraceRepository {
 
-  private final static Logger logger = LoggerFactory.getLogger(ElasticsearchTraceRepository.class);
-  private final static String TIMESTAMP_FIELD = "timestamp";
+  private static final Logger logger = LoggerFactory.getLogger(ElasticsearchTraceRepository.class);
+  private static final String TIMESTAMP_FIELD = "timestamp";
   private final Client client;
   private final BulkProcessor bulkProcessor;
   private final String index;
@@ -56,23 +56,22 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepositor
   private final ObjectMapper objectMapper;
 
   /**
-   * Create a new {@link ElasticsearchTraceRepositoryImpl} using a given Elasticsearch {@link
-   * Client}, writing and reading from a given index. This implementation only records traces not
-   * excluded in the ignoredUris list of patterns. If the index doesn't exists on the Elasticsearch
-   * cluster, a new one will be created with the given settings.
+   * Create a new {@link ElasticsearchTraceRepositoryImpl} using a given Elasticsearch {@link Client}, writing and reading from a
+   * given index. This implementation only records traces not excluded in the ignoredUris list of patterns. If the index doesn't
+   * exists on the Elasticsearch cluster, a new one will be created with the given settings.
    *
-   * @param client                  the elasticsearch client
-   * @param bulkProcessor           elasticsearch bulkprocessor
-   * @param index                   the index name (serves as alias)
-   * @param ignoredUris             a list of regexp patterns to ignore request uris
-   * @param requestHeaderFiltered   List of AntMatcher patterns to ignore in request headers
+   * @param client the elasticsearch client
+   * @param bulkProcessor elasticsearch bulkprocessor
+   * @param index the index name (serves as alias)
+   * @param ignoredUris a list of regexp patterns to ignore request uris
+   * @param requestHeaderFiltered List of AntMatcher patterns to ignore in request headers
    * @param responseHeadersFiltered List of AntMatcher patterns to ignore in response headers
-   * @param settings                the Elasticsearch index setting as json serialized string
-   * @param objectMapper            a jackson ObjectMapper to serialize the HttpTrace objects
+   * @param settings the Elasticsearch index setting as json serialized string
+   * @param objectMapper a jackson ObjectMapper to serialize the HttpTrace objects
    */
   public ElasticsearchTraceRepositoryImpl(Client client, BulkProcessor bulkProcessor, String index, Set<String> ignoredUris,
-                                          Set<String> requestHeaderFiltered, Set<String> responseHeadersFiltered,
-                                          String settings, ObjectMapper objectMapper) {
+    Set<String> requestHeaderFiltered, Set<String> responseHeadersFiltered,
+    String settings, ObjectMapper objectMapper) {
     Preconditions.checkArgument(client != null);
     Preconditions.checkArgument(!Strings.isNullOrEmpty(index));
     Preconditions.checkArgument(ignoredUris != null);
@@ -103,7 +102,7 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepositor
   @PostConstruct
   public void initializeIndex() {
     if (!this.client.admin().indices().prepareExists(index).get().isExists()) {
-      this.client.admin().indices().prepareCreate(index).setSource(settings).get();
+      this.client.admin().indices().prepareCreate(index).setSource(settings, XContentType.JSON).get();
     }
   }
 
@@ -111,7 +110,7 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepositor
    * Check if a header should be indexed in this trace repository, and keeps the result in cache
    *
    * @param exludedAntPatterns AntPattern Set of headers that should not be indexed
-   * @param headerName         Header name to check against exludedAntPatterns
+   * @param headerName Header name to check against exludedAntPatterns
    * @return true if the header should be removed from indexation
    */
   @Cacheable
@@ -198,11 +197,11 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepositor
       .addAggregation(AggregationBuilders.terms("response_content_type_stats")
         .field("response.headers.Content-Type"))
       .addAggregation(AggregationBuilders.terms("top_uris").field("request.uri")
-        .order(Terms.Order.aggregation("_count", false)).size(10))
+        .order(BucketOrder.aggregation("_count", false)).size(10))
       .addAggregation(AggregationBuilders.terms("flop_uris").field("request.uri")
-        .order(Terms.Order.aggregation("_count", true)).size(10))
+        .order(BucketOrder.aggregation("_count", true)).size(10))
       .addAggregation(AggregationBuilders.dateHistogram("request_histogram").field("timestamp")
-        .interval(new DateHistogramInterval(precision))
+        .dateHistogramInterval(new DateHistogramInterval(precision))
         .subAggregation(AggregationBuilders.terms("methods").field("request.method")));
     SearchResponse response = request.execute().actionGet();
 
