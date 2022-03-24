@@ -1,0 +1,22 @@
+blossom:
+  security:
+    default:
+      account:
+        password: system
+        identifier: system
+        enabled: true
+  elasticsearch:
+    cluster-name: v2106
+    cluster-nodes: v2106.int.billetel.fr:9300
+
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+  liquibase:
+    enabled: false
+  elasticsearch:
+    rest:
+      uris: v2106.int.billetel.fr:9200
