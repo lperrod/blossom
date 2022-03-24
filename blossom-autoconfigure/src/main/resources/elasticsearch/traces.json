@@ -5,10 +5,6 @@
   },
   "mappings": {
     "traces": {
-      "_ttl": {
-        "enabled": true,
-        "default": 604800000
-      },
       "properties": {
         "timeTaken": {
           "type": "long"
@@ -22,70 +18,70 @@
         "request": {
           "properties": {
             "method": {
-              "type": "string",
-              "index": "not_analyzed"
+              "type": "text",
+              "index": "false"
             },
             "uri": {
-              "type": "string",
-              "index": "not_analyzed"
+              "type": "text",
+              "index": "false"
             },
             "remoteAddress": {
-              "type": "string",
-              "index": "not_analyzed"
+              "type": "text",
+              "index": "false"
             },
             "headers": {
               "properties": {
                 "accept": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "accept-encoding": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "accept-language": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "cache-control": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "connection": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "cookie": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "host": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "if-modified-since": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "origin": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "referer": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "upgrade-insecure-requests": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "user-agent": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "x-requested-with": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 }
               }
             }
@@ -94,77 +90,77 @@
         "response": {
           "properties": {
             "status": {
-              "type": "string",
-              "index": "not_analyzed"
+              "type": "text",
+              "index": "false"
             },
             "headers": {
               "properties": {
                 "Accept-Ranges": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Cache-Control": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Content-Language": {
-                  "type": "string"
+                  "type": "text"
                 },
                 "Content-Length": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Content-Type": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Date": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Expires": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Last-Modified": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Pragma": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "Transfer-Encoding": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "X-Application-Context": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "X-Content-Type-Options": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "X-Frame-Options": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 },
                 "X-XSS-Protection": {
-                  "type": "string",
-                  "index": "not_analyzed"
+                  "type": "text",
+                  "index": "false"
                 }
               }
             }
           }
         },
         "principal": {
-          "type": "string",
-          "index": "not_analyzed"
+          "type": "text",
+          "index": "false"
         },
         "session": {
-          "type": "string",
-          "index": "not_analyzed"
+          "type": "text",
+          "index": "false"
         }
       }
     }

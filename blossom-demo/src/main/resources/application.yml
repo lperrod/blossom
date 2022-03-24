@@ -1,0 +1,22 @@
+blossom:
+  security:
+    default:
+      account:
+        password: system
+        identifier: system
+        enabled: true
+  elasticsearch:
+    cluster-name: someName
+    cluster-nodes: someUrl
+
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+  liquibase:
+    enabled: false
+  elasticsearch:
+    rest:
+      uris: someUrl

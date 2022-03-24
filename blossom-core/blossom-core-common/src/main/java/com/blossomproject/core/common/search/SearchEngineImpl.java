@@ -22,7 +22,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.global.Global;
-import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
+import org.elasticsearch.search.aggregations.bucket.global.GlobalAggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -42,7 +42,7 @@ public class SearchEngineImpl<DTO extends AbstractDTO> implements SearchEngine {
 
   public SearchEngineImpl(Client client, ObjectMapper objectMapper,
     SearchEngineConfiguration<DTO> configuration) {
-   this(client,objectMapper,null,configuration);
+    this(client, objectMapper, null, configuration);
   }
 
   public SearchEngineImpl(Client client, ObjectMapper objectMapper,
@@ -121,11 +121,11 @@ public class SearchEngineImpl<DTO extends AbstractDTO> implements SearchEngine {
       .setQuery(query)
       .setSize(pageable.getPageSize()).setFrom((int) pageable.getOffset());
 
-    if(facetConfigurations!=null) {
-      GlobalBuilder global = AggregationBuilders.global(GLOBAL_AGGREGATION);
+    if (facetConfigurations != null) {
+      GlobalAggregationBuilder global = AggregationBuilders.global(GLOBAL_AGGREGATION);
       boolean addGlobal = false;
 
-      if(aggregationRegistry!=null) {
+      if (aggregationRegistry != null) {
         List<AggregationConverter> aggregationConverters = aggregationRegistry.getPluginsFor(this);
         for (FacetConfiguration facetConfiguration : facetConfigurations) {
           if (!aggregationConverters.isEmpty()) {
@@ -143,7 +143,7 @@ public class SearchEngineImpl<DTO extends AbstractDTO> implements SearchEngine {
           }
         }
       }
-      if(addGlobal){
+      if (addGlobal) {
         searchRequest.addAggregation(global);
       }
     }
@@ -163,11 +163,12 @@ public class SearchEngineImpl<DTO extends AbstractDTO> implements SearchEngine {
 
   @Override
   public SearchResult<DTO> parseResults(SearchResponse searchResponse, Pageable pageable) {
-    return this.parseResults(searchResponse, pageable,  null);
+    return this.parseResults(searchResponse, pageable, null);
   }
 
   @Override
-  public SearchResult<DTO> parseResults(SearchResponse searchResponse, Pageable pageable, Iterable<FacetConfiguration> facetConfigurations) {
+  public SearchResult<DTO> parseResults(SearchResponse searchResponse, Pageable pageable,
+    Iterable<FacetConfiguration> facetConfigurations) {
     return this.doParseResults(searchResponse, pageable, "dto", this.configuration.getSupportedClass(), facetConfigurations);
   }
 
@@ -191,28 +192,30 @@ public class SearchEngineImpl<DTO extends AbstractDTO> implements SearchEngine {
       }
     }
 
-    if (this.aggregationRegistry!=null && facetConfigurations!=null) {
+    if (this.aggregationRegistry != null && facetConfigurations != null) {
       List<Facet> facets = Lists.newArrayList();
       for (FacetConfiguration facetConfiguration : facetConfigurations) {
         List<AggregationConverter> converters = aggregationRegistry.getPluginsFor(this);
-        Optional<AggregationConverter> converter = converters.stream().filter(c -> c.name().equals(facetConfiguration.getName())).findAny();
+        Optional<AggregationConverter> converter = converters.stream().filter(c -> c.name().equals(facetConfiguration.getName()))
+          .findAny();
         if (converter.isPresent()) {
-          if(facetConfiguration.isGlobal()){
-            facets.add(converter.get().decode(((Global)searchResponse.getAggregations().get(GLOBAL_AGGREGATION))::getAggregations, facetConfiguration));
-          }else{
+          if (facetConfiguration.isGlobal()) {
+            facets.add(converter.get()
+              .decode(((Global) searchResponse.getAggregations().get(GLOBAL_AGGREGATION))::getAggregations, facetConfiguration));
+          } else {
             facets.add(converter.get().decode(searchResponse::getAggregations, facetConfiguration));
           }
         }
       }
 
       return new SearchResult(
-        searchResponse.getTookInMillis(),
+        searchResponse.getTook().getMillis(),
         new PageImpl<>(resultList, pageable, searchResponse.getHits().getTotalHits()),
         facets);
     }
 
     return new SearchResult(
-      searchResponse.getTookInMillis(),
+      searchResponse.getTook().getMillis(),
       new PageImpl<>(resultList, pageable, searchResponse.getHits().getTotalHits()));
   }
 

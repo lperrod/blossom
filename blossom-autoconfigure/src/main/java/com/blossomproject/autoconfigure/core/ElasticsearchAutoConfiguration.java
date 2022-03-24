@@ -1,15 +1,11 @@
 package com.blossomproject.autoconfigure.core;
 
-import com.google.common.base.Splitter;
 import com.blossomproject.autoconfigure.core.elasticsearch.ElasticsearchProperties;
+import com.google.common.base.Splitter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -17,40 +13,28 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.lease.Releasable;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.util.StringUtils;
 
 @Configuration
 @PropertySource("classpath:/elasticsearch.properties")
-@ConditionalOnClass({Client.class})
 @EnableConfigurationProperties(ElasticsearchProperties.class)
 public class ElasticsearchAutoConfiguration implements DisposableBean {
 
   private static final Logger logger = LoggerFactory
     .getLogger(ElasticsearchAutoConfiguration.class);
-  private static final Map<String, String> DEFAULTS;
 
-  static {
-    Map<String, String> defaults = new LinkedHashMap<String, String>();
-    defaults.put("http.enabled", String.valueOf(true));
-    defaults.put("node.local", String.valueOf(true));
-    defaults.put("path.home", System.getProperty("user.dir"));
-    DEFAULTS = Collections.unmodifiableMap(defaults);
-  }
 
   private final ElasticsearchProperties properties;
   private Releasable releasable;
@@ -59,38 +43,8 @@ public class ElasticsearchAutoConfiguration implements DisposableBean {
     this.properties = properties;
   }
 
-  @Bean
-  @ConditionalOnMissingBean(BulkProcessor.class)
-  public BulkProcessor bulkProcessor(Client client) {
-    return BulkProcessor.builder(client, new BulkProcessor.Listener() {
-
-      @Override
-      public void beforeBulk(long executionId, BulkRequest request) {
-        logger.info("Before bulk {} with {} actions to execute", executionId,
-          request.numberOfActions());
-      }
-
-      @Override
-      public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-        logger.error("Error on bulk {} with {} actions to execute", executionId,
-          request.numberOfActions(), failure);
-      }
-
-      @Override
-      public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-        logger.info("Successful bulk {} with {} actions executed in {} ms.", executionId,
-          request.numberOfActions(), response.getTookInMillis());
-      }
-    })
-      .setName("Blossom Bulk Processor")
-      .setBulkActions(500)
-      .setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB))
-      .setFlushInterval(new TimeValue(30, TimeUnit.SECONDS))
-      .build();
-  }
 
   @Bean
-  @ConditionalOnMissingBean
   public Client elasticsearchClient() {
     try {
       return createClient();
@@ -100,36 +54,22 @@ public class ElasticsearchAutoConfiguration implements DisposableBean {
   }
 
   private Client createClient() throws Exception {
-    if (StringUtils.hasLength(this.properties.getClusterNodes())) {
-      return createTransportClient();
-    }
-    return createNodeClient();
+    return createTransportClient();
   }
 
-  private Client createNodeClient() throws Exception {
-    Settings.Builder settings = Settings.settingsBuilder();
-    for (Map.Entry<String, String> entry : DEFAULTS.entrySet()) {
-      if (!this.properties.getProperties().containsKey(entry.getKey())) {
-        settings.put(entry.getKey(), entry.getValue());
-      }
-    }
-    settings.put(this.properties.getProperties());
-    Node node = new NodeBuilder().settings(settings).clusterName(this.properties.getClusterName())
-      .node();
-    this.releasable = node;
-    return node.client();
-  }
 
   private Client createTransportClient() throws Exception {
-    TransportClient.Builder builder = new TransportClient.Builder();
-    builder.settings(Settings.settingsBuilder().put(createProperties()));
-    TransportClient client = builder.build();
+
+    Settings.Builder settingsBuilder = Settings.builder();
+    createProperties().forEach((key, value) -> settingsBuilder.put((String) key, (String) value));
+
+    TransportClient client = new PreBuiltTransportClient(Settings.builder().put(settingsBuilder.build()).build());
 
     Splitter.on(",").splitToList(this.properties.getClusterNodes()).forEach(
       a -> {
         String[] hostAndPort = a.split(":");
         try {
-          client.addTransportAddress(new InetSocketTransportAddress(
+          client.addTransportAddress(new TransportAddress(
             InetAddress.getByName(hostAndPort[0]),
             Integer.parseInt(hostAndPort[1])));
         } catch (UnknownHostException e) {
@@ -162,6 +102,36 @@ public class ElasticsearchAutoConfiguration implements DisposableBean {
         }
       }
     }
+  }
+
+
+  @Bean
+  @ConditionalOnMissingBean(BulkProcessor.class)
+  public BulkProcessor bulkProcessor(Client client) {
+    return BulkProcessor.builder(client, new BulkProcessor.Listener() {
+
+        @Override
+        public void beforeBulk(long executionId, BulkRequest request) {
+          logger.info("Before bulk {} with {} actions to execute", executionId,
+            request.numberOfActions());
+        }
+
+        @Override
+        public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+          logger.error("Error on bulk {} with {} actions to execute", executionId,
+            request.numberOfActions(), failure);
+        }
+
+        @Override
+        public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+          logger.info("Successful bulk {} with {} actions executed in {} ms.", executionId,
+            request.numberOfActions(), response.getTook().getMillis());
+        }
+      })
+      .setBulkActions(500)
+      .setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB))
+      .setFlushInterval(new TimeValue(30, TimeUnit.SECONDS))
+      .build();
   }
 
 }

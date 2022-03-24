@@ -1,6 +1,8 @@
 package com.blossomproject.core.common.search;
 
 
+import com.blossomproject.core.common.dto.AbstractDTO;
+import com.blossomproject.core.common.service.ReadOnlyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -9,8 +11,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
-import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.service.ReadOnlyService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +29,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -159,7 +160,7 @@ public class IndexationEngineImpl<DTO extends AbstractDTO> implements Indexation
     if (this.configuration.getSource() != null) {
       try {
         prepareCreate
-          .setSource(ByteStreams.toByteArray(this.configuration.getSource().getInputStream()));
+          .setSource(ByteStreams.toByteArray(this.configuration.getSource().getInputStream()), XContentType.JSON);
       } catch (IOException e) {
         logger.error("Can't read index {} configuration file {}", indexName,
           this.configuration.getSource(), e);

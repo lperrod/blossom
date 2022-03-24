@@ -6,6 +6,9 @@ import com.blossomproject.core.common.actuator.TraceStatisticsMvcEndpoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.client.Client;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Created by Maël Gargadennnec on 11/05/2017.
  */
@@ -32,6 +31,26 @@ import java.util.Set;
 @PropertySource("classpath:/actuator.properties")
 @ConditionalOnBean({ElasticsearchAutoConfiguration.class})
 public class ActuatorAutoConfiguration {
+
+  @Bean
+  public ElasticsearchTraceRepository traceRepository(
+    Client client, BulkProcessor bulkProcessor,
+    @Value("classpath:/elasticsearch/traces.json") Resource resource,
+    ObjectMapper objectMapper,
+    TraceProperties traceProperties)
+    throws IOException {
+    String settings = Resources.toString(resource.getURL(), Charsets.UTF_8);
+
+    return new ElasticsearchTraceRepositoryImpl(
+      client, bulkProcessor, "traces", traceProperties.getExcludedUris(),
+      traceProperties.getExcludedRequestHeaders(), traceProperties.getExcludedResponseHeaders(), settings, objectMapper);
+  }
+
+  @Bean
+  public TraceStatisticsMvcEndpoint traceStatisticsMvcEndpoint(
+    ElasticsearchTraceRepository traceRepository) {
+    return new TraceStatisticsMvcEndpoint(traceRepository);
+  }
 
   @Configuration("BlossomActuatorAutoConfigurationTraceProperties")
   @ConfigurationProperties("blossom.actuator.traces")
@@ -52,25 +71,5 @@ public class ActuatorAutoConfiguration {
     public Set<String> getExcludedResponseHeaders() {
       return excludedResponseHeaders;
     }
-  }
-
-  @Bean
-  public ElasticsearchTraceRepository traceRepository(
-    Client client, BulkProcessor bulkProcessor,
-    @Value("classpath:/elasticsearch/traces.json") Resource resource,
-    ObjectMapper objectMapper,
-    TraceProperties traceProperties)
-    throws IOException {
-    String settings = Resources.toString(resource.getURL(), Charsets.UTF_8);
-
-    return new ElasticsearchTraceRepositoryImpl(
-      client, bulkProcessor, "traces", traceProperties.getExcludedUris(),
-      traceProperties.getExcludedRequestHeaders(), traceProperties.getExcludedResponseHeaders(), settings, objectMapper);
-  }
-
-  @Bean
-  public TraceStatisticsMvcEndpoint traceStatisticsMvcEndpoint(
-    ElasticsearchTraceRepository traceRepository) {
-    return new TraceStatisticsMvcEndpoint(traceRepository);
   }
 }
