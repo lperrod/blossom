@@ -5,7 +5,7 @@
 
   <groupId>com.blossom-project</groupId>
   <artifactId>blossom</artifactId>
-  <version>1.4.0-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Blossom</name>
@@ -85,6 +85,7 @@
     <module>blossom-autoconfigure</module>
     <module>blossom-starters</module>
     <module>blossom-tools</module>
+    <module>blossom-demo</module>
   </modules>
 
 

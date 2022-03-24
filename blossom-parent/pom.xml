@@ -1,107 +1,112 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>com.blossom-project</groupId>
-    <artifactId>blossom</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
-  </parent>
-
   <artifactId>blossom-parent</artifactId>
-  <packaging>pom</packaging>
-
-  <name>blossom-parent</name>
-  <url>http://maven.apache.org</url>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <springboot.version>2.1.9.RELEASE</springboot.version>
-    <jna.version>3.0.9</jna.version>
-    <bouncycastle.version>1.62</bouncycastle.version>
-    <liquibase.version>3.6.3</liquibase.version>
-    <camunda.version>3.2.0</camunda.version>
-    <tika.version>1.22</tika.version>
-    <powermock.version>2.0.2</powermock.version>
-    <elasticsearch.version>2.4.6</elasticsearch.version>
-    <commons-lang3.version>3.7</commons-lang3.version>
-    <jsass.version>5.9.1</jsass.version>
-    <javax.annotation>1.3.2</javax.annotation>
-  </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${springboot.version}</version>
-        <type>pom</type>
+        <groupId>org.springframework.boot</groupId>
         <scope>import</scope>
+        <type>pom</type>
+        <version>${springboot.version}</version>
       </dependency>
 
       <dependency>
-        <groupId>com.sun.jna</groupId>
         <artifactId>jna</artifactId>
+        <groupId>com.sun.jna</groupId>
         <version>${jna.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
+        <groupId>org.elasticsearch</groupId>
         <version>${elasticsearch.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.commons</groupId>
+        <artifactId>transport</artifactId>
+        <groupId>org.elasticsearch.client</groupId>
+        <version>${elasticsearch.version}</version>
+      </dependency>
+      <dependency>
         <artifactId>commons-lang3</artifactId>
+        <groupId>org.apache.commons</groupId>
         <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcmail-jdk15on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.liquibase</groupId>
+        <artifactId>bcmail-jdk15on</artifactId>
+        <groupId>org.bouncycastle</groupId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
         <artifactId>liquibase-core</artifactId>
+        <groupId>org.liquibase</groupId>
         <version>${liquibase.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.camunda.bpm.springboot</groupId>
         <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
+        <groupId>org.camunda.bpm.springboot</groupId>
         <version>${camunda.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
+        <groupId>org.apache.tika</groupId>
         <version>${tika.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.powermock</groupId>
         <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito2</artifactId>
         <version>${powermock.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.bit3</groupId>
+        <artifactId>powermock-api-mockito2</artifactId>
+        <groupId>org.powermock</groupId>
+        <version>${powermock.version}</version>
+      </dependency>
+      <dependency>
         <artifactId>jsass</artifactId>
+        <groupId>io.bit3</groupId>
         <version>${jsass.version}</version>
       </dependency>
       <dependency>
-        <groupId>javax.annotation</groupId>
         <artifactId>javax.annotation-api</artifactId>
+        <groupId>javax.annotation</groupId>
         <version>${javax.annotation}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>blossom-parent</name>
+
+  <packaging>pom</packaging>
+  <parent>
+    <artifactId>blossom</artifactId>
+    <groupId>com.blossom-project</groupId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <bouncycastle.version>1.62</bouncycastle.version>
+    <camunda.version>3.2.0</camunda.version>
+    <commons-lang3.version>3.7</commons-lang3.version>
+    <elasticsearch.version>6.6.1</elasticsearch.version>
+    <javax.annotation>1.3.2</javax.annotation>
+    <jna.version>3.0.9</jna.version>
+    <jsass.version>5.9.1</jsass.version>
+    <liquibase.version>3.6.3</liquibase.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <powermock.version>2.0.2</powermock.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <springboot.version>2.1.9.RELEASE</springboot.version>
+    <tika.version>1.22</tika.version>
+  </properties>
+
+  <url>http://maven.apache.org</url>
 </project>
