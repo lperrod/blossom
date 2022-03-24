@@ -6,8 +6,8 @@ blossom:
         identifier: system
         enabled: true
   elasticsearch:
-    cluster-name: v2106
-    cluster-nodes: v2106.int.billetel.fr:9300
+    cluster-name: someName
+    cluster-nodes: someUrl
 
 
 spring:
@@ -19,4 +19,4 @@ spring:
     enabled: false
   elasticsearch:
     rest:
-      uris: v2106.int.billetel.fr:9200
+      uris: someUrl
