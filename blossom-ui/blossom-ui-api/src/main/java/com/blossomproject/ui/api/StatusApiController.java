@@ -1,8 +1,8 @@
 package com.blossomproject.ui.api;
 
+import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.blossomproject.ui.stereotype.BlossomApiController;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -30,8 +30,9 @@ public class StatusApiController {
 
   @GetMapping
   @ResponseBody
-  public ResponseEntity<Health> status(@RequestParam(value = "exclude", required = false, defaultValue = "") Optional<List<String>> excludes) {
-    Health health = filteredDetails(healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
+  public ResponseEntity<Health> status(
+    @RequestParam(value = "exclude", required = false, defaultValue = "") Optional<List<String>> excludes) {
+    Health health = filteredDetails((Health) healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
     if (health.getStatus().equals(Status.UP)) {
       return ResponseEntity.ok(health);
     }

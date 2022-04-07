@@ -1,7 +1,5 @@
 package com.blossomproject.ui.api.administration;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.role.RoleCreateForm;
@@ -9,6 +7,8 @@ import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RoleService;
 import com.blossomproject.core.role.RoleUpdateForm;
 import com.blossomproject.ui.stereotype.BlossomApiController;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -51,7 +51,10 @@ public class RolesApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.roleService.getAll(pageable);
     }
-    return this.searchEngine.search(q, pageable).getPage();
+    if (this.searchEngine != null) {
+      return this.searchEngine.search(q, pageable).getPage();
+    }
+    return this.roleService.getAllWithSearch(pageable, q);
   }
 
   @PostMapping

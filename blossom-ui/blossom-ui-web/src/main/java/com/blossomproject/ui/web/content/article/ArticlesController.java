@@ -1,20 +1,22 @@
 package com.blossomproject.ui.web.content.article;
 
-import com.blossomproject.module.article.*;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngineImpl;
+import com.blossomproject.module.article.Article;
+import com.blossomproject.module.article.ArticleCreateForm;
+import com.blossomproject.module.article.ArticleDTO;
+import com.blossomproject.module.article.ArticleService;
+import com.blossomproject.module.article.ArticleUpdateForm;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -40,7 +42,6 @@ import org.springframework.web.servlet.ModelAndView;
 @OpenedMenu("articles")
 public class ArticlesController {
 
-  private static final Logger logger = LoggerFactory.getLogger(ArticlesController.class);
   private final ArticleService articleService;
   private final SearchEngineImpl<ArticleDTO> searchEngine;
 
@@ -48,6 +49,11 @@ public class ArticlesController {
     SearchEngineImpl<ArticleDTO> searchEngine) {
     this.articleService = articleService;
     this.searchEngine = searchEngine;
+  }
+
+  public ArticlesController(ArticleService articleService) {
+    this.articleService = articleService;
+    this.searchEngine = null;
   }
 
   @GetMapping
@@ -83,8 +89,8 @@ public class ArticlesController {
     if (bindingResult.hasErrors()) {
       return this.createView(articleCreateForm, model);
     }
-      ArticleDTO article = this.articleService.create(articleCreateForm);
-      return new ModelAndView("redirect:../articles/" + article.getId());
+    ArticleDTO article = this.articleService.create(articleCreateForm);
+    return new ModelAndView("redirect:../articles/" + article.getId());
   }
 
   private ModelAndView createView(ArticleCreateForm articleCreateForm, Model model) {
@@ -127,7 +133,7 @@ public class ArticlesController {
     if (article == null) {
       throw new NoSuchElementException(String.format("Article=%s not found", id));
     }
-    return this.viewArticleInformationView(article,model);
+    return this.viewArticleInformationView(article, model);
   }
 
   @GetMapping("/{id}/_informations/_edit")
@@ -137,16 +143,16 @@ public class ArticlesController {
     if (article == null) {
       throw new NoSuchElementException(String.format("Article=%s not found", id));
     }
-    return this.updateArticleInformationView(new ArticleUpdateForm(article),model,locale);
+    return this.updateArticleInformationView(new ArticleUpdateForm(article), model, locale);
   }
 
   @PostMapping("/{id}/_informations/_edit")
   @PreAuthorize("hasAuthority('content:articles:write')")
   public ModelAndView handleArticleInformationsForm(@PathVariable Long id, Model model,
     @Valid @ModelAttribute("articleUpdateForm") ArticleUpdateForm articleUpdateForm,
-    BindingResult bindingResult,Locale locale) {
+    BindingResult bindingResult, Locale locale) {
     if (bindingResult.hasErrors()) {
-      return this.updateArticleInformationView(articleUpdateForm,model,locale);
+      return this.updateArticleInformationView(articleUpdateForm, model, locale);
     }
 
     ArticleDTO article = this.articleService.getOne(id);
@@ -154,21 +160,23 @@ public class ArticlesController {
       throw new NoSuchElementException(String.format("Article=%s not found", id));
     }
     ArticleDTO updatedArticle = this.articleService.update(id, articleUpdateForm);
-    return this.viewArticleInformationView(updatedArticle,model);
+    return this.viewArticleInformationView(updatedArticle, model);
   }
 
-  private ModelAndView viewArticleInformationView(ArticleDTO article,Model model) {
+  private ModelAndView viewArticleInformationView(ArticleDTO article, Model model) {
     model.addAttribute("statuslist", Article.Status.values());
     model.addAttribute("article", article);
     return new ModelAndView("blossom/articles/articleinformations", model.asMap());
   }
 
-  private ModelAndView updateArticleInformationView(ArticleUpdateForm articleUpdateForm,Model model,Locale locale) {
+  private ModelAndView updateArticleInformationView(ArticleUpdateForm articleUpdateForm, Model model, Locale locale) {
     model.addAttribute("statuslist", Article.Status.values());
-      if(locale.toString().equals("fr"))
-          model.addAttribute("translate","fr-FR");
-      else model.addAttribute("translate","en-US");
-      model.addAttribute("articleUpdateForm",articleUpdateForm);
+    if (locale.toString().equals("fr")) {
+      model.addAttribute("translate", "fr-FR");
+    } else {
+      model.addAttribute("translate", "en-US");
+    }
+    model.addAttribute("articleUpdateForm", articleUpdateForm);
     return new ModelAndView("blossom/articles/articleinformations-edit", model.asMap());
   }
 }

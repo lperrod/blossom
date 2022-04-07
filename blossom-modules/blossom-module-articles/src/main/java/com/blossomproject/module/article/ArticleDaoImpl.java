@@ -2,8 +2,7 @@ package com.blossomproject.module.article;
 
 import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
 import com.google.common.base.Preconditions;
-
-import java.util.List;
+import com.querydsl.core.types.Predicate;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
@@ -11,10 +10,11 @@ import java.util.List;
 public class ArticleDaoImpl extends GenericCrudDaoImpl<Article> implements ArticleDao {
 
   private final ArticleRepository articleRepository;
+
   public ArticleDaoImpl(ArticleRepository repository) {
     super(repository);
     Preconditions.checkNotNull(repository);
-    this.articleRepository=repository;
+    this.articleRepository = repository;
   }
 
   @Override
@@ -26,4 +26,9 @@ public class ArticleDaoImpl extends GenericCrudDaoImpl<Article> implements Artic
     return originalEntity;
   }
 
+  @Override
+  protected Predicate computeSearchPredicate(String query) {
+    QArticle article = QArticle.article;
+    return article.name.containsIgnoreCase(query);
+  }
 }

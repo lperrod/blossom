@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @PropertySource("classpath:/elasticsearch.properties")
 @EnableConfigurationProperties(ElasticsearchProperties.class)
+@ConditionalOnProperty(value = "blossom.elasticsearch.enabled", havingValue = "yes")
 public class ElasticsearchAutoConfiguration implements DisposableBean {
 
   private static final Logger logger = LoggerFactory

@@ -2,27 +2,20 @@ package com.blossomproject.core.scheduler.supervision;
 
 import com.blossomproject.core.scheduler.job.JobInfo;
 import com.blossomproject.core.scheduler.job.ScheduledJobService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthAggregator;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.actuate.health.OrderedHealthAggregator;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 
 public class JobExecutionHealthIndicator implements HealthIndicator {
 
-  private final Logger logger = LoggerFactory.getLogger(JobExecutionHealthIndicator.class);
 
   private final ScheduledJobService jobService;
-  private final HealthAggregator aggregator;
+
 
   public JobExecutionHealthIndicator(ScheduledJobService jobService) {
     this.jobService = jobService;
-    this.aggregator = new OrderedHealthAggregator();
   }
 
   @Override
@@ -38,7 +31,10 @@ public class JobExecutionHealthIndicator implements HealthIndicator {
       groupHealthMap.put(group.replaceAll(" ", ""), healthForGroup(group));
     }
 
-    return aggregator.aggregate(groupHealthMap);
+    return
+      groupHealthMap.entrySet().stream().anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
+        ? Health.down().build()
+        : Health.up().build();
   }
 
   private Health healthForGroup(String group) {
@@ -48,12 +44,15 @@ public class JobExecutionHealthIndicator implements HealthIndicator {
       taskHealthMap.put(jobInfo.getKey().getName().replaceAll(" ", ""), healthForTask(jobInfo));
     }
 
-    return aggregator.aggregate(taskHealthMap);
+    return
+      taskHealthMap.entrySet().stream().anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
+        ? Health.down().build()
+        : Health.up().build();
   }
 
   private Health healthForTask(JobInfo jobInfo) {
     if (jobInfo.isActive() && !jobInfo.isExecuting() && jobInfo.getNextFireTime() != null
-        && jobInfo.getNextFireTime().toInstant().isBefore(Instant.now())) {
+      && jobInfo.getNextFireTime().toInstant().isBefore(Instant.now())) {
       return Health.down().build();
     } else {
       return Health.up().build();

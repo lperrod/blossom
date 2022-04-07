@@ -7,70 +7,70 @@
 
 <@master.default currentUser=currentUser>
 
-<div class="row wrapper border-bottom white-bg page-heading">
-  <div class="col-sm-8">
-    <h2><i class="fa fa-user"></i> ${user.firstname +' '+ user.lastname}</h2>
-    <ol class="breadcrumb">
-      <li>
-        <a href="/blossom"><@spring.message "menu.home"/></a>
-      </li>
-      <li>
-        <@spring.message "menu.administration"/>
-      </li>
-      <li>
-        <a href="/blossom/administration/users"><@spring.message "users.title"/></a>
-      </li>
-      <li class="active">
-        <strong><@spring.message "users.user.title"/></strong>
-      </li>
-    </ol>
-  </div>
-  <div class="col-sm-4">
-    <div class="title-action">
+  <div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-8">
+      <h2><i class="fa fa-user"></i> ${user.firstname +' '+ user.lastname}</h2>
+      <ol class="breadcrumb">
+        <li>
+          <a href="/blossom"><@spring.message "menu.home"/></a>
+        </li>
+        <li>
+            <@spring.message "menu.administration"/>
+        </li>
+        <li>
+          <a href="/blossom/administration/users"><@spring.message "users.title"/></a>
+        </li>
+        <li class="active">
+          <strong><@spring.message "users.user.title"/></strong>
+        </li>
+      </ol>
+    </div>
+    <div class="col-sm-4">
+      <div class="title-action">
 
-      <#if user.activated>
-        <@privilege.has currentUser=currentUser privilege="administration:admin:impersonate">
-          <a type="button" href="/blossom/administration/_impersonate?username=${user.identifier}" class="btn btn-primary">
-            <i class="fa fa-eye"></i>
-          </a>
-        </@privilege.has>
-      </#if>
+          <#if user.activated>
+              <@privilege.has currentUser=currentUser privilege="administration:admin:impersonate">
+                <a type="button" href="/blossom/administration/_impersonate?username=${user.identifier}" class="btn btn-primary">
+                  <i class="fa fa-eye"></i>
+                </a>
+              </@privilege.has>
+          </#if>
 
-      <@privilege.has currentUser=currentUser privilege="administration:users:delete">
-       <@button.delete id=user.id?c uri='/blossom/administration/users/'+user.id?c+'/_delete'/>
-      </@privilege.has>
+          <@privilege.has currentUser=currentUser privilege="administration:users:delete">
+              <@button.delete id=user.id?c uri='/blossom/administration/users/'+user.id?c+'/_delete'/>
+          </@privilege.has>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="wrapper wrapper-content">
-<@tabulation.tabs
-    id="userContent"
-    currentUser=currentUser
-    tabs=[
-        {
-          "isActive": true,
-          "linkLabel": "panel.information",
-          "view": "/blossom/administration/users/${user.id?c}/_informations",
-          "edit": "/blossom/administration/users/${user.id?c}/_informations/_edit",
-          "privilege":"administration:users:read"
-        },
-        {
-          "isActive": false,
-          "linkLabel": "users.user.groups",
-          "view": "/blossom/administration/memberships/users/${user.id?c}/groups",
-          "edit": "/blossom/administration/memberships/users/${user.id?c}/groups/_edit",
-          "privilege":"administration:memberships:read"
-        },
-        {
-          "isActive": false,
-          "linkLabel": "users.user.roles",
-          "view": "/blossom/administration/responsabilities/users/${user.id?c}/roles",
-          "edit": "/blossom/administration/responsabilities/users/${user.id?c}/roles/_edit",
-          "privilege":"administration:responsabilities:read"
-        }
-    ]
+  <div class="wrapper wrapper-content">
+      <@tabulation.tabs
+      id="userContent"
+      currentUser=currentUser
+      tabs=[
+      {
+      "isActive": true,
+      "linkLabel": "panel.information",
+      "view": "/blossom/administration/users/${user.id?c}/_informations",
+      "edit": "/blossom/administration/users/${user.id?c}/_informations/_edit",
+      "privilege":"administration:users:read"
+      },
+      {
+      "isActive": false,
+      "linkLabel": "users.user.groups",
+      "view": "/blossom/administration/memberships/users/${user.id?c}/groups",
+      "edit": "/blossom/administration/memberships/users/${user.id?c}/groups/_edit",
+      "privilege":"administration:memberships:read"
+      },
+      {
+      "isActive": false,
+      "linkLabel": "users.user.roles",
+      "view": "/blossom/administration/responsabilities/users/${user.id?c}/roles",
+      "edit": "/blossom/administration/responsabilities/users/${user.id?c}/roles/_edit",
+      "privilege":"administration:responsabilities:read"
+      }
+      ]
 
-/>
-</div>
+      />
+  </div>
 </@master.default>

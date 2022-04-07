@@ -3,13 +3,15 @@ package com.blossomproject.ui.menu;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -100,7 +102,7 @@ public class MenuInterceptorTest {
 
     when(handler.getMethod()).thenReturn(MenuClassWithoutAnnotation.class.getDeclaredMethod("methodWithAnnotation"));
     when(registry.hasPluginFor(eq("test"))).thenReturn(true);
-    when(registry.getPluginFor(eq("test"))).thenReturn(menuItem);
+    when(registry.getPluginFor(eq("test")).get()).thenReturn(menuItem);
 
     interceptor.postHandle(request, response, handler, modelAndView);
 
@@ -127,7 +129,7 @@ public class MenuInterceptorTest {
 
     when(handler.getMethod()).thenReturn(MenuClassWithAnnotation.class.getDeclaredMethod("methodWithoutAnnotation"));
     when(registry.hasPluginFor(eq("test"))).thenReturn(true);
-    when(registry.getPluginFor(eq("test"))).thenReturn(menuItem);
+    when(registry.getPluginFor(eq("test")).get()).thenReturn(menuItem);
 
     interceptor.postHandle(request, response, handler, modelAndView);
 

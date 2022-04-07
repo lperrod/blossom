@@ -5,7 +5,6 @@ import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.boot.actuate.logging.LoggersEndpoint;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.HttpStatus;
@@ -71,7 +70,7 @@ public class LoggerManagerController {
     @RequestParam(name = "q", defaultValue = "", required = false) String q, Model model) {
     LoggersEndpoint.LoggerLevels root = loggersEndpoint.loggerLevels(ROOT_LOGGER);
     TreeNode<String> rootNode = new TreeNode<String>(ROOT_LOGGER, ROOT_LOGGER,
-      root.getEffectiveLevel());
+      root.getConfiguredLevel());
 
     Map<String, Object> loggers = loggersEndpoint.loggers();
     Map<String, LoggersEndpoint.LoggerLevels> loggerLevels = (Map<String, LoggersEndpoint.LoggerLevels>) loggers
@@ -92,7 +91,7 @@ public class LoggerManagerController {
           if (child.isPresent()) {
             treeNode = child.get();
           } else {
-            TreeNode<String> newNode = new TreeNode<String>(currentKey, keyParts[i], e.getValue().getEffectiveLevel());
+            TreeNode<String> newNode = new TreeNode<String>(currentKey, keyParts[i], e.getValue().getConfiguredLevel());
             treeNode.addChild(newNode);
             treeNode = newNode;
           }

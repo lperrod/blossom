@@ -1,5 +1,6 @@
 package com.blossomproject.autoconfigure.ui.web.module;
 
+import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.FileManagerPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
 import com.blossomproject.core.common.search.SearchEngineImpl;
@@ -40,38 +41,46 @@ public class WebFileManagerAutoConfiguration {
 
 
   @Bean
-    @Order(3)
-    @ConditionalOnMissingBean(name = "contentMenuItem")
-    public MenuItem contentMenuItem(MenuItemBuilder builder) {
-        return builder
-                .key("content")
-                .label("menu.content")
-                .icon("fa fa-book")
-                .link("/blossom/content")
-                .leaf(false)
-                .build();
-    }
+  @Order(3)
+  @ConditionalOnMissingBean(name = "contentMenuItem")
+  public MenuItem contentMenuItem(MenuItemBuilder builder) {
+    return builder
+      .key("content")
+      .label("menu.content")
+      .icon("fa fa-book")
+      .link("/blossom/content")
+      .leaf(false)
+      .build();
+  }
 
-    @Bean
-    public MenuItem contentFileManagerMenuItem(MenuItemBuilder builder, @Qualifier("contentMenuItem") MenuItem contentMenuItem) {
-        return builder
-                .key("filemanager")
-                .label("menu.content.filemanager")
-                .link("/blossom/content/filemanager")
-                .icon("fa fa-photo")
-                .order(0)
-                .privilege(fileManagerPrivilegesConfiguration.fileManagerReadPrivilegePlugin())
-                .parent(contentMenuItem).build();
-    }
+  @Bean
+  public MenuItem contentFileManagerMenuItem(MenuItemBuilder builder, @Qualifier("contentMenuItem") MenuItem contentMenuItem) {
+    return builder
+      .key("filemanager")
+      .label("menu.content.filemanager")
+      .link("/blossom/content/filemanager")
+      .icon("fa fa-photo")
+      .order(0)
+      .privilege(fileManagerPrivilegesConfiguration.fileManagerReadPrivilegePlugin())
+      .parent(contentMenuItem).build();
+  }
 
-    @Bean
-    public FileManagerController fileManagerController(FileService fileService, SearchEngineImpl<FileDTO> searchEngine) {
-        return new FileManagerController(fileService, searchEngine);
-    }
+  @Bean
+  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
+  public FileManagerController fileManagerController(FileService fileService, SearchEngineImpl<FileDTO> searchEngine) {
+    return new FileManagerController(fileService, searchEngine);
+  }
 
-    @Bean
-    public FileController fileController(FileService fileService) {
-        return new FileController(fileService);
-    }
+
+  @Bean
+  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
+  public FileManagerController fileManagerController(FileService fileService) {
+    return new FileManagerController(fileService);
+  }
+
+  @Bean
+  public FileController fileController(FileService fileService) {
+    return new FileController(fileService);
+  }
 
 }

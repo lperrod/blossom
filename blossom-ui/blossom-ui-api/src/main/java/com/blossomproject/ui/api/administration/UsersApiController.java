@@ -1,7 +1,5 @@
 package com.blossomproject.ui.api.administration;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.user.UserCreateForm;
@@ -9,6 +7,8 @@ import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.core.user.UserUpdateForm;
 import com.blossomproject.ui.stereotype.BlossomApiController;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -63,7 +63,10 @@ public class UsersApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.userService.getAll(pageable);
     }
-    return this.searchEngine.search(q, pageable).getPage();
+    if (this.searchEngine != null) {
+      return this.searchEngine.search(q, pageable).getPage();
+    }
+    return this.userService.getAllWithSearch(pageable, q);
   }
 
   @PostMapping

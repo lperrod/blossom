@@ -29,7 +29,7 @@ import org.springframework.core.io.Resource;
 @AutoConfigureAfter(ElasticsearchAutoConfiguration.class)
 @AutoConfigureBefore(HttpTraceAutoConfiguration.class)
 @PropertySource("classpath:/actuator.properties")
-@ConditionalOnBean({ElasticsearchAutoConfiguration.class})
+@ConditionalOnBean(ElasticsearchAutoConfiguration.class)
 public class ActuatorAutoConfiguration {
 
   @Bean

@@ -1,9 +1,9 @@
 package com.blossomproject.autoconfigure.ui.web.administration;
 
+import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.GroupPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
 import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.group.GroupService;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -34,22 +35,28 @@ public class WebAdministrationGroupAutoConfiguration {
   }
 
   @Bean
-    public MenuItem administrationGroupMenuItem(MenuItemBuilder builder,
-                                                @Qualifier("administrationMenuItem") MenuItem administrationMenuItem) {
-        return builder
-                .key("groups")
-                .label("menu.administration.groups")
-                .link("/blossom/administration/groups")
-                .icon("fa fa-users")
-                .order(2)
-                .privilege(groupPrivilegesConfiguration.groupsReadPrivilegePlugin())
-                .parent(administrationMenuItem)
-                .build();
-    }
+  public MenuItem administrationGroupMenuItem(MenuItemBuilder builder,
+    @Qualifier("administrationMenuItem") MenuItem administrationMenuItem) {
+    return builder
+      .key("groups")
+      .label("menu.administration.groups")
+      .link("/blossom/administration/groups")
+      .icon("fa fa-users")
+      .order(2)
+      .privilege(groupPrivilegesConfiguration.groupsReadPrivilegePlugin())
+      .parent(administrationMenuItem)
+      .build();
+  }
 
-    @Bean
-    public GroupsController groupsController(GroupService groupService,
-                                             SearchEngineImpl<GroupDTO> searchEngine) {
-        return new GroupsController(groupService, searchEngine);
-    }
+  @Bean
+  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
+  public GroupsController groupsController(GroupService groupService, SearchEngineImpl groupSearchEngine) {
+    return new GroupsController(groupService, groupSearchEngine);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
+  public GroupsController groupsControllerWithoutSearch(GroupService groupService) {
+    return new GroupsController(groupService);
+  }
 }

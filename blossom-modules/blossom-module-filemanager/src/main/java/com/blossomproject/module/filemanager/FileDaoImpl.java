@@ -1,6 +1,7 @@
 package com.blossomproject.module.filemanager;
 
 import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.querydsl.core.types.Predicate;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
@@ -23,4 +24,9 @@ public class FileDaoImpl extends GenericCrudDaoImpl<File> implements FileDao {
     return originalEntity;
   }
 
+  @Override
+  protected Predicate computeSearchPredicate(String query) {
+    QFile qFile = QFile.file;
+    return qFile.name.containsIgnoreCase(query);
+  }
 }

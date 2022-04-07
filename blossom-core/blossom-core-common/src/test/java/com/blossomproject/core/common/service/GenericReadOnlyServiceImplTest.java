@@ -1,10 +1,24 @@
 package com.blossomproject.core.common.service;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.blossomproject.core.common.dao.ReadOnlyDao;
+import com.blossomproject.core.common.dto.AbstractDTO;
+import com.blossomproject.core.common.entity.AbstractEntity;
+import com.blossomproject.core.common.mapper.DTOMapper;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,12 +28,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import com.blossomproject.core.common.dao.ReadOnlyDao;
-import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.entity.AbstractEntity;
-import com.blossomproject.core.common.mapper.DTOMapper;
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenericReadOnlyServiceImplTest {
@@ -191,6 +199,11 @@ public class GenericReadOnlyServiceImplTest {
   public static class TestGenericReadOnlyServiceImpl extends GenericReadOnlyServiceImpl<DTO, ENTITY> {
     public TestGenericReadOnlyServiceImpl(ReadOnlyDao<ENTITY> dao, DTOMapper<ENTITY, DTO> mapper) {
       super(dao, mapper);
+    }
+
+    @Override
+    public Page<DTO> getAllWithSearch(Pageable pageable, String query) {
+      return null;
     }
   }
 

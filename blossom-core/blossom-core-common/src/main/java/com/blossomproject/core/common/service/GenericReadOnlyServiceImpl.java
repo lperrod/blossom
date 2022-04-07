@@ -1,21 +1,21 @@
 package com.blossomproject.core.common.service;
 
-import com.google.common.base.Preconditions;
-import com.google.common.reflect.TypeToken;
 import com.blossomproject.core.common.dao.ReadOnlyDao;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.entity.AbstractEntity;
 import com.blossomproject.core.common.mapper.DTOMapper;
+import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
-public abstract class GenericReadOnlyServiceImpl<DTO extends AbstractDTO, ENTITY extends AbstractEntity> implements ReadOnlyService<DTO> {
-  private final TypeToken<DTO> typeToken = new TypeToken<DTO>(getClass()) {
-  };
+public abstract class GenericReadOnlyServiceImpl<DTO extends AbstractDTO, ENTITY extends AbstractEntity> implements
+  ReadOnlyService<DTO> {
   protected final ReadOnlyDao<ENTITY> dao;
   protected final DTOMapper<ENTITY, DTO> mapper;
+  private final TypeToken<DTO> typeToken = new TypeToken<DTO>(getClass()) {
+  };
 
   public GenericReadOnlyServiceImpl(ReadOnlyDao<ENTITY> dao, DTOMapper<ENTITY, DTO> mapper) {
     this.dao = dao;
@@ -36,6 +36,11 @@ public abstract class GenericReadOnlyServiceImpl<DTO extends AbstractDTO, ENTITY
   @Override
   public Page<DTO> getAll(Pageable pageable) {
     return mapper.mapEntitiesPage(this.dao.getAll(pageable));
+  }
+
+  @Override
+  public Page<DTO> getAllWithSearch(Pageable pageable, String query) {
+    return mapper.mapEntitiesPage(this.dao.getAllWithSearch(pageable, query));
   }
 
   @Override

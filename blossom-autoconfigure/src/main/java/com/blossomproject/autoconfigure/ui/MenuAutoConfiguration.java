@@ -8,18 +8,18 @@ import com.blossomproject.ui.menu.MenuImpl;
 import com.blossomproject.ui.menu.MenuInterceptor;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
-import com.blossomproject.ui.menu.MenuItemPlugin;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
+import org.springframework.plugin.core.OrderAwarePluginRegistry;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.plugin.core.config.EnablePluginRegistries;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -27,24 +27,27 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Created by Maël Gargadennnec on 05/05/2017.
  */
 @Configuration
-@EnablePluginRegistries({MenuItemPlugin.class})
 @ConditionalOnWebApplication
 @ConditionalOnClass({Menu.class})
 public class MenuAutoConfiguration {
 
-  @Autowired
+  @Bean
   @Qualifier(value = PluginConstants.PLUGIN_MENU)
-  private PluginRegistry<MenuItem, String> registry;
+  public PluginRegistry<MenuItem, String> menuPlugin(@Lazy List<MenuItem> menuItems) {
+    return OrderAwarePluginRegistry.of(menuItems);
+  }
+
 
   @Bean
   @Scope(value = BeanDefinition.SCOPE_PROTOTYPE)
-  public MenuItemBuilder menuItemBuilder() {
-    return new MenuItemBuilder(registry, 2);
+  public MenuItemBuilder menuItemBuilder(
+    @Qualifier(value = PluginConstants.PLUGIN_MENU) PluginRegistry<MenuItem, String> menuPlugin) {
+    return new MenuItemBuilder(menuPlugin, 2);
   }
 
   @Bean
-  public Menu menu() {
-    return new MenuImpl(registry);
+  public Menu menu(@Qualifier(value = PluginConstants.PLUGIN_MENU) PluginRegistry<MenuItem, String> menuPlugin) {
+    return new MenuImpl(menuPlugin);
   }
 
   @Bean
@@ -84,23 +87,27 @@ public class MenuAutoConfiguration {
       .build();
   }
 
+  @Bean
+  public MenuInterceptor menuInterceptor(
+    @Qualifier(value = PluginConstants.PLUGIN_MENU) PluginRegistry<MenuItem, String> menuPlugin) {
+    return new MenuInterceptor(menuPlugin);
+  }
 
   @Configuration
-  public static class MenuWebAutoConfiguration  implements WebMvcConfigurer{
+  public class MenuWebAutoconfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    @Qualifier(value = PluginConstants.PLUGIN_MENU)
-    private PluginRegistry<MenuItem, String> registry;
+    private MenuInterceptor menuInterceptor;
 
-    @Bean
-    public MenuInterceptor menuInterceptor() {
-      return new MenuInterceptor(registry);
+    public MenuWebAutoconfiguration(MenuInterceptor menuInterceptor) {
+      this.menuInterceptor = menuInterceptor;
     }
+
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-      registry.addInterceptor(menuInterceptor()).addPathPatterns("/" + BLOSSOM_BASE_PATH + "/**");
+      registry.addInterceptor(menuInterceptor).addPathPatterns("/" + BLOSSOM_BASE_PATH + "/**");
     }
+
   }
 
 }

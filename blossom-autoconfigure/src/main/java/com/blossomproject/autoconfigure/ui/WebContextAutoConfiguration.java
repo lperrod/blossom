@@ -42,8 +42,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @AutoConfigureBefore({WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class})
 public class WebContextAutoConfiguration implements WebMvcConfigurer {
 
-  public final static String BLOSSOM_BASE_PATH = "blossom";
-  public final static String BLOSSOM_API_BASE_PATH = BLOSSOM_BASE_PATH + "/api";
+  public static final String BLOSSOM_BASE_PATH = "blossom";
+  public static final String BLOSSOM_API_BASE_PATH = BLOSSOM_BASE_PATH + "/api";
 
   @Autowired
   private MessageSource messageSource;
@@ -62,7 +62,7 @@ public class WebContextAutoConfiguration implements WebMvcConfigurer {
   }
 
   @Bean
-  public FilterHandlerMethodArgumentResolver filterHandlerMethodArgumentResolver(){
+  public FilterHandlerMethodArgumentResolver filterHandlerMethodArgumentResolver() {
     return new FilterHandlerMethodArgumentResolver();
   }
 
@@ -114,7 +114,8 @@ public class WebContextAutoConfiguration implements WebMvcConfigurer {
 
           private RequestMappingInfo computeMapping(RequestMappingInfo mapping, String prefix) {
             PatternsRequestCondition apiPattern = new PatternsRequestCondition(prefix)
-              .combine(mapping.getPatternsCondition());
+              .combine(
+                new PatternsRequestCondition(mapping.getPatternsCondition().getPatterns().toArray(new String[]{})));
 
             return new RequestMappingInfo(mapping.getName(), apiPattern,
               mapping.getMethodsCondition(),

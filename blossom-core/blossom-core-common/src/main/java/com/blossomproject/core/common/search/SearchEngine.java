@@ -22,7 +22,8 @@ public interface SearchEngine extends Plugin<Class<? extends AbstractDTO>> {
 
   SearchRequestBuilder prepareSearch(String q, Pageable pageable, Iterable<QueryBuilder> filters);
 
-  SearchRequestBuilder prepareSearch(String q, Pageable pageable, Iterable<QueryBuilder> filters, Iterable<FacetConfiguration> facetConfigurations);
+  SearchRequestBuilder prepareSearch(String q, Pageable pageable, Iterable<QueryBuilder> filters,
+    Iterable<FacetConfiguration> facetConfigurations);
 
   SearchResult<?> parseResults(SearchResponse response, Pageable pageable);
 

@@ -1,14 +1,15 @@
 package com.blossomproject.core.common.dao;
 
+import com.blossomproject.core.common.entity.AbstractEntity;
+import com.blossomproject.core.common.repository.CrudRepository;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.querydsl.core.types.EntityPath;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.PathBuilderFactory;
 import com.querydsl.jpa.JPQLQuery;
-import com.blossomproject.core.common.entity.AbstractEntity;
-import com.blossomproject.core.common.repository.CrudRepository;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -28,12 +29,10 @@ public abstract class GenericReadOnlyDaoImpl<ENTITY extends AbstractEntity> impl
   ReadOnlyDao<ENTITY> {
 
   protected final CrudRepository<ENTITY> repository;
-
-  private Querydsl querydsl;
-  private EntityManager entityManager;
-
   protected TypeToken<ENTITY> type = new TypeToken<ENTITY>(getClass()) {
   };
+  private Querydsl querydsl;
+  private EntityManager entityManager;
 
   public GenericReadOnlyDaoImpl(CrudRepository<ENTITY> repository) {
     Preconditions.checkNotNull(repository);
@@ -84,6 +83,12 @@ public abstract class GenericReadOnlyDaoImpl<ENTITY extends AbstractEntity> impl
     return repository.findAll(pageable);
   }
 
+  @Override
+  public Page<ENTITY> getAllWithSearch(Pageable pageable, String query) {
+    Preconditions.checkArgument(pageable != null);
+    return repository.findAll(computeSearchPredicate(query), pageable);
+  }
+
   /**
    * Returns a fresh {@link JPQLQuery}.
    *
@@ -113,5 +118,8 @@ public abstract class GenericReadOnlyDaoImpl<ENTITY extends AbstractEntity> impl
   protected Querydsl getQuerydsl() {
     return this.querydsl;
   }
+
+
+  protected abstract Predicate computeSearchPredicate(String query);
 
 }

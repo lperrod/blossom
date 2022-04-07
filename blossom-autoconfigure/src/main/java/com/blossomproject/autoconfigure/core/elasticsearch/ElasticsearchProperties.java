@@ -3,7 +3,6 @@ package com.blossomproject.autoconfigure.core.elasticsearch;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 
 @ConfigurationProperties(prefix = "blossom.elasticsearch")
 public class ElasticsearchProperties {
@@ -11,6 +10,7 @@ public class ElasticsearchProperties {
   private String clusterName = "elasticsearch";
   private String clusterNodes;
   private Map<String, String> properties = new HashMap<String, String>();
+  private String enabled;
 
   public String getClusterName() {
     return this.clusterName;
@@ -36,4 +36,11 @@ public class ElasticsearchProperties {
     this.properties = properties;
   }
 
+  public String getEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(String enabled) {
+    this.enabled = enabled;
+  }
 }

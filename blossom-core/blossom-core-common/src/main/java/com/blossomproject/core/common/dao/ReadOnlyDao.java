@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * Basic DAO interface for an {@code AbstractEntity} for read-only operations only.
+ *
  * @author Maël Gargadennec
  */
 public interface ReadOnlyDao<ENTITY extends AbstractEntity> {
@@ -24,11 +25,19 @@ public interface ReadOnlyDao<ENTITY extends AbstractEntity> {
   /**
    * Retrieves a paginated subset of the entities from the underlying datasource
    *
-   * @param pageable a spring data {@link Pageable}. Throws an {@code IllegalArgumentException} if
-   * null.
+   * @param pageable a spring data {@link Pageable}. Throws an {@code IllegalArgumentException} if null.
    * @return the asked {@link Page} of entities
    */
   Page<ENTITY> getAll(Pageable pageable);
+
+
+  /**
+   * Retrieves a paginated subset of the entities from the underlying datasource with a query string
+   *
+   * @param pageable a spring data {@link Pageable}. Throws an {@code IllegalArgumentException} if null.
+   * @return the asked {@link Page} of entities
+   */
+  Page<ENTITY> getAllWithSearch(Pageable pageable, String query);
 
   /**
    * Retrieves an id-filtered subset of the entities from the underlying datasource
@@ -41,10 +50,9 @@ public interface ReadOnlyDao<ENTITY extends AbstractEntity> {
   /**
    * Retrieves a single entity
    *
-   * Be careful : don't use this method on large datasets ! Use {@link ReadOnlyDao#getAll(Pageable
-   * pageable)} instead.
+   * Be careful : don't use this method on large datasets ! Use {@link ReadOnlyDao#getAll(Pageable pageable)} instead.
    *
-   * @param  id the entity id
+   * @param id the entity id
    * @return the complete list of entities
    */
   ENTITY getOne(long id);

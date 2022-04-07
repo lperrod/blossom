@@ -1,5 +1,7 @@
 package com.blossomproject.autoconfigure.ui;
 
+import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
+
 import com.blossomproject.autoconfigure.ui.common.privileges.ResponsabilityPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.RolePrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.BlossomWebBackOfficeProperties;
@@ -9,7 +11,16 @@ import com.blossomproject.core.common.PluginConstants;
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.ui.BlossomAuthenticationSuccessHandlerImpl;
-import com.blossomproject.ui.security.*;
+import com.blossomproject.ui.security.AuthenticationFailureListener;
+import com.blossomproject.ui.security.AuthenticationSuccessListener;
+import com.blossomproject.ui.security.CompositeUserDetailsServiceImpl;
+import com.blossomproject.ui.security.CurrentUserDetailsServiceImpl;
+import com.blossomproject.ui.security.LimitLoginAuthenticationProvider;
+import com.blossomproject.ui.security.LoginAttemptServiceImpl;
+import com.blossomproject.ui.security.LoginAttemptsService;
+import com.blossomproject.ui.security.SystemUserDetailsServiceImpl;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,11 +43,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
-
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
@@ -49,9 +55,8 @@ import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BL
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class WebSecurityAutoConfiguration {
 
-  private static final Logger logger = LoggerFactory.getLogger(WebSecurityAutoConfiguration.class);
-
   public static final String BLOSSOM_REMEMBER_ME_COOKIE_NAME = "blossom";
+  private static final Logger logger = LoggerFactory.getLogger(WebSecurityAutoConfiguration.class);
 
   @Bean
   public LoginAttemptsService loginAttemptsService() {
@@ -72,7 +77,7 @@ public class WebSecurityAutoConfiguration {
 
   @Bean
   public UserDetailsService dbUserDetailsService(UserService userService,
-                                                 AssociationUserRoleService associationUserRoleService) {
+    AssociationUserRoleService associationUserRoleService) {
     return new CurrentUserDetailsServiceImpl(userService, associationUserRoleService);
   }
 
@@ -139,7 +144,7 @@ public class WebSecurityAutoConfiguration {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.antMatcher("/public/**").csrf().disable().authorizeRequests().anyRequest().permitAll();
+      http.antMatcher("/public/**").csrf().disable();
       http.antMatcher("/" + BLOSSOM_BASE_PATH + "/public/**").authorizeRequests().anyRequest()
         .permitAll();
     }

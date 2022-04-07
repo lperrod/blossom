@@ -1,24 +1,29 @@
 package com.blossomproject.ui.supervision;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+
 import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.actuate.health.*;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatusControllerTest {
@@ -123,30 +128,41 @@ public class StatusControllerTest {
   }
 
   private Health buildTestHealth() {
-    HealthAggregator aggregator = new OrderedHealthAggregator();
-
+    
     Health healthLeafDown = Health.down().build();
     Health healthLeafUp = Health.up().build();
 
     Map<String, Health> downSubRootChildren = new HashMap<>();
     downSubRootChildren.put("healthLeafDown", healthLeafDown);
     downSubRootChildren.put("healthLeafUp", healthLeafUp);
-    Health downSubRoot = aggregator.aggregate(downSubRootChildren);
+    Health downSubRoot = downSubRootChildren.entrySet().stream()
+      .anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
+      ? Health.down().build()
+      : Health.up().build();
 
     Map<String, Health> upSubRootChildren = new HashMap<>();
     upSubRootChildren.put("healthLeafUp", healthLeafUp);
     upSubRootChildren.put("healthLeafStillUp", healthLeafUp);
-    Health upSubRoot = aggregator.aggregate(upSubRootChildren);
+    Health upSubRoot = upSubRootChildren.entrySet().stream()
+      .anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
+      ? Health.down().build()
+      : Health.up().build();
 
     Map<String, Health> level2SubRootMap = new HashMap<>();
     level2SubRootMap.put("downSubRoot", downSubRoot);
     level2SubRootMap.put("upSubRoot", upSubRoot);
-    Health level2SubRoot = aggregator.aggregate(level2SubRootMap);
+    Health level2SubRoot = level2SubRootMap.entrySet().stream()
+      .anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
+      ? Health.down().build()
+      : Health.up().build();
 
     Map<String, Health> returnMap = new HashMap<>();
     returnMap.put("level2SubRoot", level2SubRoot);
     returnMap.put("upSubRoot", upSubRoot);
-    return aggregator.aggregate(returnMap);
+    return returnMap.entrySet().stream()
+      .anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
+      ? Health.down().build()
+      : Health.up().build();
   }
 
   @Test
@@ -176,26 +192,28 @@ public class StatusControllerTest {
   public void should_display_status_up_with_includes_and_exlcludes() {
     Health health = buildTestHealth();
     doReturn(health).when(healthEndpoint).health();
-    ResponseEntity<Health> response = controller.status(Optional.of(Lists.newArrayList("healthLeafDown")), Optional.of(Lists.newArrayList("level2SubRoot.downSubRoot")));
+    ResponseEntity<Health> response = controller.status(Optional.of(Lists.newArrayList("healthLeafDown")),
+      Optional.of(Lists.newArrayList("level2SubRoot.downSubRoot")));
 
     assertNotNull(response);
     assertSame(response.getStatusCode(), HttpStatus.OK);
     assertFalse(response.getBody().getDetails().keySet().contains("upSubRoot"));
     assertTrue(response.getBody().getDetails().keySet().contains("level2SubRoot"));
-    assertFalse(((Health)response.getBody().getDetails().get("level2SubRoot")).getDetails().keySet().contains("upSubRoot"));
+    assertFalse(((Health) response.getBody().getDetails().get("level2SubRoot")).getDetails().keySet().contains("upSubRoot"));
   }
 
   @Test
   public void should_display_status_up_with_includes_leaf() {
     Health health = buildTestHealth();
     doReturn(health).when(healthEndpoint).health();
-    ResponseEntity<Health> response = controller.status(Optional.empty(), Optional.of(Lists.newArrayList("level2SubRoot.downSubRoot.healthLeafUp")));
+    ResponseEntity<Health> response = controller.status(Optional.empty(),
+      Optional.of(Lists.newArrayList("level2SubRoot.downSubRoot.healthLeafUp")));
 
     assertNotNull(response);
     assertSame(response.getStatusCode(), HttpStatus.OK);
     assertFalse(response.getBody().getDetails().keySet().contains("upSubRoot"));
     assertTrue(response.getBody().getDetails().keySet().contains("level2SubRoot"));
-    assertTrue(((Health)response.getBody().getDetails().get("level2SubRoot")).getDetails().keySet().contains("downSubRoot"));
+    assertTrue(((Health) response.getBody().getDetails().get("level2SubRoot")).getDetails().keySet().contains("downSubRoot"));
   }
 
   @Test

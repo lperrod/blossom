@@ -1,5 +1,6 @@
 package com.blossomproject.autoconfigure.ui.web.module;
 
+import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.ArticlePrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
 import com.blossomproject.core.common.search.SearchEngineImpl;
@@ -37,35 +38,43 @@ public class WebArticleAutoConfiguration {
   }
 
   @Bean
-    @Order(3)
-    @ConditionalOnMissingBean(name = "contentMenuItem")
-    public MenuItem contentMenuItem(MenuItemBuilder builder) {
-        return builder
-                .key("content")
-                .label("menu.content")
-                .icon("fa fa-book")
-                .link("/blossom/content")
-                .leaf(false)
-                .build();
-    }
+  @Order(3)
+  @ConditionalOnMissingBean(name = "contentMenuItem")
+  public MenuItem contentMenuItem(MenuItemBuilder builder) {
+    return builder
+      .key("content")
+      .label("menu.content")
+      .icon("fa fa-book")
+      .link("/blossom/content")
+      .leaf(false)
+      .build();
+  }
 
-    @Bean
-    public MenuItem contentArticleMenuItem(MenuItemBuilder builder,
-                                           @Qualifier("contentMenuItem") MenuItem contentMenuItem) {
-        return builder
-                .key("articles")
-                .label("menu.content.articles")
-                .link("/blossom/content/articles")
-                .icon("fa fa-pencil")
-                .order(0)
-                .privilege(articlePrivilegesConfiguration.articleReadPrivilegePlugin())
-                .parent(contentMenuItem)
-                .build();
-    }
+  @Bean
+  public MenuItem contentArticleMenuItem(MenuItemBuilder builder,
+    @Qualifier("contentMenuItem") MenuItem contentMenuItem) {
+    return builder
+      .key("articles")
+      .label("menu.content.articles")
+      .link("/blossom/content/articles")
+      .icon("fa fa-pencil")
+      .order(0)
+      .privilege(articlePrivilegesConfiguration.articleReadPrivilegePlugin())
+      .parent(contentMenuItem)
+      .build();
+  }
 
-    @Bean
-    public ArticlesController articleManagerController(ArticleService articleService,
-                                                       SearchEngineImpl<ArticleDTO> searchEngine) {
-        return new ArticlesController(articleService, searchEngine);
-    }
+  @Bean
+  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
+  public ArticlesController articleManagerController(ArticleService articleService,
+    SearchEngineImpl<ArticleDTO> searchEngine) {
+    return new ArticlesController(articleService, searchEngine);
+  }
+
+
+  @Bean
+  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
+  public ArticlesController articleManagerController(ArticleService articleService) {
+    return new ArticlesController(articleService);
+  }
 }

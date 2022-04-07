@@ -33,7 +33,7 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.plugin.core.PluginRegistry;
 
 public class SearchEngineImpl<DTO extends AbstractDTO> implements SearchEngine {
-  private final static String GLOBAL_AGGREGATION = "global";
+  private static final String GLOBAL_AGGREGATION = "global";
 
   private final Client client;
   private final ObjectMapper objectMapper;

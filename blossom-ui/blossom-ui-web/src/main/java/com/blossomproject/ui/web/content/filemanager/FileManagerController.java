@@ -43,6 +43,11 @@ public class FileManagerController {
     this.searchEngine = searchEngine;
   }
 
+  public FileManagerController(FileService fileService) {
+    this.fileService = fileService;
+    this.searchEngine = null;
+  }
+
   @GetMapping
   @PreAuthorize("hasAuthority('content:filemanager:read')")
   public ModelAndView getPage(Model model) {
@@ -56,7 +61,12 @@ public class FileManagerController {
     @RequestParam(value = "q", defaultValue = "", required = false) String q) {
     Page<FileDTO> files = null;
     if (!StringUtils.isEmpty(q)) {
-      files = searchEngine.search(q, pageable).getPage();
+      if (this.searchEngine != null) {
+        files = searchEngine.search(q, pageable).getPage();
+      } else {
+        files = fileService.getAllWithSearch(pageable, q);
+      }
+
     } else {
       files = fileService.getAll(pageable);
     }

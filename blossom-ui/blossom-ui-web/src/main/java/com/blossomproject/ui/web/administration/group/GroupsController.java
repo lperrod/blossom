@@ -1,7 +1,5 @@
 package com.blossomproject.ui.web.administration.group;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.group.GroupCreateForm;
@@ -10,6 +8,8 @@ import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.group.GroupUpdateForm;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -53,6 +53,11 @@ public class GroupsController {
     this.searchEngine = searchEngine;
   }
 
+  public GroupsController(GroupService groupService) {
+    this.groupService = groupService;
+    this.searchEngine = null;
+  }
+
   @GetMapping
   @PreAuthorize("hasAuthority('administration:groups:read')")
   public ModelAndView getGroupsPage(@RequestParam(value = "q", required = false) String q,
@@ -66,7 +71,12 @@ public class GroupsController {
     if (Strings.isNullOrEmpty(q)) {
       groups = this.groupService.getAll(pageable);
     } else {
-      groups = this.searchEngine.search(q, pageable).getPage();
+      if (this.searchEngine != null) {
+        groups = this.searchEngine.search(q, pageable).getPage();
+      } else {
+        groups = this.groupService.getAllWithSearch(pageable, q);
+      }
+
     }
 
     model.addAttribute("groups", groups);
@@ -182,7 +192,7 @@ public class GroupsController {
   }
 
   private ModelAndView updateGroupInformationView(GroupUpdateForm groupUpdateForm, Model model, Optional<HttpStatus> status) {
-    ModelAndView modelAndView= new ModelAndView("blossom/groups/groupinformations-edit", "groupUpdateForm", groupUpdateForm);
+    ModelAndView modelAndView = new ModelAndView("blossom/groups/groupinformations-edit", "groupUpdateForm", groupUpdateForm);
     modelAndView.setStatus(status.orElse(HttpStatus.OK));
     return modelAndView;
   }

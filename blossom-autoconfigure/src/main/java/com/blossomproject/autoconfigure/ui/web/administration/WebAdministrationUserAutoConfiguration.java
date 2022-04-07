@@ -1,5 +1,6 @@
 package com.blossomproject.autoconfigure.ui.web.administration;
 
+import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.UserPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
 import com.blossomproject.core.common.search.SearchEngineImpl;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -48,8 +50,15 @@ public class WebAdministrationUserAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
   public UsersController usersController(UserService userService, Tika tika,
     SearchEngineImpl<UserDTO> searchEngine) {
     return new UsersController(userService, searchEngine, tika);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
+  public UsersController usersControllerWithoutSearch(UserService userService, Tika tika) {
+    return new UsersController(userService, tika);
   }
 }

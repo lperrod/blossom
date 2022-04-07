@@ -7,60 +7,47 @@ import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngine;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
-import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.core.user.UserService;
-import com.blossomproject.ui.BlossomAuthenticationSuccessHandlerImpl;
 import com.blossomproject.ui.current_user.CurrentUserControllerAdvice;
 import com.blossomproject.ui.i18n.LocaleControllerAdvice;
 import com.blossomproject.ui.menu.Menu;
 import com.blossomproject.ui.menu.MenuControllerAdvice;
-import com.blossomproject.ui.security.LimitLoginAuthenticationProvider;
 import com.blossomproject.ui.theme.Theme;
 import com.blossomproject.ui.theme.ThemeControllerAdvice;
-import com.blossomproject.ui.web.*;
+import com.blossomproject.ui.web.ActivationController;
+import com.blossomproject.ui.web.HomeController;
+import com.blossomproject.ui.web.LoginController;
+import com.blossomproject.ui.web.OmnisearchController;
+import com.blossomproject.ui.web.ProfileController;
 import com.blossomproject.ui.web.error.BlossomErrorViewResolver;
 import com.blossomproject.ui.web.error.ErrorControllerAdvice;
 import com.blossomproject.ui.web.utils.session.BlossomSessionRegistryImpl;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Set;
+import javax.servlet.ServletException;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.ThemeResolver;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.Locale;
-import java.util.Set;
-
-import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
-import static com.blossomproject.autoconfigure.ui.WebSecurityAutoConfiguration.BLOSSOM_REMEMBER_ME_COOKIE_NAME;
 
 /**
  * Created by Maël Gargadennnec on 04/05/2017.
@@ -102,8 +89,9 @@ public class WebInterfaceAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnProperty(value = "blossom.elasticsearch.enabled", havingValue = "true")
   public OmnisearchController searchController(Client client,
-                                               @Qualifier(PluginConstants.PLUGIN_SEARCH_ENGINE) PluginRegistry<SearchEngine, Class<? extends AbstractDTO>> registry) {
+    @Qualifier(PluginConstants.PLUGIN_SEARCH_ENGINE) PluginRegistry<SearchEngine, Class<? extends AbstractDTO>> registry) {
     return new OmnisearchController(client, registry);
   }
 
@@ -114,7 +102,7 @@ public class WebInterfaceAutoConfiguration {
 
   @Bean
   public ActivationController activationController(ActionTokenService tokenService,
-                                                   UserService userService) {
+    UserService userService) {
     return new ActivationController(tokenService, userService);
   }
 
@@ -148,11 +136,11 @@ public class WebInterfaceAutoConfiguration {
   static class BlossomErrorViewResolverConfiguration {
 
     private final ApplicationContext applicationContext;
-    private final ResourceProperties resourceProperties;
+    private final WebProperties resourceProperties;
 
     BlossomErrorViewResolverConfiguration(ApplicationContext applicationContext,
-                                          ResourceProperties resourceProperties,
-                                          AssociationUserRoleService associationUserRoleService) {
+      WebProperties resourceProperties,
+      AssociationUserRoleService associationUserRoleService) {
       this.applicationContext = applicationContext;
       this.resourceProperties = resourceProperties;
     }
@@ -174,7 +162,7 @@ public class WebInterfaceAutoConfiguration {
     }
 
     public BlossomInvalidSessionStrategy(String invalidSessionUrl,
-                                         RedirectStrategy redirectStrategy) {
+      RedirectStrategy redirectStrategy) {
       Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl),
         "url must start with '/' or with 'http(s)'");
       this.destinationUrl = invalidSessionUrl;

@@ -1,13 +1,13 @@
 package com.blossomproject.ui.api;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngine;
 import com.blossomproject.core.common.search.SearchResult;
 import com.blossomproject.core.common.search.SummaryDTO;
 import com.blossomproject.ui.stereotype.BlossomApiController;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,7 +78,7 @@ public class OmnisearchApiController {
     model.put("results", results.entrySet().stream()
       .filter(e -> e.getValue().getPage().getTotalElements() != 0)
       .sorted(Comparator.comparing(
-        (Entry<String, SearchResult<SummaryDTO>> e) -> e.getValue().getPage().getTotalElements())
+          (Entry<String, SearchResult<SummaryDTO>> e) -> e.getValue().getPage().getTotalElements())
         .reversed())
       .collect(Collectors.toMap(Entry::getKey, Entry::getValue, (u, v) -> {
         throw new IllegalStateException(String.format("Duplicate key %s", u));

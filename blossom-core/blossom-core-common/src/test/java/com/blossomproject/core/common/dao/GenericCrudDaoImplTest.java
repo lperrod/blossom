@@ -15,11 +15,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.blossomproject.core.common.entity.AbstractEntity;
+import com.blossomproject.core.common.repository.CrudRepository;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.blossomproject.core.common.entity.AbstractEntity;
-import com.blossomproject.core.common.repository.CrudRepository;
+import com.querydsl.core.types.Predicate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -213,6 +214,11 @@ public class GenericCrudDaoImplTest {
 
     public TestGenericCrudDaoImpl(CrudRepository<ENTITY> repository) {
       super(repository);
+    }
+
+    @Override
+    protected Predicate computeSearchPredicate(String query) {
+      return null;
     }
 
     @Override

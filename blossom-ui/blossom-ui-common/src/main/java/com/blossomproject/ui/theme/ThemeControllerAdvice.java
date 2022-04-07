@@ -17,7 +17,7 @@ public class ThemeControllerAdvice {
 
   public ThemeControllerAdvice(PluginRegistry<Theme, String> themeRegistry,
     ThemeResolver themeResolver) {
-    this.themeRegistry=themeRegistry;
+    this.themeRegistry = themeRegistry;
     this.themeResolver = themeResolver;
   }
 
@@ -28,7 +28,8 @@ public class ThemeControllerAdvice {
 
   @ModelAttribute("currentTheme")
   public Theme currentTheme(HttpServletRequest request) {
-    return themeRegistry.getPluginFor(themeResolver.resolveThemeName(request), themeRegistry.getPluginFor(DEFAULT_THEME_NAME));
+    return themeRegistry.getPluginFor(themeResolver.resolveThemeName(request))
+      .orElse(themeRegistry.getPluginFor(DEFAULT_THEME_NAME).get());
   }
 
 }

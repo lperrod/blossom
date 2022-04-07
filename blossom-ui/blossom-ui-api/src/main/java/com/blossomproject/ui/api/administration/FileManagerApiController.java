@@ -1,11 +1,11 @@
 package com.blossomproject.ui.api.administration;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
 import com.blossomproject.ui.stereotype.BlossomApiController;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.slf4j.Logger;
@@ -49,7 +49,10 @@ public class FileManagerApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.service.getAll(pageable);
     }
-    return this.searchEngine.search(q, pageable).getPage();
+    if (this.searchEngine != null) {
+      return this.searchEngine.search(q, pageable).getPage();
+    }
+    return this.service.getAllWithSearch(pageable, q);
   }
 
 
@@ -85,10 +88,10 @@ public class FileManagerApiController {
   @PreAuthorize("hasAuthority('content:filemanager:read')")
   public ResponseEntity<InputStreamResource> serve(@PathVariable("id") Long fileId)
     throws SQLException, IOException {
-    Preconditions.checkArgument(fileId !=null);
+    Preconditions.checkArgument(fileId != null);
     FileDTO fileDTO = service.getOne(fileId);
     if (fileDTO != null) {
-     return ResponseEntity
+      return ResponseEntity
         .ok()
         .header(HttpHeaders.CONTENT_TYPE, fileDTO.getContentType())
         .header(HttpHeaders.CONTENT_LENGTH, fileDTO.getSize() + "")

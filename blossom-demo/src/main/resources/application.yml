@@ -8,7 +8,7 @@ blossom:
   elasticsearch:
     cluster-name: someName
     cluster-nodes: someUrl
-
+    enabled: "no"
 
 spring:
   jpa:
@@ -20,3 +20,9 @@ spring:
   elasticsearch:
     rest:
       uris: someUrl
+
+
+management:
+  health:
+    elasticsearch:
+      enabled: false

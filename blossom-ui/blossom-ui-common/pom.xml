@@ -1,85 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.blossom-project</groupId>
-    <artifactId>blossom-ui</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-  </parent>
-
   <artifactId>blossom-ui-common</artifactId>
-  <packaging>jar</packaging>
-
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-common</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-user</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-group</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-role</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-association-user-group</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-association-user-role</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-scheduler</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-cache</artifactId>
+      <groupId>com.blossom-project</groupId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>com.blossom-project</groupId>
       <artifactId>blossom-core-validation</artifactId>
-      <version>2.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>com.blossom-project</groupId>
-      <artifactId>blossom-ui-supervision</artifactId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-security</artifactId>
+      <artifactId>blossom-ui-supervision</artifactId>
+      <groupId>com.blossom-project</groupId>
+      <version>2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <artifactId>spring-boot-starter-security</artifactId>
       <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.bit3</groupId>
+      <artifactId>junit-platform-runner</artifactId>
+      <groupId>org.junit.platform</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <artifactId>jsass</artifactId>
+      <groupId>io.bit3</groupId>
     </dependency>
   </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>jar</packaging>
+
+  <parent>
+    <artifactId>blossom-ui</artifactId>
+    <groupId>com.blossom-project</groupId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
 
 </project>

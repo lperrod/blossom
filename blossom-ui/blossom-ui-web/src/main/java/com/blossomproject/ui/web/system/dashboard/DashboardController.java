@@ -1,8 +1,8 @@
 package com.blossomproject.ui.web.system.dashboard;
 
-import com.google.common.collect.Lists;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
+import com.google.common.collect.Lists;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Statistic;
 import java.util.List;
@@ -42,6 +42,16 @@ public class DashboardController {
     this.metricsEndpoint = metricsEndpoint;
   }
 
+  public static String humanReadableByteCount(long bytes, boolean si) {
+    int unit = si ? 1000 : 1024;
+    if (bytes < unit) {
+      return bytes + " B";
+    }
+    int exp = (int) (Math.log(bytes) / Math.log(unit));
+    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+  }
+
   @GetMapping
   public ModelAndView dashboard() {
     return new ModelAndView("blossom/system/dashboard/dashboard");
@@ -49,7 +59,7 @@ public class DashboardController {
 
   @GetMapping("/status")
   public ModelAndView status(Model model) {
-    Health health = healthEndpoint.health();
+    Health health = (Health) healthEndpoint.health();
     model.addAttribute("health", health);
     model.addAttribute("uptime",
       1000 * metricsEndpoint.metric("process.uptime", null).getMeasurements().get(0).getValue());
@@ -126,43 +136,6 @@ public class DashboardController {
     return this.metricsEndpoint.metric(name, tags).getMeasurements().get(0).getValue();
   }
 
-  public static String humanReadableByteCount(long bytes, boolean si) {
-    int unit = si ? 1000 : 1024;
-    if (bytes < unit) {
-      return bytes + " B";
-    }
-    int exp = (int) (Math.log(bytes) / Math.log(unit));
-    String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-  }
-
-  public class MemoryMetrics {
-
-    private final JVMMemoryUsage jvm;
-    private final MemoryUsage heap;
-    private final MemoryUsage nonheap;
-
-    public MemoryMetrics(JVMMemoryUsage jvm, MemoryUsage heap, MemoryUsage nonheap) {
-      this.jvm = jvm;
-      this.heap = heap;
-      this.nonheap = nonheap;
-    }
-
-    public JVMMemoryUsage getJvm() {
-      return jvm;
-    }
-
-    public MemoryUsage getHeap() {
-      return heap;
-    }
-
-    public MemoryUsage getNonheap() {
-      return nonheap;
-    }
-
-  }
-
-
   public static class JVMMemoryUsage {
 
     private final long total;
@@ -224,40 +197,6 @@ public class DashboardController {
       return (float) used / (float) committed * 100;
     }
   }
-
-  public class JVMMetrics {
-
-    private final ClassMetrics classes;
-    private final GCMetrics gcs;
-    private final ThreadMetrics threads;
-    private final ProcessorMetrics processors;
-
-    public JVMMetrics(ClassMetrics classes, GCMetrics gcs, ThreadMetrics threads,
-      ProcessorMetrics processors) {
-      this.classes = classes;
-      this.gcs = gcs;
-      this.threads = threads;
-      this.processors = processors;
-    }
-
-    public ClassMetrics getClasses() {
-      return classes;
-    }
-
-    public GCMetrics getGcs() {
-      return gcs;
-    }
-
-    public ThreadMetrics getThreads() {
-      return threads;
-    }
-
-    public ProcessorMetrics getProcessors() {
-      return processors;
-    }
-
-  }
-
 
   public static class ClassMetrics {
 
@@ -359,5 +298,64 @@ public class DashboardController {
     public int getTotal() {
       return total;
     }
+  }
+
+  public class MemoryMetrics {
+
+    private final JVMMemoryUsage jvm;
+    private final MemoryUsage heap;
+    private final MemoryUsage nonheap;
+
+    public MemoryMetrics(JVMMemoryUsage jvm, MemoryUsage heap, MemoryUsage nonheap) {
+      this.jvm = jvm;
+      this.heap = heap;
+      this.nonheap = nonheap;
+    }
+
+    public JVMMemoryUsage getJvm() {
+      return jvm;
+    }
+
+    public MemoryUsage getHeap() {
+      return heap;
+    }
+
+    public MemoryUsage getNonheap() {
+      return nonheap;
+    }
+
+  }
+
+  public class JVMMetrics {
+
+    private final ClassMetrics classes;
+    private final GCMetrics gcs;
+    private final ThreadMetrics threads;
+    private final ProcessorMetrics processors;
+
+    public JVMMetrics(ClassMetrics classes, GCMetrics gcs, ThreadMetrics threads,
+      ProcessorMetrics processors) {
+      this.classes = classes;
+      this.gcs = gcs;
+      this.threads = threads;
+      this.processors = processors;
+    }
+
+    public ClassMetrics getClasses() {
+      return classes;
+    }
+
+    public GCMetrics getGcs() {
+      return gcs;
+    }
+
+    public ThreadMetrics getThreads() {
+      return threads;
+    }
+
+    public ProcessorMetrics getProcessors() {
+      return processors;
+    }
+
   }
 }

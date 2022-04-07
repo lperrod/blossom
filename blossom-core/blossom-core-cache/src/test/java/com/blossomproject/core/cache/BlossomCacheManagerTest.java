@@ -1,7 +1,7 @@
 package com.blossomproject.core.cache;
 
-import com.google.common.collect.Lists;
 import com.blossomproject.core.cache.CacheConfig.CacheConfigBuilder;
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,9 +12,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.cache.Cache;
 import org.springframework.plugin.core.SimplePluginRegistry;
+
+;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BlossomCacheManagerTest {
@@ -43,8 +45,8 @@ public class BlossomCacheManagerTest {
   }
 
   @Test
-  public void should_get_cache(){
-    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString(), Mockito.any(CacheConfig.class))).thenAnswer(a -> a.getArgument(1));
+  public void should_get_cache() {
+    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString())).thenAnswer(a -> a.getArgument(1));
 
     Cache cache = new BlossomCacheManager(simplePluginRegistry, CacheConfigBuilder.create("default").build()).getCache("test");
     Assert.assertNotNull("Cache should not be null", cache);
@@ -53,10 +55,13 @@ public class BlossomCacheManagerTest {
   @Test
   public void should_load_all_caches() {
     List<String> cacheConfigs = Lists.newArrayList("cache", "cache2", "cache3");
-    Mockito.when(simplePluginRegistry.getPlugins()).thenReturn(cacheConfigs.stream().map(name -> CacheConfigBuilder.create(name).build()).collect(Collectors.toList()));
-    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString(), Mockito.any(CacheConfig.class))).then(args -> CacheConfigBuilder.create(args.getArgument(0)).build());
+    Mockito.when(simplePluginRegistry.getPlugins())
+      .thenReturn(cacheConfigs.stream().map(name -> CacheConfigBuilder.create(name).build()).collect(Collectors.toList()));
+    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString()))
+      .then(args -> CacheConfigBuilder.create(args.getArgument(0)).build());
 
-    BlossomCacheManager cacheManager = new BlossomCacheManager(simplePluginRegistry, CacheConfigBuilder.create("default").build());
+    BlossomCacheManager cacheManager = new BlossomCacheManager(simplePluginRegistry,
+      CacheConfigBuilder.create("default").build());
 
     Collection<? extends Cache> caches = cacheManager.loadCaches();
     Assert.assertNotNull("Caches should not be null", caches);
@@ -81,12 +86,14 @@ public class BlossomCacheManagerTest {
     CacheConfig defaultSpecification = CacheConfigBuilder.create("default").specification("expireAfterWrite=5m").build();
     BlossomCacheManager cacheManager = new BlossomCacheManager(simplePluginRegistry, defaultSpecification);
 
-    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString(), Mockito.any(CacheConfig.class))).thenReturn(defaultSpecification);
+    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString()).orElse(Mockito.any(CacheConfig.class)))
+      .thenReturn(defaultSpecification);
 
     Cache cache = cacheManager.getMissingCache("cache");
     Assert.assertNotNull("Cache should not be null", cache);
     Assert.assertTrue("Cache should not be a BlossomCache", cache instanceof BlossomCache);
-    Assert.assertEquals("Cache should have the default configuration", ((BlossomCache) cache).getConfiguration().specification(), defaultSpecification.specification());
+    Assert.assertEquals("Cache should have the default configuration", ((BlossomCache) cache).getConfiguration().specification(),
+      defaultSpecification.specification());
   }
 
   @Test
@@ -95,12 +102,14 @@ public class BlossomCacheManagerTest {
     CacheConfig defaultSpecification = CacheConfigBuilder.create("default").specification("defaultSpecification").build();
     BlossomCacheManager cacheManager = new BlossomCacheManager(simplePluginRegistry, defaultSpecification);
 
-    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString(), Mockito.any(CacheConfig.class))).thenReturn(testSpecification);
+    Mockito.when(simplePluginRegistry.getPluginFor(Mockito.anyString()).orElse(Mockito.any(CacheConfig.class)))
+      .thenReturn(testSpecification);
 
     Cache cache = cacheManager.getMissingCache("cache");
     Assert.assertNotNull("Cache should not be null", cache);
     Assert.assertTrue("Cache should not be a BlossomCache", cache instanceof BlossomCache);
-    Assert.assertEquals("Cache should have the default configuration", ((BlossomCache) cache).getConfiguration().specification(), testSpecification.specification());
+    Assert.assertEquals("Cache should have the default configuration", ((BlossomCache) cache).getConfiguration().specification(),
+      testSpecification.specification());
 
   }
 

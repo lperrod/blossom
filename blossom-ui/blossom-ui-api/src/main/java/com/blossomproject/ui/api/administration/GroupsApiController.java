@@ -1,7 +1,5 @@
 package com.blossomproject.ui.api.administration;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.group.GroupCreateForm;
@@ -9,6 +7,8 @@ import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.group.GroupUpdateForm;
 import com.blossomproject.ui.stereotype.BlossomApiController;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.Map;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -52,7 +52,11 @@ public class GroupsApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.groupService.getAll(pageable);
     }
-    return this.searchEngine.search(q, pageable).getPage();
+    if (this.searchEngine != null) {
+      return this.searchEngine.search(q, pageable).getPage();
+    }
+
+    return this.groupService.getAllWithSearch(pageable, q);
   }
 
   @PostMapping

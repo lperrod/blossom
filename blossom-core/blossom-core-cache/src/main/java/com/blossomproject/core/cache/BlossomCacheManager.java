@@ -23,7 +23,7 @@ public class BlossomCacheManager extends AbstractTransactionSupportingCacheManag
     Preconditions.checkNotNull(registry);
     Preconditions.checkNotNull(defaultCacheConfiguration);
     this.registry = registry;
-    this.defaultCacheConfiguration= defaultCacheConfiguration;
+    this.defaultCacheConfiguration = defaultCacheConfiguration;
   }
 
   @Override
@@ -31,7 +31,7 @@ public class BlossomCacheManager extends AbstractTransactionSupportingCacheManag
     return this.registry.getPlugins().stream()
       .filter(cacheConfig -> !cacheConfig.cacheName().equals(defaultCacheConfiguration.cacheName()))
       .map(cacheConfig -> getMissingCache(cacheConfig.cacheName())).collect(
-      Collectors.toList());
+        Collectors.toList());
   }
 
   @Override
@@ -41,16 +41,17 @@ public class BlossomCacheManager extends AbstractTransactionSupportingCacheManag
 
   @Override
   protected org.springframework.cache.Cache getMissingCache(String name) {
-    if(!name.equals(defaultCacheConfiguration.cacheName())) {
+    if (!name.equals(defaultCacheConfiguration.cacheName())) {
       return createBlossomCache(name);
     }
     return null;
   }
 
   protected org.springframework.cache.Cache createBlossomCache(String name) {
-    CacheConfig config = registry.getPluginFor(name, defaultCacheConfiguration);
+    CacheConfig config = registry.getPluginFor(name).orElse(defaultCacheConfiguration);
 
-    BlossomCache cache = new BlossomCache(name, config, createNativeBlossomCache(name, config.specification(), config.linkedCaches()));
+    BlossomCache cache = new BlossomCache(name, config,
+      createNativeBlossomCache(name, config.specification(), config.linkedCaches()));
     cache.setEnabled(config.enabled());
     return cache;
   }

@@ -1,7 +1,5 @@
 package com.blossomproject.ui.web.administration.membership;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.blossomproject.core.association_user_group.AssociationUserGroupDTO;
 import com.blossomproject.core.association_user_group.AssociationUserGroupService;
 import com.blossomproject.core.association_user_group.UpdateAssociationUserGroupForm;
@@ -10,6 +8,8 @@ import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.ui.stereotype.BlossomController;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -40,6 +40,7 @@ public class MembershipsController {
     this.userService = userService;
     this.groupService = groupService;
   }
+
 
   @GetMapping("/users/{id}/groups")
   @PreAuthorize("hasAuthority('administration:memberships:read')")

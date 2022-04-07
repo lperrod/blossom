@@ -12,9 +12,10 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Listeners listening to various {@link com.blossomproject.core.common.event.Event} and calling IndexationEngine to update the indices.
+ * Listeners listening to various {@link com.blossomproject.core.common.event.Event} and calling IndexationEngine to update the
+ * indices.
  *
- *  @author Maël Gargadennnec
+ * @author Maël Gargadennnec
  */
 public class IndexationEventListeners {
   private final static Logger logger = LoggerFactory.getLogger(IndexationEventListeners.class);
@@ -28,13 +29,14 @@ public class IndexationEventListeners {
   public void handleEntityCreation(CreatedEvent createdEvent) {
     Class<? extends AbstractDTO> clazz = createdEvent.getDTO() == null ? null : createdEvent.getDTO().getClass();
     if (clazz != null && indexationEngines.hasPluginFor(clazz)) {
-      indexationEngines.getPluginFor(clazz).indexOne(createdEvent.getDTO().getId());
-      if(logger.isDebugEnabled()) {
+      indexationEngines.getPluginFor(clazz).get().indexOne(createdEvent.getDTO().getId());
+      if (logger.isDebugEnabled()) {
         logger.debug("Created event for object {} with id {} received and processed", clazz, createdEvent.getDTO().getId());
       }
-    }else{
-      if(logger.isDebugEnabled()) {
-        logger.debug("Created event for object {} with id {} received but no indexation engine capable to process it", clazz, createdEvent.getDTO().getId());
+    } else {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Created event for object {} with id {} received but no indexation engine capable to process it", clazz,
+          createdEvent.getDTO().getId());
       }
     }
   }
@@ -43,13 +45,14 @@ public class IndexationEventListeners {
   public void handleEntityDeletion(BeforeDeletedEvent deletedEvent) {
     Class<? extends AbstractDTO> clazz = deletedEvent.getDTO() == null ? null : deletedEvent.getDTO().getClass();
     if (clazz != null && indexationEngines.hasPluginFor(clazz)) {
-      indexationEngines.getPluginFor(clazz).deleteOne(deletedEvent.getDTO().getId());
-      if(logger.isDebugEnabled()) {
+      indexationEngines.getPluginFor(clazz).get().deleteOne(deletedEvent.getDTO().getId());
+      if (logger.isDebugEnabled()) {
         logger.debug("Deleted event for object {} with id {} received and processed", clazz, deletedEvent.getDTO().getId());
       }
-    }else{
-      if(logger.isDebugEnabled()) {
-        logger.debug("Deleted event for object {} with id {} received but no indexation engine capable to process it", clazz, deletedEvent.getDTO().getId());
+    } else {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Deleted event for object {} with id {} received but no indexation engine capable to process it", clazz,
+          deletedEvent.getDTO().getId());
       }
     }
   }
@@ -58,13 +61,14 @@ public class IndexationEventListeners {
   public void handleEntityUpdate(UpdatedEvent updatedEvent) {
     Class<? extends AbstractDTO> clazz = updatedEvent.getDTO() == null ? null : updatedEvent.getDTO().getClass();
     if (clazz != null && indexationEngines.hasPluginFor(clazz)) {
-      indexationEngines.getPluginFor(clazz).indexOne(updatedEvent.getDTO().getId());
-      if(logger.isDebugEnabled()) {
+      indexationEngines.getPluginFor(clazz).get().indexOne(updatedEvent.getDTO().getId());
+      if (logger.isDebugEnabled()) {
         logger.debug("Updated event for object {} with id {} received and processed", clazz, updatedEvent.getDTO().getId());
       }
-    }else{
-      if(logger.isDebugEnabled()) {
-        logger.debug("Updated event for object {} with id {} received but no indexation engine capable to process it", clazz, updatedEvent.getDTO().getId());
+    } else {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Updated event for object {} with id {} received but no indexation engine capable to process it", clazz,
+          updatedEvent.getDTO().getId());
       }
     }
   }

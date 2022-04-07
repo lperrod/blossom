@@ -4,7 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import com.blossomproject.core.scheduler.history.TriggerHistory;
 import com.blossomproject.core.scheduler.history.TriggerHistoryDao;
@@ -46,29 +52,29 @@ public class GlobalTriggerListenerTest {
   }
 
   @Test
-  public void should_return_name(){
+  public void should_return_name() {
     assertEquals(this.listener.getName(), GlobalTriggerListener.NAME);
   }
 
   @Test
-  public void should_do_nothing_on_veto_and_return_false() throws Exception{
-    boolean veto = this.listener.vetoJobExecution(null,null);
+  public void should_do_nothing_on_veto_and_return_false() throws Exception {
+    boolean veto = this.listener.vetoJobExecution(null, null);
     assertFalse(veto);
-    verifyZeroInteractions(this.triggerHistoryDao);
+    verifyNoInteractions(this.triggerHistoryDao);
   }
 
   @Test
-  public void should_do_nothing_on_misfired() throws Exception{
+  public void should_do_nothing_on_misfired() throws Exception {
     this.listener.triggerMisfired(null);
-    verifyZeroInteractions(this.triggerHistoryDao);
+    verifyNoInteractions(this.triggerHistoryDao);
   }
 
 
   @Test
-  public void should_record_history_on_trigger_fired() throws Exception{
+  public void should_record_history_on_trigger_fired() throws Exception {
     Trigger trigger = mock(Trigger.class);
-    when(trigger.getKey()).thenReturn(new TriggerKey("trigger","group"));
-    when(trigger.getJobKey()).thenReturn(new JobKey("job","group"));
+    when(trigger.getKey()).thenReturn(new TriggerKey("trigger", "group"));
+    when(trigger.getJobKey()).thenReturn(new JobKey("job", "group"));
 
     JobExecutionContext context = mock(JobExecutionContext.class);
     when(context.getFireInstanceId()).thenReturn("fireInstanceId");
@@ -80,7 +86,7 @@ public class GlobalTriggerListenerTest {
   }
 
   @Test
-  public void should_update_history_on_trigger_completed() throws Exception{
+  public void should_update_history_on_trigger_completed() throws Exception {
     Trigger trigger = mock(Trigger.class);
 
     JobExecutionContext context = mock(JobExecutionContext.class);
@@ -96,8 +102,8 @@ public class GlobalTriggerListenerTest {
   @Test
   public void should_not_throw_any_exception_on_trigger_fired() {
     Trigger trigger = mock(Trigger.class);
-    when(trigger.getJobKey()).thenReturn(new JobKey("job","group"));
-    when(trigger.getKey()).thenReturn(new TriggerKey("trigger","group"));
+    when(trigger.getJobKey()).thenReturn(new JobKey("job", "group"));
+    when(trigger.getKey()).thenReturn(new TriggerKey("trigger", "group"));
 
     JobExecutionContext context = mock(JobExecutionContext.class);
     when(context.getFireInstanceId()).thenReturn("fireInstanceId");
@@ -111,7 +117,7 @@ public class GlobalTriggerListenerTest {
   }
 
   @Test
-  public void should_not_throw_any_exception_on_trigger_completed() throws Exception{
+  public void should_not_throw_any_exception_on_trigger_completed() throws Exception {
     Trigger trigger = mock(Trigger.class);
 
     JobExecutionContext context = mock(JobExecutionContext.class);

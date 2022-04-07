@@ -1,7 +1,5 @@
 package com.blossomproject.ui.web.administration.role;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.common.utils.privilege.Privilege;
@@ -13,6 +11,8 @@ import com.blossomproject.core.role.RoleService;
 import com.blossomproject.core.role.RoleUpdateForm;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -64,6 +64,14 @@ public class RolesController {
     this.messageSource = messageSource;
   }
 
+
+  public RolesController(RoleService roleService,
+    MessageSource messageSource) {
+    this.roleService = roleService;
+    this.searchEngine = null;
+    this.messageSource = messageSource;
+  }
+
   @GetMapping
   @PreAuthorize("hasAuthority('administration:roles:read')")
   public ModelAndView getRolesPage(@RequestParam(value = "q", required = false) String q,
@@ -77,7 +85,12 @@ public class RolesController {
     if (Strings.isNullOrEmpty(q)) {
       roles = this.roleService.getAll(pageable);
     } else {
-      roles = this.searchEngine.search(q, pageable).getPage();
+      if (searchEngine != null) {
+        roles = this.searchEngine.search(q, pageable).getPage();
+      } else {
+        roles = this.roleService.getAllWithSearch(pageable, q);
+      }
+
     }
 
     model.addAttribute("roles", roles);
@@ -216,9 +229,9 @@ public class RolesController {
           if (child.isPresent()) {
             treeNode = child.get();
           } else {
-            String labelKey = ("right." + currentKey).replaceAll(":",".");
+            String labelKey = ("right." + currentKey).replaceAll(":", ".");
             TreeNode<Privilege> newNode = new TreeNode<>(currentKey, messageSource.getMessage(labelKey, null, labelKey, locale));
-            if(currentKey.equals(p.privilege())) {
+            if (currentKey.equals(p.privilege())) {
               newNode.setData(p);
             }
             treeNode.addChild(newNode);
@@ -262,11 +275,13 @@ public class RolesController {
     }
 
     RoleDTO role = this.roleService.getOne(id);
-    List<String> availablePrivileges = this.roleService.getAvailablePrivileges().stream().map(Privilege::privilege).collect(Collectors.toList());
+    List<String> availablePrivileges = this.roleService.getAvailablePrivileges().stream().map(Privilege::privilege)
+      .collect(Collectors.toList());
     if (role == null) {
       throw new NoSuchElementException(String.format("Role=%s not found", id));
     }
-    role.setPrivileges(rolePrivilegeUpdateForm.getPrivileges().stream().filter(availablePrivileges::contains).collect(Collectors.toList()));
+    role.setPrivileges(
+      rolePrivilegeUpdateForm.getPrivileges().stream().filter(availablePrivileges::contains).collect(Collectors.toList()));
     RoleDTO updatedRole = this.roleService.update(id, role);
     return this.viewRolePrivilegeView(updatedRole, model);
   }

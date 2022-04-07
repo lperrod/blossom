@@ -1,13 +1,11 @@
 package com.blossomproject.core.user;
 
+import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.google.common.base.Preconditions;
+import com.querydsl.core.types.Predicate;
 import java.util.Date;
-
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
-
-import com.google.common.base.Preconditions;
-
-import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
@@ -81,4 +79,11 @@ public class UserDaoImpl extends GenericCrudDaoImpl<User> implements UserDao {
     return repository.save(user);
   }
 
+  @Override
+  protected Predicate computeSearchPredicate(String query) {
+    QUser user = QUser.user;
+    return user.email.containsIgnoreCase(query).or(
+        user.identifier.containsIgnoreCase(query)).or(user.lastname.containsIgnoreCase(query))
+      .or(user.firstname.containsIgnoreCase(query));
+  }
 }

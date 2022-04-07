@@ -1,15 +1,29 @@
 package com.blossomproject.core.common.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.blossomproject.core.common.dao.CrudDao;
+import com.blossomproject.core.common.dto.AbstractDTO;
+import com.blossomproject.core.common.entity.AbstractEntity;
+import com.blossomproject.core.common.mapper.DTOMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,14 +34,9 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.PluginRegistry;
-
-import com.blossomproject.core.common.dao.CrudDao;
-import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.entity.AbstractEntity;
-import com.blossomproject.core.common.mapper.DTOMapper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenericCrudServiceImplTest {
@@ -42,13 +51,11 @@ public class GenericCrudServiceImplTest {
 
   @Mock
   ApplicationEventPublisher publisher;
-
-  @Mock
-  private PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry;
-
   @InjectMocks
   @Spy
   TestGenericCrudServiceImpl service;
+  @Mock
+  private PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry;
 
   @Test
   public void should_create_with_success() {
@@ -104,7 +111,7 @@ public class GenericCrudServiceImplTest {
 
     AssociationServicePlugin associationServicePlugin = mock(AssociationServicePlugin.class);
     when(associationRegistry.getPluginsFor(eq(dto.getClass())))
-        .thenReturn(Lists.newArrayList(associationServicePlugin));
+      .thenReturn(Lists.newArrayList(associationServicePlugin));
 
     when(associationServicePlugin.getAClass()).thenReturn(AbstractDTO.class);
 
@@ -134,7 +141,7 @@ public class GenericCrudServiceImplTest {
 
     AssociationServicePlugin associationServicePlugin = mock(AssociationServicePlugin.class);
     when(associationRegistry.getPluginsFor(eq(dto.getClass())))
-        .thenReturn(Lists.newArrayList(associationServicePlugin));
+      .thenReturn(Lists.newArrayList(associationServicePlugin));
 
     when(associationServicePlugin.getBClass()).thenReturn(AbstractDTO.class);
 
@@ -164,7 +171,7 @@ public class GenericCrudServiceImplTest {
 
     AssociationServicePlugin associationServicePlugin = mock(AssociationServicePlugin.class);
     when(associationRegistry.getPluginsFor(eq(dto.getClass())))
-        .thenReturn(Lists.newArrayList(associationServicePlugin));
+      .thenReturn(Lists.newArrayList(associationServicePlugin));
 
     when(associationServicePlugin.getAClass()).thenReturn(AbstractDTO.class);
 
@@ -199,7 +206,7 @@ public class GenericCrudServiceImplTest {
     when(list.size()).thenReturn(1);
 
     List<AssociationServicePlugin> servicePluginList = Lists.newArrayList(associationServicePlugin1,
-        associationServicePlugin2, associationServicePlugin3);
+      associationServicePlugin2, associationServicePlugin3);
     List<AbstractDTO> bClass = Lists.newArrayList(mock(DTO.class), mock(DTO2.class), mock(DTO3.class));
 
     Integer index = 0;
@@ -300,7 +307,7 @@ public class GenericCrudServiceImplTest {
 
     AssociationServicePlugin associationServicePlugin = mock(AssociationServicePlugin.class);
     when(associationRegistry.getPluginsFor(eq(dto.getClass())))
-        .thenReturn(Lists.newArrayList(associationServicePlugin));
+      .thenReturn(Lists.newArrayList(associationServicePlugin));
     when(associationRegistry.hasPluginFor(eq(dto.getClass()))).thenReturn(true);
 
     doReturn(mapAssociation).when(service).associations(eq(dto));
@@ -326,7 +333,7 @@ public class GenericCrudServiceImplTest {
     AssociationServicePlugin associationServicePlugin = mock(AssociationServicePlugin.class);
     AssociationServicePlugin associationServicePlugin2 = mock(AssociationServicePlugin.class);
     when(associationRegistry.getPluginsFor(eq(dto.getClass())))
-        .thenReturn(Lists.newArrayList(associationServicePlugin, associationServicePlugin2));
+      .thenReturn(Lists.newArrayList(associationServicePlugin, associationServicePlugin2));
     when(associationRegistry.hasPluginFor(eq(dto.getClass()))).thenReturn(true);
 
     doReturn(mapAssociation).when(service).associations(eq(dto));
@@ -472,8 +479,13 @@ public class GenericCrudServiceImplTest {
   public static class TestGenericCrudServiceImpl extends GenericCrudServiceImpl<DTO, ENTITY> {
 
     public TestGenericCrudServiceImpl(CrudDao dao, DTOMapper mapper, ApplicationEventPublisher publisher,
-        PluginRegistry associationRegistry) {
+      PluginRegistry associationRegistry) {
       super(dao, mapper, publisher, associationRegistry);
+    }
+
+    @Override
+    public Page<DTO> getAllWithSearch(Pageable pageable, String query) {
+      return null;
     }
   }
 
