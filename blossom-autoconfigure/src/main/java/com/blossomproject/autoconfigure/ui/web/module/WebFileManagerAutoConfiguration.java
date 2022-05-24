@@ -1,11 +1,13 @@
 package com.blossomproject.autoconfigure.ui.web.module;
 
-import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.FileManagerPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
 import com.blossomproject.ui.web.content.filemanager.FileController;
@@ -32,6 +34,7 @@ import org.springframework.core.annotation.Order;
 @AutoConfigureAfter(WebInterfaceAutoConfiguration.class)
 @Import(FileManagerPrivilegesConfiguration.class)
 public class WebFileManagerAutoConfiguration {
+
   private final FileManagerPrivilegesConfiguration fileManagerPrivilegesConfiguration;
 
   public WebFileManagerAutoConfiguration(
@@ -66,21 +69,10 @@ public class WebFileManagerAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
-  public FileManagerController fileManagerController(FileService fileService, SearchEngineImpl<FileDTO> searchEngine) {
+  public FileManagerController fileManagerController(FileService fileService,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine) {
     return new FileManagerController(fileService, searchEngine);
   }
 
-
-  @Bean
-  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
-  public FileManagerController fileManagerController(FileService fileService) {
-    return new FileManagerController(fileService);
-  }
-
-  @Bean
-  public FileController fileController(FileService fileService) {
-    return new FileController(fileService);
-  }
 
 }

@@ -7,17 +7,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.core.common.search.SearchResult;
 import com.blossomproject.core.group.GroupCreateForm;
 import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.group.GroupUpdateForm;
 import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.user.UserDTO;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
+import com.blossomproject.module.search.common.SearchResult;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Assert;
@@ -27,12 +30,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GroupsApiControllerTest {
@@ -44,7 +49,7 @@ public class GroupsApiControllerTest {
   private GroupService service;
 
   @Mock
-  private SearchEngineImpl<GroupDTO> searchEngine;
+  private SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, GroupDTO> searchEngine;
 
   private GroupsApiController controller;
 
@@ -65,7 +70,7 @@ public class GroupsApiControllerTest {
   public void should_get_paged_groups_with_query_parameter() {
     when(searchEngine.search(any(String.class), any(Pageable.class)))
       .thenAnswer(a -> new SearchResult<>(0, new PageImpl<GroupDTO>(Lists.newArrayList())));
-    controller.list("test", PageRequest.of(0,5));
+    controller.list("test", PageRequest.of(0, 5));
     verify(searchEngine, times(1)).search(eq("test"), any(Pageable.class));
   }
 

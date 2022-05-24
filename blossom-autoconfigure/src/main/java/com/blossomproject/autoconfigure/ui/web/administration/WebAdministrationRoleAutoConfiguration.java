@@ -1,11 +1,13 @@
 package com.blossomproject.autoconfigure.ui.web.administration;
 
-import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.RolePrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RoleService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
 import com.blossomproject.ui.web.administration.role.RolesController;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,16 +51,10 @@ public class WebAdministrationRoleAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
-  public RolesController rolesController(RoleService roleService, SearchEngineImpl<RoleDTO> searchEngine,
+  public RolesController rolesController(RoleService roleService,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine,
     MessageSource messageSource) {
     return new RolesController(roleService, searchEngine, messageSource);
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
-  public RolesController rolesControllerWithoutSearch(RoleService roleService, MessageSource messageSource) {
-    return new RolesController(roleService, messageSource);
   }
 
 }

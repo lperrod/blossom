@@ -197,17 +197,15 @@ public class GenericReadOnlyServiceImplTest {
   }
 
   public static class TestGenericReadOnlyServiceImpl extends GenericReadOnlyServiceImpl<DTO, ENTITY> {
+
     public TestGenericReadOnlyServiceImpl(ReadOnlyDao<ENTITY> dao, DTOMapper<ENTITY, DTO> mapper) {
       super(dao, mapper);
     }
 
-    @Override
-    public Page<DTO> getAllWithSearch(Pageable pageable, String query) {
-      return null;
-    }
   }
 
   public static class ENTITY extends AbstractEntity {
+
     public ENTITY() {
     }
 
@@ -217,6 +215,7 @@ public class GenericReadOnlyServiceImplTest {
   }
 
   public static class DTO extends AbstractDTO {
+
     public DTO() {
     }
 

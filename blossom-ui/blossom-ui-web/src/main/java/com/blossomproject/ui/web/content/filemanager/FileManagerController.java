@@ -1,8 +1,11 @@
 package com.blossomproject.ui.web.content.filemanager;
 
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import java.io.IOException;
@@ -35,18 +38,17 @@ import org.springframework.web.servlet.ModelAndView;
 public class FileManagerController {
 
   private static final Logger logger = LoggerFactory.getLogger(FileManagerController.class);
-  private final FileService fileService;
-  private final SearchEngineImpl<FileDTO> searchEngine;
 
-  public FileManagerController(FileService fileService, SearchEngineImpl<FileDTO> searchEngine) {
+  private final FileService fileService;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine;
+
+  public FileManagerController(FileService fileService,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine) {
     this.fileService = fileService;
     this.searchEngine = searchEngine;
   }
 
-  public FileManagerController(FileService fileService) {
-    this.fileService = fileService;
-    this.searchEngine = null;
-  }
 
   @GetMapping
   @PreAuthorize("hasAuthority('content:filemanager:read')")
@@ -61,7 +63,7 @@ public class FileManagerController {
     @RequestParam(value = "q", defaultValue = "", required = false) String q) {
     Page<FileDTO> files = null;
     if (!StringUtils.isEmpty(q)) {
-      if (this.searchEngine != null) {
+      if (searchEngine != null) {
         files = searchEngine.search(q, pageable).getPage();
       } else {
         files = fileService.getAllWithSearch(pageable, q);

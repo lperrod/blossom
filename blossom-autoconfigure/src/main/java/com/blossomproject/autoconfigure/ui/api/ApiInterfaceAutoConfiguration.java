@@ -3,9 +3,9 @@ package com.blossomproject.autoconfigure.ui.api;
 import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_API_BASE_PATH;
 
 import com.blossomproject.autoconfigure.ui.WebSecurityAutoConfiguration;
-import com.blossomproject.core.common.PluginConstants;
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngine;
+import com.blossomproject.module.search.common.OmnisearchService;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.api.OmnisearchApiController;
 import com.blossomproject.ui.api.StatusApiController;
 import com.blossomproject.ui.api.administration.UsersApiController;
@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-import org.elasticsearch.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -69,9 +67,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class ApiInterfaceAutoConfiguration {
 
   @Bean
-  public OmnisearchApiController omnisearchApiController(Client client,
-    @Qualifier(PluginConstants.PLUGIN_SEARCH_ENGINE) PluginRegistry<SearchEngine, Class<? extends AbstractDTO>> registry) {
-    return new OmnisearchApiController(client, registry);
+  public OmnisearchApiController omnisearchApiController(OmnisearchService omnisearchService,
+    PluginRegistry<SearchEngine<?, ?, ?, ? extends AbstractDTO>, Class<? extends AbstractDTO>> registry) {
+    return new OmnisearchApiController(omnisearchService, registry);
   }
 
   @Bean

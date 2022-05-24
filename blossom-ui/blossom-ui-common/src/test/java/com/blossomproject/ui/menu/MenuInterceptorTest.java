@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MenuInterceptorTest {
+
   @Mock
   PluginRegistry<MenuItem, String> registry;
 
@@ -102,7 +104,7 @@ public class MenuInterceptorTest {
 
     when(handler.getMethod()).thenReturn(MenuClassWithoutAnnotation.class.getDeclaredMethod("methodWithAnnotation"));
     when(registry.hasPluginFor(eq("test"))).thenReturn(true);
-    when(registry.getPluginFor(eq("test")).get()).thenReturn(menuItem);
+    when(registry.getPluginFor(eq("test"))).thenReturn(Optional.of(menuItem));
 
     interceptor.postHandle(request, response, handler, modelAndView);
 
@@ -129,7 +131,7 @@ public class MenuInterceptorTest {
 
     when(handler.getMethod()).thenReturn(MenuClassWithAnnotation.class.getDeclaredMethod("methodWithoutAnnotation"));
     when(registry.hasPluginFor(eq("test"))).thenReturn(true);
-    when(registry.getPluginFor(eq("test")).get()).thenReturn(menuItem);
+    when(registry.getPluginFor(eq("test"))).thenReturn(Optional.of(menuItem));
 
     interceptor.postHandle(request, response, handler, modelAndView);
 
@@ -142,6 +144,7 @@ public class MenuInterceptorTest {
   }
 
   public class MenuClassWithoutAnnotation {
+
     public void methodWithoutAnnotation() {
     }
 
@@ -152,6 +155,7 @@ public class MenuInterceptorTest {
 
   @OpenedMenu("test")
   public class MenuClassWithAnnotation {
+
     public void methodWithoutAnnotation() {
     }
   }

@@ -1,11 +1,13 @@
 package com.blossomproject.autoconfigure.ui.web.administration;
 
-import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.UserPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
 import com.blossomproject.ui.web.administration.user.UsersController;
@@ -14,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.Import;
 @AutoConfigureAfter(WebInterfaceAutoConfiguration.class)
 @Import(UserPrivilegesConfiguration.class)
 public class WebAdministrationUserAutoConfiguration {
+
   private final UserPrivilegesConfiguration userPrivilegesConfiguration;
 
   public WebAdministrationUserAutoConfiguration(
@@ -50,15 +52,8 @@ public class WebAdministrationUserAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
   public UsersController usersController(UserService userService, Tika tika,
-    SearchEngineImpl<UserDTO> searchEngine) {
-    return new UsersController(userService, searchEngine, tika);
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
-  public UsersController usersControllerWithoutSearch(UserService userService, Tika tika) {
-    return new UsersController(userService, tika);
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> userSearchEngine) {
+    return new UsersController(userService, userSearchEngine, tika);
   }
 }

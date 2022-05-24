@@ -6,8 +6,6 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.transaction.AbstractTransactionSupportingCacheManager;
 import org.springframework.plugin.core.PluginRegistry;
 
@@ -15,8 +13,9 @@ import org.springframework.plugin.core.PluginRegistry;
  * Created by maelg on 12/05/2017.
  */
 public class BlossomCacheManager extends AbstractTransactionSupportingCacheManager {
-  private final static Logger logger = LoggerFactory.getLogger(BlossomCacheManager.class);
+
   private final PluginRegistry<CacheConfig, String> registry;
+
   private final CacheConfig defaultCacheConfiguration;
 
   public BlossomCacheManager(PluginRegistry<CacheConfig, String> registry, CacheConfig defaultCacheConfiguration) {
@@ -48,7 +47,7 @@ public class BlossomCacheManager extends AbstractTransactionSupportingCacheManag
   }
 
   protected org.springframework.cache.Cache createBlossomCache(String name) {
-    CacheConfig config = registry.getPluginFor(name).orElse(defaultCacheConfiguration);
+    CacheConfig config = registry.getPluginOrDefaultFor(name, defaultCacheConfiguration);
 
     BlossomCache cache = new BlossomCache(name, config,
       createNativeBlossomCache(name, config.specification(), config.linkedCaches()));

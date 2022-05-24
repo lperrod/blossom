@@ -1,12 +1,12 @@
 package com.blossomproject.ui.api;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngine;
-import com.blossomproject.core.common.search.SearchResult;
-import com.blossomproject.core.common.search.SummaryDTO;
+import com.blossomproject.module.search.common.OmnisearchService;
+import com.blossomproject.module.search.common.SearchEngine;
+import com.blossomproject.module.search.common.SearchResult;
+import com.blossomproject.module.search.common.SummaryDTO;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -14,11 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.search.MultiSearchRequestBuilder;
-import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.unit.TimeValue;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.plugin.core.PluginRegistry;
@@ -30,12 +25,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/search")
 public class OmnisearchApiController {
 
-  private final Client client;
-  private final PluginRegistry<SearchEngine, Class<? extends AbstractDTO>> registry;
+  private final OmnisearchService omnisearchService;
 
-  public OmnisearchApiController(Client client,
-    PluginRegistry<SearchEngine, Class<? extends AbstractDTO>> registry) {
-    this.client = client;
+
+  private final PluginRegistry<SearchEngine<?, ?, ?, ? extends AbstractDTO>, Class<? extends AbstractDTO>> registry;
+
+  public OmnisearchApiController(OmnisearchService omnisearchService,
+    PluginRegistry<SearchEngine<?, ?, ?, ? extends AbstractDTO>, Class<? extends AbstractDTO>> registry) {
+    this.omnisearchService = omnisearchService;
     this.registry = registry;
   }
 
@@ -53,21 +50,8 @@ public class OmnisearchApiController {
       return model;
     }
 
-    MultiSearchRequestBuilder request = client.prepareMultiSearch();
-    plugins.forEach(engine -> request.add(engine.prepareSearch(query, pageable)));
-    MultiSearchResponse response = request.get(TimeValue.timeValueSeconds(15));
-
     int index = 0;
-    Map<String, SearchResult<SummaryDTO>> results = Maps.newHashMap();
-
-    List<MultiSearchResponse.Item> items = Lists.newArrayList(response.getResponses());
-    for (MultiSearchResponse.Item item : items) {
-      SearchResponse unitResponse = item.getResponse();
-      SearchEngine searchEngine = plugins.get(index);
-      SearchResult<SummaryDTO> result = searchEngine.parseSummaryResults(unitResponse, pageable);
-      results.put(searchEngine.getName(), result);
-      index++;
-    }
+    Map<String, SearchResult<SummaryDTO>> results = omnisearchService.doMultiSearch(plugins, query, pageable);
 
     Map<String, Object> model = Maps.newHashMap();
     model.put("q", query);

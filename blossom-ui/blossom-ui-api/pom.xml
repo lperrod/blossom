@@ -26,6 +26,13 @@
       <optional>true</optional>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
+
+    <dependency>
+      <artifactId>blossom-module-search-common</artifactId>
+      <groupId>com.blossom-project</groupId>
+      <optional>true</optional>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
       <groupId>org.springframework.boot</groupId>

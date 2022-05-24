@@ -11,10 +11,13 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.core.common.search.SearchResult;
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
+import com.blossomproject.module.search.common.SearchResult;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -52,7 +55,7 @@ public class FileManagerControllerTest {
   private Logger logger;
 
   @Mock
-  private SearchEngineImpl<FileDTO> searchEngine;
+  private SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine;
 
   @InjectMocks
   private FileManagerController controller;

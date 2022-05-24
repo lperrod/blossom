@@ -1,12 +1,13 @@
 package com.blossomproject.core.group;
 
-import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.blossomproject.core.common.dao.GenericSearchAndCrudDaoImpl;
 import com.querydsl.core.types.Predicate;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class GroupDaoImpl extends GenericCrudDaoImpl<Group> implements GroupDao {
+public class GroupDaoImpl extends GenericSearchAndCrudDaoImpl<Group> implements GroupDao {
+
   public GroupDaoImpl(GroupRepository repository) {
     super(repository);
   }

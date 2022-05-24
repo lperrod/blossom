@@ -32,14 +32,6 @@ public interface ReadOnlyDao<ENTITY extends AbstractEntity> {
 
 
   /**
-   * Retrieves a paginated subset of the entities from the underlying datasource with a query string
-   *
-   * @param pageable a spring data {@link Pageable}. Throws an {@code IllegalArgumentException} if null.
-   * @return the asked {@link Page} of entities
-   */
-  Page<ENTITY> getAllWithSearch(Pageable pageable, String query);
-
-  /**
    * Retrieves an id-filtered subset of the entities from the underlying datasource
    *
    * @param ids the list of entities ids you want to retrieve

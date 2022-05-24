@@ -1,11 +1,13 @@
 package com.blossomproject.autoconfigure.ui.web.module;
 
-import com.blossomproject.autoconfigure.core.ElasticsearchAutoConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.ArticlePrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.module.article.ArticleDTO;
 import com.blossomproject.module.article.ArticleService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
 import com.blossomproject.ui.web.content.article.ArticlesController;
@@ -65,16 +67,10 @@ public class WebArticleAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnBean(ElasticsearchAutoConfiguration.class)
   public ArticlesController articleManagerController(ArticleService articleService,
-    SearchEngineImpl<ArticleDTO> searchEngine) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, ArticleDTO> searchEngine) {
     return new ArticlesController(articleService, searchEngine);
   }
 
 
-  @Bean
-  @ConditionalOnMissingBean(ElasticsearchAutoConfiguration.class)
-  public ArticlesController articleManagerController(ArticleService articleService) {
-    return new ArticlesController(articleService);
-  }
 }

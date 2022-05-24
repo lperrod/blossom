@@ -1,19 +1,18 @@
 package com.blossomproject.autoconfigure.ui;
 
+import com.blossomproject.autoconfigure.module.search.elasticsearch.FilteredWebContextAutoConfiguration;
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.core.common.utils.privilege.SimplePrivilege;
-import com.blossomproject.ui.filter.FilterHandlerMethodArgumentResolver;
 import com.blossomproject.ui.i18n.RestrictedSessionLocaleResolver;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.blossomproject.ui.stereotype.BlossomController;
 import com.google.common.collect.Iterables;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
@@ -24,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -38,11 +36,12 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  */
 @Configuration
 @ConditionalOnWebApplication
-@ConditionalOnClass({FilterHandlerMethodArgumentResolver.class})
+@ConditionalOnMissingBean(FilteredWebContextAutoConfiguration.class)
 @AutoConfigureBefore({WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class})
 public class WebContextAutoConfiguration implements WebMvcConfigurer {
 
   public static final String BLOSSOM_BASE_PATH = "blossom";
+
   public static final String BLOSSOM_API_BASE_PATH = BLOSSOM_BASE_PATH + "/api";
 
   @Autowired
@@ -56,15 +55,6 @@ public class WebContextAutoConfiguration implements WebMvcConfigurer {
     return resolver;
   }
 
-  @Override
-  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-    resolvers.add(filterHandlerMethodArgumentResolver());
-  }
-
-  @Bean
-  public FilterHandlerMethodArgumentResolver filterHandlerMethodArgumentResolver() {
-    return new FilterHandlerMethodArgumentResolver();
-  }
 
   @Bean
   public LocaleChangeInterceptor localeChangeInterceptor() {

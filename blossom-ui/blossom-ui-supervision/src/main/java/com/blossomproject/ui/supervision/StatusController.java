@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.actuate.health.StatusAggregator;
+import org.springframework.boot.actuate.health.SystemHealth;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/blossom/public/status")
 public class StatusController {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(StatusController.class);
 
   private final HealthEndpoint healthEndpoint;
 
+  private final StatusAggregator healthAggregator;
 
-  public StatusController(HealthEndpoint healthEndpoint) {
+  public StatusController(HealthEndpoint healthEndpoint, StatusAggregator healthAggregator) {
     this.healthEndpoint = healthEndpoint;
+    this.healthAggregator = healthAggregator;
   }
 
   @GetMapping
@@ -35,7 +42,7 @@ public class StatusController {
   public ResponseEntity<Health> status(
     @RequestParam(value = "exclude", required = false, defaultValue = "") Optional<List<String>> excludes,
     @RequestParam(value = "include", required = false, defaultValue = "") Optional<List<String>> includes) {
-    Health health = filteredDetails((Health) healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
+    Health health = filteredDetails((SystemHealth) healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
     if (includes.isPresent() && !includes.get().isEmpty()) {
       health = includedDetails(health, includes
           .get()
@@ -53,23 +60,40 @@ public class StatusController {
 
 
   @VisibleForTesting
-  Health filteredDetails(Health health, List<String> excludes) {
+  Health filteredDetails(SystemHealth health, List<String> excludes) {
     Map<String, Health> filteredHealth = health
-      .getDetails()
+      .getComponents()
       .entrySet()
       .stream()
       .filter(mapEntry -> mapEntry.getValue() instanceof Health && !excludes.contains(mapEntry.getKey()))
-      .collect(Collectors.toMap(Map.Entry::getKey, e -> filteredDetails((Health) e.getValue(), excludes)));
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> filteredHealthDetails((Health) e.getValue(), excludes)));
 
     if (filteredHealth.isEmpty()) {
       return Health.status(health.getStatus()).build();
     }
 
-    return
-      filteredHealth.entrySet().stream().anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
-        ? Health.down().build()
-        : Health.up().build();
+    Status status = healthAggregator.getAggregateStatus(
+      filteredHealth.values().stream().map(Health::getStatus).collect(Collectors.toSet()));
+    return Health.status(status).withDetails(filteredHealth).build();
   }
+
+  Health filteredHealthDetails(Health health, List<String> excludes) {
+    Map<String, Health> filteredHealth = health
+      .getDetails()
+      .entrySet()
+      .stream()
+      .filter(mapEntry -> mapEntry.getValue() instanceof Health && !excludes.contains(mapEntry.getKey()))
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> filteredHealthDetails((Health) e.getValue(), excludes)));
+
+    if (filteredHealth.isEmpty()) {
+      return Health.status(health.getStatus()).build();
+    }
+
+    Status status = healthAggregator.getAggregateStatus(
+      filteredHealth.values().stream().map(Health::getStatus).collect(Collectors.toSet()));
+    return Health.status(status).withDetails(filteredHealth).build();
+  }
+
 
   @VisibleForTesting
   Health includedDetails(Health health, List<String> includes, String currentDepth) {
@@ -94,9 +118,8 @@ public class StatusController {
       })
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    return
-      filteredHealth.entrySet().stream().anyMatch(entry -> entry.getValue().getStatus().equals(Health.down().build().getStatus()))
-        ? Health.down().build()
-        : Health.up().build();
+    Status status = healthAggregator.getAggregateStatus(
+      filteredHealth.values().stream().map(Health::getStatus).collect(Collectors.toSet()));
+    return Health.status(status).withDetails(filteredHealth).build();
   }
 }

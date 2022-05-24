@@ -1,0 +1,109 @@
+{
+  "settings": {
+    "number_of_shards": "1",
+    "number_of_replicas": "0",
+    "index": {
+      "analysis": {
+        "filter": {
+          "suggest_edgengram_filter": {
+            "type": "edgeNGram",
+            "min_gram": 1,
+            "max_gram": 20
+          }
+        },
+        "analyzer": {
+          "email": {
+            "tokenizer": "lowercase",
+            "filter": [
+              "lowercase",
+              "suggest_edgengram_filter"
+            ]
+          },
+          "default": {
+            "tokenizer": "standard",
+            "filter": [
+              "lowercase",
+              "asciifolding",
+              "elision"
+            ]
+          },
+          "suggest": {
+            "tokenizer": "standard",
+            "filter": [
+              "lowercase",
+              "asciifolding",
+              "elision",
+              "suggest_edgengram_filter"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "role": {
+      "properties": {
+        "summary": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "text",
+              "index": "false"
+            },
+            "type": {
+              "type": "text",
+              "index": "false"
+            },
+            "name": {
+              "type": "text",
+              "analyzer": "suggest",
+              "search_analyzer": "default"
+            },
+            "description": {
+              "type": "text",
+              "analyzer": "suggest",
+              "search_analyzer": "default"
+            },
+            "uri": {
+              "type": "text",
+              "index": "false"
+            }
+          }
+        },
+        "dto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "text",
+              "index": "false"
+            },
+            "name": {
+              "type": "text",
+              "analyzer": "suggest",
+              "search_analyzer": "default"
+            },
+            "description": {
+              "type": "text",
+              "analyzer": "default",
+              "search_analyzer": "default"
+            },
+            "creationDate": {
+              "type": "long"
+            },
+            "modificationDate": {
+              "type": "long"
+            },
+            "creationUser": {
+              "type": "text",
+              "index": "false"
+            },
+            "modificationUser": {
+              "type": "text",
+              "index": "false"
+            }
+          }
+        }
+      }
+    }
+  }
+}

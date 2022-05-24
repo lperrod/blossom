@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.actuate.health.SystemHealth;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class StatusApiController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StatusApiController.class);
+
   private final HealthEndpoint healthEndpoint;
 
   public StatusApiController(HealthEndpoint healthEndpoint) {
@@ -32,7 +34,7 @@ public class StatusApiController {
   @ResponseBody
   public ResponseEntity<Health> status(
     @RequestParam(value = "exclude", required = false, defaultValue = "") Optional<List<String>> excludes) {
-    Health health = filteredDetails((Health) healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
+    Health health = filteredDetails((SystemHealth) healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
     if (health.getStatus().equals(Status.UP)) {
       return ResponseEntity.ok(health);
     }
@@ -40,16 +42,31 @@ public class StatusApiController {
   }
 
   @VisibleForTesting
-  Health filteredDetails(Health health, List<String> excludes) {
+  Health filteredDetails(SystemHealth health, List<String> excludes) {
     Health.Builder builder = new Health.Builder(health.getStatus());
 
+    health
+      .getComponents()
+      .entrySet()
+      .stream()
+      .filter(e -> e.getValue() instanceof Health && !excludes.contains(e.getKey()))
+      .forEach(
+        e -> builder.withDetail(e.getKey(), filteredHealthDetails((Health) e.getValue(), excludes))
+      );
+
+    return builder.build();
+  }
+
+  @VisibleForTesting
+  Health filteredHealthDetails(Health health, List<String> excludes) {
+    Health.Builder builder = new Health.Builder(health.getStatus());
     health
       .getDetails()
       .entrySet()
       .stream()
       .filter(e -> e.getValue() instanceof Health && !excludes.contains(e.getKey()))
       .forEach(
-        e -> builder.withDetail(e.getKey(), filteredDetails((Health) e.getValue(), excludes))
+        e -> builder.withDetail(e.getKey(), filteredHealthDetails((Health) e.getValue(), excludes))
       );
 
     return builder.build();

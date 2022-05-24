@@ -1,13 +1,13 @@
 package com.blossomproject.core.role;
 
-import com.google.common.collect.Lists;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.event.CreatedEvent;
 import com.blossomproject.core.common.event.UpdatedEvent;
 import com.blossomproject.core.common.mapper.DTOMapper;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
-import com.blossomproject.core.common.service.GenericCrudServiceImpl;
+import com.blossomproject.core.common.service.GenericSearchAndCrudServiceImpl;
 import com.blossomproject.core.common.utils.privilege.Privilege;
+import com.google.common.collect.Lists;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class RoleServiceImpl extends GenericCrudServiceImpl<RoleDTO, Role> implements RoleService {
+public class RoleServiceImpl extends GenericSearchAndCrudServiceImpl<RoleDTO, Role> implements RoleService {
 
   private static final Logger logger = LoggerFactory.getLogger(RoleServiceImpl.class);
 

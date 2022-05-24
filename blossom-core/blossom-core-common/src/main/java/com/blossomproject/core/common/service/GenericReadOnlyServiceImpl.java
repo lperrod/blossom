@@ -12,8 +12,11 @@ import org.springframework.data.domain.Pageable;
 
 public abstract class GenericReadOnlyServiceImpl<DTO extends AbstractDTO, ENTITY extends AbstractEntity> implements
   ReadOnlyService<DTO> {
+
   protected final ReadOnlyDao<ENTITY> dao;
+
   protected final DTOMapper<ENTITY, DTO> mapper;
+
   private final TypeToken<DTO> typeToken = new TypeToken<DTO>(getClass()) {
   };
 
@@ -38,10 +41,6 @@ public abstract class GenericReadOnlyServiceImpl<DTO extends AbstractDTO, ENTITY
     return mapper.mapEntitiesPage(this.dao.getAll(pageable));
   }
 
-  @Override
-  public Page<DTO> getAllWithSearch(Pageable pageable, String query) {
-    return mapper.mapEntitiesPage(this.dao.getAllWithSearch(pageable, query));
-  }
 
   @Override
   public List<DTO> getAll() {

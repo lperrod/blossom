@@ -1,11 +1,15 @@
 package com.blossomproject.module.filemanager;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
-import com.blossomproject.core.common.service.GenericCrudServiceImpl;
+import com.blossomproject.core.common.service.GenericSearchAndCrudServiceImpl;
 import com.blossomproject.module.filemanager.digest.DigestUtil;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.io.DigestInputStream;
@@ -16,21 +20,20 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class FileServiceImpl extends GenericCrudServiceImpl<FileDTO, File> implements FileService {
+public class FileServiceImpl extends GenericSearchAndCrudServiceImpl<FileDTO, File> implements FileService {
+
   private final static Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
+
   private final DigestUtil digestUtil;
+
   private final FileContentDao fileContentDao;
 
-  public FileServiceImpl(FileDao dao, FileDTOMapper mapper, FileContentDao fileContentDao, DigestUtil digestUtil, ApplicationEventPublisher publisher,
-    PluginRegistry<AssociationServicePlugin, Class<? extends  AbstractDTO>> associationRegistry) {
+  public FileServiceImpl(FileDao dao, FileDTOMapper mapper, FileContentDao fileContentDao, DigestUtil digestUtil,
+    ApplicationEventPublisher publisher,
+    PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry) {
     super(dao, mapper, publisher, associationRegistry);
     this.fileContentDao = fileContentDao;
     this.digestUtil = digestUtil;
@@ -43,7 +46,6 @@ public class FileServiceImpl extends GenericCrudServiceImpl<FileDTO, File> imple
     if (extension != null) {
       extension = extension.toLowerCase();
     }
-
 
     FileDTO newFile = new FileDTO();
     newFile.setName(multipartFile.getOriginalFilename());

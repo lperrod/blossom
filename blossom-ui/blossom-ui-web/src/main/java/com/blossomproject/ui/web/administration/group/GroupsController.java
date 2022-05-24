@@ -1,11 +1,14 @@
 package com.blossomproject.ui.web.administration.group;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.group.GroupCreateForm;
 import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.group.GroupUpdateForm;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import com.google.common.base.Strings;
@@ -46,16 +49,13 @@ public class GroupsController {
   private static final Logger logger = LoggerFactory.getLogger(GroupsController.class);
 
   private final GroupService groupService;
-  private final SearchEngineImpl<GroupDTO> searchEngine;
 
-  public GroupsController(GroupService groupService, SearchEngineImpl<GroupDTO> searchEngine) {
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, GroupDTO> searchEngine;
+
+  public GroupsController(GroupService groupService,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, GroupDTO> searchEngine) {
     this.groupService = groupService;
     this.searchEngine = searchEngine;
-  }
-
-  public GroupsController(GroupService groupService) {
-    this.groupService = groupService;
-    this.searchEngine = null;
   }
 
   @GetMapping
@@ -64,6 +64,7 @@ public class GroupsController {
     @PageableDefault(size = 25) Pageable pageable, Model model) {
     return tableView(q, pageable, model, "blossom/groups/groups");
   }
+
 
   private ModelAndView tableView(String q, Pageable pageable, Model model, String viewName) {
     Page<GroupDTO> groups;

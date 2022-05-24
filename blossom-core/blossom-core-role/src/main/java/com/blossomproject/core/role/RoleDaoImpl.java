@@ -1,12 +1,13 @@
 package com.blossomproject.core.role;
 
-import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.blossomproject.core.common.dao.GenericSearchAndCrudDaoImpl;
 import com.querydsl.core.types.Predicate;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class RoleDaoImpl extends GenericCrudDaoImpl<Role> implements RoleDao {
+public class RoleDaoImpl extends GenericSearchAndCrudDaoImpl<Role> implements RoleDao {
+
   public RoleDaoImpl(RoleRepository repository) {
     super(repository);
   }

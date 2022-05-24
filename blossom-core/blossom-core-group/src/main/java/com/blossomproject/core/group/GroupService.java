@@ -1,11 +1,11 @@
 package com.blossomproject.core.group;
 
-import com.blossomproject.core.common.service.CrudService;
+import com.blossomproject.core.common.service.SearchAndCrudService;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public interface GroupService extends CrudService<GroupDTO> {
+public interface GroupService extends SearchAndCrudService<GroupDTO> {
 
   GroupDTO create(GroupCreateForm groupCreateForm) throws Exception;
 

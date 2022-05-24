@@ -1,13 +1,12 @@
 package com.blossomproject.core.user;
 
-import com.blossomproject.core.common.dao.CrudDao;
-
+import com.blossomproject.core.common.dao.SearchAndCrudDao;
 import java.util.Date;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public interface UserDao extends CrudDao<User> {
+public interface UserDao extends SearchAndCrudDao<User> {
 
   User getByIdentifier(String identifier);
 

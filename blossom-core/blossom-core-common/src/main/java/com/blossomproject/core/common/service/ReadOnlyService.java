@@ -9,7 +9,6 @@ public interface ReadOnlyService<DTO extends AbstractDTO> extends ReadOnlyServic
 
   Page<DTO> getAll(Pageable pageable);
 
-  Page<DTO> getAllWithSearch(Pageable pageable, String query);
 
   List<DTO> getAll(List<Long> ids);
 

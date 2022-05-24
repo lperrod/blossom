@@ -1,20 +1,19 @@
 package com.blossomproject.ui.web.administration.user;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.core.common.search.SearchResult;
-import com.blossomproject.core.common.search.facet.Facet;
-import com.blossomproject.core.common.search.facet.TermsFacetConfiguration;
 import com.blossomproject.core.user.User;
 import com.blossomproject.core.user.UserCreateForm;
 import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.core.user.UserUpdateForm;
-import com.blossomproject.ui.filter.FilterDefault;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
+import com.blossomproject.module.search.common.facet.Facet;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +26,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.tika.Tika;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -50,7 +48,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-/** Created by Maël Gargadennnec on 05/05/2017. */
+/**
+ * Created by Maël Gargadennnec on 05/05/2017.
+ */
 @BlossomController
 @RequestMapping("/administration/users")
 @OpenedMenu("users")
@@ -59,21 +59,17 @@ public class UsersController {
   private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
 
   private final UserService userService;
-  private final SearchEngineImpl<UserDTO> searchEngine;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine;
+
   private final Tika tika;
 
   public UsersController(
-    UserService userService, SearchEngineImpl<UserDTO> searchEngine, Tika tika) {
+    UserService userService,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine,
+    Tika tika) {
     this.userService = userService;
     this.searchEngine = searchEngine;
-    this.tika = tika;
-  }
-
-
-  public UsersController(
-    UserService userService, Tika tika) {
-    this.userService = userService;
-    this.searchEngine = null;
     this.tika = tika;
   }
 
@@ -82,41 +78,20 @@ public class UsersController {
   public ModelAndView getUsersPage(
     @RequestParam(value = "q", required = false) String q,
     @PageableDefault(size = 25) Pageable pageable,
-    @FilterDefault QueryBuilder queryBuilder,
+
     Model model) {
-    return tableView(q, pageable, queryBuilder, model, "blossom/users/users");
+    return tableView(q, pageable, model, "blossom/users/users");
   }
 
   private ModelAndView tableView(
-    String q, Pageable pageable, QueryBuilder filterBuilder, Model model, String viewName) {
+    String q, Pageable pageable, Model model, String viewName) {
     Page<UserDTO> users;
-    List<Facet> facets;
+    List<Facet> facets = new ArrayList<>();
 
-    if (Strings.isNullOrEmpty(q) && filterBuilder == null) {
+    if (Strings.isNullOrEmpty(q)) {
       users = this.userService.getAll(pageable);
-      facets = Lists.newArrayList();
     } else {
-      if (searchEngine != null) {
-        List<QueryBuilder> filters = Lists.newArrayList();
-        if (filterBuilder != null) {
-          filters.add(filterBuilder);
-        }
-
-        SearchResult<UserDTO> searchResult =
-          this.searchEngine.search(
-            q,
-            pageable,
-            filters,
-            Lists.newArrayList(
-              new TermsFacetConfiguration<>("users.search.facet.company", 50),
-              new TermsFacetConfiguration<>("users.search.facet.function", 50)));
-        users = searchResult.getPage();
-        facets = searchResult.getFacets();
-      } else {
-        facets = new ArrayList<>();
-        users = userService.getAllWithSearch(pageable, q);
-      }
-
+      users = searchEngine.search(q, pageable).getPage();
     }
 
     model.addAttribute("facets", facets);

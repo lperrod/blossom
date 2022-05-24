@@ -4,10 +4,11 @@ import com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration;
 import com.blossomproject.core.association_user_role.AssociationUserRoleService;
 import com.blossomproject.core.common.PluginConstants;
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngine;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
 import com.blossomproject.core.user.UserService;
+import com.blossomproject.module.search.common.OmnisearchService;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.current_user.CurrentUserControllerAdvice;
 import com.blossomproject.ui.i18n.LocaleControllerAdvice;
 import com.blossomproject.ui.menu.Menu;
@@ -26,14 +27,12 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 import javax.servlet.ServletException;
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.ApplicationContext;
@@ -89,10 +88,9 @@ public class WebInterfaceAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(value = "blossom.elasticsearch.enabled", havingValue = "true")
-  public OmnisearchController searchController(Client client,
-    @Qualifier(PluginConstants.PLUGIN_SEARCH_ENGINE) PluginRegistry<SearchEngine, Class<? extends AbstractDTO>> registry) {
-    return new OmnisearchController(client, registry);
+  public OmnisearchController searchController(OmnisearchService omnisearchService,
+    @Qualifier(PluginConstants.PLUGIN_SEARCH_ENGINE) PluginRegistry<SearchEngine<?, ?, ?, ? extends AbstractDTO>, Class<? extends AbstractDTO>> registry) {
+    return new OmnisearchController(omnisearchService, registry);
   }
 
   @Bean
@@ -136,6 +134,7 @@ public class WebInterfaceAutoConfiguration {
   static class BlossomErrorViewResolverConfiguration {
 
     private final ApplicationContext applicationContext;
+
     private final WebProperties resourceProperties;
 
     BlossomErrorViewResolverConfiguration(ApplicationContext applicationContext,
@@ -154,7 +153,9 @@ public class WebInterfaceAutoConfiguration {
   public static class BlossomInvalidSessionStrategy implements SessionInformationExpiredStrategy {
 
     private final Logger logger = LoggerFactory.getLogger(BlossomInvalidSessionStrategy.class);
+
     private final String destinationUrl;
+
     private final RedirectStrategy redirectStrategy;
 
     public BlossomInvalidSessionStrategy(String invalidSessionUrl) {

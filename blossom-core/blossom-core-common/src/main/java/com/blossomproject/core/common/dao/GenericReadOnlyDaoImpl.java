@@ -29,9 +29,12 @@ public abstract class GenericReadOnlyDaoImpl<ENTITY extends AbstractEntity> impl
   ReadOnlyDao<ENTITY> {
 
   protected final CrudRepository<ENTITY> repository;
+
   protected TypeToken<ENTITY> type = new TypeToken<ENTITY>(getClass()) {
   };
+
   private Querydsl querydsl;
+
   private EntityManager entityManager;
 
   public GenericReadOnlyDaoImpl(CrudRepository<ENTITY> repository) {
@@ -83,11 +86,6 @@ public abstract class GenericReadOnlyDaoImpl<ENTITY extends AbstractEntity> impl
     return repository.findAll(pageable);
   }
 
-  @Override
-  public Page<ENTITY> getAllWithSearch(Pageable pageable, String query) {
-    Preconditions.checkArgument(pageable != null);
-    return repository.findAll(computeSearchPredicate(query), pageable);
-  }
 
   /**
    * Returns a fresh {@link JPQLQuery}.

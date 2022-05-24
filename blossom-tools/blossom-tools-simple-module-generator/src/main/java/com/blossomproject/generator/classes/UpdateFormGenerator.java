@@ -1,24 +1,21 @@
 package com.blossomproject.generator.classes;
 
-import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.generator.configuration.model.TemporalField;
-import com.helger.jcodemodel.*;
 import com.blossomproject.generator.configuration.model.Field;
 import com.blossomproject.generator.configuration.model.Settings;
-import com.blossomproject.generator.configuration.model.StringField;
 import com.blossomproject.generator.utils.GeneratorUtils;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import com.helger.jcodemodel.AbstractJClass;
+import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JDefinedClass;
+import com.helger.jcodemodel.JExpr;
+import com.helger.jcodemodel.JFieldVar;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JMod;
+import com.helger.jcodemodel.JVar;
 
 public class UpdateFormGenerator implements ClassGenerator {
 
   private AbstractJClass dtoClass;
+
   @Override
   public void prepare(Settings settings, JCodeModel codeModel) {
     this.dtoClass = codeModel.ref(GeneratorUtils.getDtoFullyQualifiedClassName(settings));

@@ -1,6 +1,6 @@
 package com.blossomproject.core.user;
 
-import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.blossomproject.core.common.dao.GenericSearchAndCrudDaoImpl;
 import com.google.common.base.Preconditions;
 import com.querydsl.core.types.Predicate;
 import java.util.Date;
@@ -11,7 +11,8 @@ import org.springframework.cache.annotation.CachePut;
  * Created by Maël Gargadennnec on 03/05/2017.
  */
 @CacheConfig(cacheResolver = "blossomCacheResolver")
-public class UserDaoImpl extends GenericCrudDaoImpl<User> implements UserDao {
+public class UserDaoImpl extends GenericSearchAndCrudDaoImpl<User> implements UserDao {
+
   private final UserRepository userRepository;
 
   public UserDaoImpl(UserRepository repository) {

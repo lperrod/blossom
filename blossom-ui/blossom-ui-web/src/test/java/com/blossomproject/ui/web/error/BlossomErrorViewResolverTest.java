@@ -30,6 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.autoconfigure.template.TemplateAvailabilityProvider;
 import org.springframework.boot.autoconfigure.template.TemplateAvailabilityProviders;
 import org.springframework.boot.autoconfigure.web.WebProperties;
+import org.springframework.boot.autoconfigure.web.WebProperties.Resources;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -52,11 +53,14 @@ public class BlossomErrorViewResolverTest {
   @Mock
   TemplateAvailabilityProviders templateAvailabilityProviders;
 
+  Resources mockResource;
+
   private BlossomErrorViewResolver controller;
 
   @Before
   public void setUp() {
     controller = new BlossomErrorViewResolver(applicationContext, resourceProperties, templateAvailabilityProviders);
+    mockResource = mock(Resources.class);
   }
 
   @Test
@@ -170,12 +174,15 @@ public class BlossomErrorViewResolverTest {
   @Test
   public void should_resolve_resource_null_without_locations() throws Exception {
     BlossomErrorViewResolver spyController = spy(controller);
-    when(resourceProperties.getResources().getStaticLocations()).thenReturn(new String[0]);
+
+    when(resourceProperties.getResources()).thenReturn(mockResource);
+    when(mockResource.getStaticLocations()).thenReturn(new String[0]);
     ModelAndView result = spyController.resolveResource("test", new HashMap<>());
 
     Assert.assertNull(result);
 
-    verify(resourceProperties, times(1)).getResources().getStaticLocations();
+    verify(resourceProperties, times(1)).getResources();
+    verify(mockResource, times(1)).getStaticLocations();
   }
 
   @Test
@@ -186,12 +193,14 @@ public class BlossomErrorViewResolverTest {
     when(applicationContext.getResource(eq("location"))).thenReturn(resource);
     when(resource.createRelative(eq("test.html"))).thenThrow(new IOException());
 
-    when(resourceProperties.getResources().getStaticLocations()).thenReturn(new String[]{"location"});
+    when(resourceProperties.getResources()).thenReturn(mockResource);
+    when(mockResource.getStaticLocations()).thenReturn(new String[]{"location"});
     ModelAndView result = spyController.resolveResource("test", new HashMap<>());
 
     Assert.assertNull(result);
 
-    verify(resourceProperties, times(1)).getResources().getStaticLocations();
+    verify(resourceProperties, times(1)).getResources();
+    verify(mockResource, times(1)).getStaticLocations();
     verify(applicationContext, times(1)).getResource(anyString());
     verify(resource, times(1)).createRelative(anyString());
   }
@@ -205,12 +214,14 @@ public class BlossomErrorViewResolverTest {
     when(resource.createRelative(eq("test.html"))).thenReturn(resource);
     when(resource.exists()).thenReturn(false);
 
-    when(resourceProperties.getResources().getStaticLocations()).thenReturn(new String[]{"location"});
+    when(resourceProperties.getResources()).thenReturn(mockResource);
+    when(mockResource.getStaticLocations()).thenReturn(new String[]{"location"});
     ModelAndView result = spyController.resolveResource("test", new HashMap<>());
 
     Assert.assertNull(result);
 
-    verify(resourceProperties, times(1)).getResources().getStaticLocations();
+    verify(resourceProperties, times(1)).getResources();
+    verify(mockResource, times(1)).getStaticLocations();
     verify(applicationContext, times(1)).getResource(anyString());
     verify(resource, times(1)).createRelative(anyString());
     verify(resource, times(1)).exists();
@@ -225,13 +236,15 @@ public class BlossomErrorViewResolverTest {
     when(resource.createRelative(eq("test.html"))).thenReturn(resource);
     when(resource.exists()).thenReturn(true);
 
-    when(resourceProperties.getResources().getStaticLocations()).thenReturn(new String[]{"location", "location2"});
+    when(resourceProperties.getResources()).thenReturn(mockResource);
+    when(mockResource.getStaticLocations()).thenReturn(new String[]{"location", "location2"});
     ModelAndView result = spyController.resolveResource("test", new HashMap<>());
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.getView() instanceof BlossomErrorViewResolver.HtmlResourceView);
 
-    verify(resourceProperties, times(1)).getResources().getStaticLocations();
+    verify(resourceProperties, times(1)).getResources();
+    verify(mockResource, times(1)).getStaticLocations();
     verify(applicationContext, times(1)).getResource(anyString());
     verify(resource, times(1)).createRelative(anyString());
     verify(resource, times(1)).exists();
@@ -251,13 +264,15 @@ public class BlossomErrorViewResolverTest {
     when(resource2.createRelative(eq("test.html"))).thenReturn(resource2);
     when(resource2.exists()).thenReturn(true);
 
-    when(resourceProperties.getResources().getStaticLocations()).thenReturn(new String[]{"location", "location2"});
+    when(resourceProperties.getResources()).thenReturn(mockResource);
+    when(mockResource.getStaticLocations()).thenReturn(new String[]{"location", "location2"});
     ModelAndView result = spyController.resolveResource("test", new HashMap<>());
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.getView() instanceof BlossomErrorViewResolver.HtmlResourceView);
 
-    verify(resourceProperties, times(1)).getResources().getStaticLocations();
+    verify(resourceProperties, times(1)).getResources();
+    verify(mockResource, times(1)).getStaticLocations();
     verify(applicationContext, times(2)).getResource(anyString());
     verify(resource1, times(1)).createRelative(anyString());
     verify(resource1, times(1)).exists();

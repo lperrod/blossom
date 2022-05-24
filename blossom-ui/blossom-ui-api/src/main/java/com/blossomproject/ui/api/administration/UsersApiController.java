@@ -1,11 +1,14 @@
 package com.blossomproject.ui.api.administration;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.user.UserCreateForm;
 import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.core.user.UserUpdateForm;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -44,11 +47,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class UsersApiController {
 
   private final UserService userService;
-  private final SearchEngineImpl<UserDTO> searchEngine;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine;
+
   private final Tika tika;
 
   public UsersApiController(UserService userService,
-    SearchEngineImpl<UserDTO> searchEngine, Tika tika) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine,
+    Tika tika) {
     this.userService = userService;
     this.searchEngine = searchEngine;
     this.tika = tika;
@@ -63,10 +69,7 @@ public class UsersApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.userService.getAll(pageable);
     }
-    if (this.searchEngine != null) {
-      return this.searchEngine.search(q, pageable).getPage();
-    }
-    return this.userService.getAllWithSearch(pageable, q);
+    return this.searchEngine.search(q, pageable).getPage();
   }
 
   @PostMapping

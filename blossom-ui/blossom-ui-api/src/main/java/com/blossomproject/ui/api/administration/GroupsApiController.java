@@ -1,11 +1,14 @@
 package com.blossomproject.ui.api.administration;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.group.GroupCreateForm;
 import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.group.GroupUpdateForm;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -36,10 +39,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class GroupsApiController {
 
   private final GroupService groupService;
-  private final SearchEngineImpl<GroupDTO> searchEngine;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, GroupDTO> searchEngine;
 
   public GroupsApiController(GroupService groupService,
-    SearchEngineImpl<GroupDTO> searchEngine) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, GroupDTO> searchEngine) {
     this.groupService = groupService;
     this.searchEngine = searchEngine;
   }
@@ -52,11 +56,7 @@ public class GroupsApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.groupService.getAll(pageable);
     }
-    if (this.searchEngine != null) {
-      return this.searchEngine.search(q, pageable).getPage();
-    }
-
-    return this.groupService.getAllWithSearch(pageable, q);
+    return this.searchEngine.search(q, pageable).getPage();
   }
 
   @PostMapping

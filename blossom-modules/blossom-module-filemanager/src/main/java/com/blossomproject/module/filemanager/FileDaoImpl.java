@@ -1,12 +1,13 @@
 package com.blossomproject.module.filemanager;
 
-import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.blossomproject.core.common.dao.GenericSearchAndCrudDaoImpl;
 import com.querydsl.core.types.Predicate;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class FileDaoImpl extends GenericCrudDaoImpl<File> implements FileDao {
+public class FileDaoImpl extends GenericSearchAndCrudDaoImpl<File> implements FileDao {
+
   public FileDaoImpl(FileRepository repository) {
     super(repository);
   }

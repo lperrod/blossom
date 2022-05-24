@@ -5,7 +5,7 @@ import com.blossomproject.core.common.event.CreatedEvent;
 import com.blossomproject.core.common.event.UpdatedEvent;
 import com.blossomproject.core.common.mapper.DTOMapper;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
-import com.blossomproject.core.common.service.GenericCrudServiceImpl;
+import com.blossomproject.core.common.service.GenericSearchAndCrudServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class GroupServiceImpl extends GenericCrudServiceImpl<GroupDTO, Group> implements
+public class GroupServiceImpl extends GenericSearchAndCrudServiceImpl<GroupDTO, Group> implements
   GroupService {
 
   private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);

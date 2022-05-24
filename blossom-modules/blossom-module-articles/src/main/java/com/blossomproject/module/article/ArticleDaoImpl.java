@@ -1,13 +1,13 @@
 package com.blossomproject.module.article;
 
-import com.blossomproject.core.common.dao.GenericCrudDaoImpl;
+import com.blossomproject.core.common.dao.GenericSearchAndCrudDaoImpl;
 import com.google.common.base.Preconditions;
 import com.querydsl.core.types.Predicate;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class ArticleDaoImpl extends GenericCrudDaoImpl<Article> implements ArticleDao {
+public class ArticleDaoImpl extends GenericSearchAndCrudDaoImpl<Article> implements ArticleDao {
 
   private final ArticleRepository articleRepository;
 

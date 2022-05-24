@@ -1,6 +1,5 @@
 package com.blossomproject.core.common.actuator;
 
-import com.google.common.base.Strings;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -8,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
 /**
  * Adapter to expose trace statistics
@@ -17,9 +17,9 @@ import org.springframework.lang.Nullable;
 @Endpoint(id = "tracesstats")
 public class TraceStatisticsMvcEndpoint {
 
-  private final ElasticsearchTraceRepository traceRepository;
+  private final TraceRepository traceRepository;
 
-  public TraceStatisticsMvcEndpoint(ElasticsearchTraceRepository traceRepository) {
+  public TraceStatisticsMvcEndpoint(TraceRepository traceRepository) {
     this.traceRepository = traceRepository;
   }
 
@@ -27,8 +27,11 @@ public class TraceStatisticsMvcEndpoint {
   @ReadOperation
   public String statsForPeriod(@Nullable String period) {
     Period choice = Period.PAST_WEEK;
-    if (!Strings.isNullOrEmpty(period)) {
-      try {choice = Period.valueOf(period);}catch(Exception e){}
+    if (StringUtils.hasText(period)) {
+      try {
+        choice = Period.valueOf(period);
+      } catch (Exception e) {
+      }
     }
 
     Instant from = null;
@@ -39,7 +42,7 @@ public class TraceStatisticsMvcEndpoint {
       to = choice.to();
       precision = choice.precision();
     }
-    return traceRepository.stats(from, to, precision).toString();
+    return traceRepository.stats(from, to, precision);
   }
 
   public enum Period {

@@ -1,12 +1,15 @@
 package com.blossomproject.ui.web.content.article;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.module.article.Article;
 import com.blossomproject.module.article.ArticleCreateForm;
 import com.blossomproject.module.article.ArticleDTO;
 import com.blossomproject.module.article.ArticleService;
 import com.blossomproject.module.article.ArticleUpdateForm;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import com.google.common.base.Strings;
@@ -17,6 +20,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -42,19 +47,18 @@ import org.springframework.web.servlet.ModelAndView;
 @OpenedMenu("articles")
 public class ArticlesController {
 
+  private static final Logger logger = LoggerFactory.getLogger(ArticlesController.class);
+
   private final ArticleService articleService;
-  private final SearchEngineImpl<ArticleDTO> searchEngine;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, ArticleDTO> searchEngine;
 
   public ArticlesController(ArticleService articleService,
-    SearchEngineImpl<ArticleDTO> searchEngine) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, ArticleDTO> searchEngine) {
     this.articleService = articleService;
     this.searchEngine = searchEngine;
   }
 
-  public ArticlesController(ArticleService articleService) {
-    this.articleService = articleService;
-    this.searchEngine = null;
-  }
 
   @GetMapping
   @PreAuthorize("hasAuthority('content:articles:read')")
@@ -65,7 +69,11 @@ public class ArticlesController {
     if (Strings.isNullOrEmpty(q)) {
       articles = this.articleService.getAll(pageable);
     } else {
-      articles = this.searchEngine.search(q, pageable).getPage();
+      if (searchEngine != null) {
+        articles = this.searchEngine.search(q, pageable).getPage();
+      } else {
+        articles = articleService.getAllWithSearch(pageable, q);
+      }
     }
 
     model.addAttribute("articles", articles);

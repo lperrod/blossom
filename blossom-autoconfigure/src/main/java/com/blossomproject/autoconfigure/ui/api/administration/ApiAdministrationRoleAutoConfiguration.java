@@ -2,9 +2,12 @@ package com.blossomproject.autoconfigure.ui.api.administration;
 
 import com.blossomproject.autoconfigure.ui.common.privileges.RolePrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.WebInterfaceAutoConfiguration;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RoleService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.api.administration.RolesApiController;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -25,7 +28,7 @@ public class ApiAdministrationRoleAutoConfiguration {
 
   @Bean
   public RolesApiController rolesApiController(RoleService roleService,
-    SearchEngineImpl<RoleDTO> searchEngine) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine) {
     return new RolesApiController(roleService, searchEngine);
   }
 

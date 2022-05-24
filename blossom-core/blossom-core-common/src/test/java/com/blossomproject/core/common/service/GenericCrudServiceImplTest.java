@@ -34,12 +34,11 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.plugin.core.PluginRegistry;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenericCrudServiceImplTest {
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -51,9 +50,11 @@ public class GenericCrudServiceImplTest {
 
   @Mock
   ApplicationEventPublisher publisher;
+
   @InjectMocks
   @Spy
   TestGenericCrudServiceImpl service;
+
   @Mock
   private PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry;
 
@@ -483,13 +484,10 @@ public class GenericCrudServiceImplTest {
       super(dao, mapper, publisher, associationRegistry);
     }
 
-    @Override
-    public Page<DTO> getAllWithSearch(Pageable pageable, String query) {
-      return null;
-    }
   }
 
   public static class ENTITY extends AbstractEntity {
+
     public ENTITY() {
     }
 
@@ -499,6 +497,7 @@ public class GenericCrudServiceImplTest {
   }
 
   public static class DTO extends AbstractDTO {
+
     public DTO() {
     }
 
@@ -508,11 +507,13 @@ public class GenericCrudServiceImplTest {
   }
 
   public static class DTO2 extends AbstractDTO {
+
     public DTO2() {
     }
   }
 
   public static class DTO3 extends AbstractDTO {
+
     public DTO3() {
     }
   }

@@ -7,11 +7,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
-import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.core.common.search.SearchResult;
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
+import com.blossomproject.module.search.common.SearchResult;
+import com.google.common.collect.Lists;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -22,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +35,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+
+;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileManagerApiControllerTest {
@@ -43,7 +48,7 @@ public class FileManagerApiControllerTest {
   private FileService service;
 
   @Mock
-  private SearchEngineImpl<FileDTO> searchEngine;
+  private SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine;
 
   private FileManagerApiController controller;
 
@@ -64,7 +69,7 @@ public class FileManagerApiControllerTest {
   public void should_get_paged_files_with_query_parameter() {
     when(searchEngine.search(any(String.class), any(Pageable.class)))
       .thenAnswer(a -> new SearchResult<>(0, new PageImpl<FileDTO>(Lists.newArrayList())));
-    controller.list("test", PageRequest.of(0,10));
+    controller.list("test", PageRequest.of(0, 10));
     verify(searchEngine, times(1)).search(eq("test"), any(Pageable.class));
   }
 
@@ -155,7 +160,7 @@ public class FileManagerApiControllerTest {
   }
 
   @Test
-  public void should_get_one_with_id_not_found(){
+  public void should_get_one_with_id_not_found() {
     Long id = 1L;
     when(service.getOne(any(Long.class))).thenReturn(null);
     ResponseEntity<FileDTO> response = controller.get(id);
@@ -194,7 +199,6 @@ public class FileManagerApiControllerTest {
     Assert.assertTrue(response.getHeaders().containsKey(HttpHeaders.CONTENT_DISPOSITION));
     Assert.assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("test.pdf"));
     Assert.assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("Content-Disposition: inline;"));
-
 
     Assert.assertTrue(response.getStatusCode() == HttpStatus.OK);
   }

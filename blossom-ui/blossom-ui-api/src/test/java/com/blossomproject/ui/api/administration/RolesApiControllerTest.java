@@ -8,14 +8,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
-import com.blossomproject.core.common.search.SearchResult;
 import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.role.RoleCreateForm;
 import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RoleService;
 import com.blossomproject.core.role.RoleUpdateForm;
 import com.blossomproject.core.user.UserDTO;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
+import com.blossomproject.module.search.common.SearchResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.Map;
@@ -46,7 +49,7 @@ public class RolesApiControllerTest {
   private RoleService service;
 
   @Mock
-  private SearchEngineImpl<RoleDTO> searchEngine;
+  private SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine;
 
   private RolesApiController controller;
 
@@ -67,7 +70,7 @@ public class RolesApiControllerTest {
   public void should_get_paged_roles_with_query_parameter() {
     when(searchEngine.search(any(String.class), any(Pageable.class)))
       .thenAnswer(a -> new SearchResult<>(0, new PageImpl<RoleDTO>(Lists.newArrayList())));
-    controller.list("test", PageRequest.of(0,10));
+    controller.list("test", PageRequest.of(0, 10));
     verify(searchEngine, times(1)).search(eq("test"), any(Pageable.class));
   }
 
@@ -204,7 +207,8 @@ public class RolesApiControllerTest {
   public void should_delete_one_with_id_found_with_associations_no_force() throws Exception {
     Long id = 1L;
     when(service.getOne(any(Long.class))).thenReturn(new RoleDTO());
-    when(service.delete(any(RoleDTO.class), eq(false))).thenReturn(Optional.of(ImmutableMap.<Class<? extends AbstractDTO>, Long>builder().put(GroupDTO.class, 2L).put(UserDTO.class, 5L).build()));
+    when(service.delete(any(RoleDTO.class), eq(false))).thenReturn(Optional.of(
+      ImmutableMap.<Class<? extends AbstractDTO>, Long>builder().put(GroupDTO.class, 2L).put(UserDTO.class, 5L).build()));
 
     ResponseEntity<Map<Class<? extends AbstractDTO>, Long>> response = controller.delete(id, false);
     verify(service, times(1)).getOne(eq(id));
@@ -220,7 +224,8 @@ public class RolesApiControllerTest {
   public void should_delete_one_with_id_found_with_associations_force() throws Exception {
     Long id = 1L;
     when(service.getOne(any(Long.class))).thenReturn(new RoleDTO());
-    when(service.delete(any(RoleDTO.class), eq(false))).thenReturn(Optional.of(ImmutableMap.<Class<? extends AbstractDTO>, Long>builder().put(GroupDTO.class, 2L).put(UserDTO.class, 5L).build()));
+    when(service.delete(any(RoleDTO.class), eq(false))).thenReturn(Optional.of(
+      ImmutableMap.<Class<? extends AbstractDTO>, Long>builder().put(GroupDTO.class, 2L).put(UserDTO.class, 5L).build()));
     when(service.delete(any(RoleDTO.class), eq(true))).thenReturn(Optional.empty());
 
     ResponseEntity<Map<Class<? extends AbstractDTO>, Long>> response = controller.delete(id, false);
@@ -235,7 +240,6 @@ public class RolesApiControllerTest {
     Assert.assertNotNull(response);
     Assert.assertNull(response.getBody());
     Assert.assertTrue(response.getStatusCode() == HttpStatus.OK);
-
 
     verify(service, times(2)).getOne(eq(id));
     verify(service, times(2)).delete(any(RoleDTO.class), anyBoolean());

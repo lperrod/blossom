@@ -1,7 +1,6 @@
 package com.blossomproject.ui.web.administration.role;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.core.common.utils.tree.TreeNode;
 import com.blossomproject.core.role.RoleCreateForm;
@@ -9,6 +8,10 @@ import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RolePrivilegeUpdateForm;
 import com.blossomproject.core.role.RoleService;
 import com.blossomproject.core.role.RoleUpdateForm;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import com.google.common.base.Strings;
@@ -54,10 +57,13 @@ public class RolesController {
   private static final Logger logger = LoggerFactory.getLogger(RolesController.class);
 
   private final RoleService roleService;
-  private final SearchEngineImpl<RoleDTO> searchEngine;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine;
+
   private final MessageSource messageSource;
 
-  public RolesController(RoleService roleService, SearchEngineImpl<RoleDTO> searchEngine,
+  public RolesController(RoleService roleService,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine,
     MessageSource messageSource) {
     this.roleService = roleService;
     this.searchEngine = searchEngine;
@@ -65,19 +71,13 @@ public class RolesController {
   }
 
 
-  public RolesController(RoleService roleService,
-    MessageSource messageSource) {
-    this.roleService = roleService;
-    this.searchEngine = null;
-    this.messageSource = messageSource;
-  }
-
   @GetMapping
   @PreAuthorize("hasAuthority('administration:roles:read')")
   public ModelAndView getRolesPage(@RequestParam(value = "q", required = false) String q,
     @PageableDefault(size = 25) Pageable pageable, Model model) {
     return tableView(q, pageable, model, "blossom/roles/roles");
   }
+
 
   private ModelAndView tableView(String q, Pageable pageable, Model model, String viewName) {
     Page<RoleDTO> roles;

@@ -1,8 +1,11 @@
 package com.blossomproject.ui.api.administration;
 
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -33,10 +36,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileManagerApiController {
 
   private static final Logger logger = LoggerFactory.getLogger(FileManagerApiController.class);
-  private final FileService service;
-  private final SearchEngineImpl<FileDTO> searchEngine;
 
-  public FileManagerApiController(FileService service, SearchEngineImpl<FileDTO> searchEngine) {
+  private final FileService service;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine;
+
+  public FileManagerApiController(FileService service,
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine) {
     this.service = service;
     this.searchEngine = searchEngine;
   }
@@ -49,10 +55,7 @@ public class FileManagerApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.service.getAll(pageable);
     }
-    if (this.searchEngine != null) {
-      return this.searchEngine.search(q, pageable).getPage();
-    }
-    return this.service.getAllWithSearch(pageable, q);
+    return this.searchEngine.search(q, pageable).getPage();
   }
 
 

@@ -1,63 +1,49 @@
 package com.blossomproject.autoconfigure.core;
 
-import com.blossomproject.core.common.actuator.ElasticsearchTraceRepository;
-import com.blossomproject.core.common.actuator.ElasticsearchTraceRepositoryImpl;
+import com.blossomproject.core.common.actuator.TraceRepository;
 import com.blossomproject.core.common.actuator.TraceStatisticsMvcEndpoint;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import java.io.IOException;
+import com.blossomproject.module.search.common.trace.DefaultInMemoryTraceRepository;
 import java.util.HashSet;
 import java.util.Set;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.client.Client;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceAutoConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.io.Resource;
 
 /**
  * Created by Maël Gargadennnec on 11/05/2017.
  */
 @Configuration
-@AutoConfigureAfter(ElasticsearchAutoConfiguration.class)
+
 @AutoConfigureBefore(HttpTraceAutoConfiguration.class)
 @PropertySource("classpath:/actuator.properties")
-@ConditionalOnBean(ElasticsearchAutoConfiguration.class)
 public class ActuatorAutoConfiguration {
 
-  @Bean
-  public ElasticsearchTraceRepository traceRepository(
-    Client client, BulkProcessor bulkProcessor,
-    @Value("classpath:/elasticsearch/traces.json") Resource resource,
-    ObjectMapper objectMapper,
-    TraceProperties traceProperties)
-    throws IOException {
-    String settings = Resources.toString(resource.getURL(), Charsets.UTF_8);
-
-    return new ElasticsearchTraceRepositoryImpl(
-      client, bulkProcessor, "traces", traceProperties.getExcludedUris(),
-      traceProperties.getExcludedRequestHeaders(), traceProperties.getExcludedResponseHeaders(), settings, objectMapper);
-  }
 
   @Bean
   public TraceStatisticsMvcEndpoint traceStatisticsMvcEndpoint(
-    ElasticsearchTraceRepository traceRepository) {
+    TraceRepository traceRepository) {
     return new TraceStatisticsMvcEndpoint(traceRepository);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(TraceRepository.class)
+  public TraceRepository traceRepository(TraceProperties traceProperties) {
+    return new DefaultInMemoryTraceRepository(traceProperties.getExcludedUris());
   }
 
   @Configuration("BlossomActuatorAutoConfigurationTraceProperties")
   @ConfigurationProperties("blossom.actuator.traces")
   @PropertySource("classpath:/actuator.properties")
   public static class TraceProperties {
+
     private final Set<String> excludedUris = new HashSet<>();
+
     private final Set<String> excludedRequestHeaders = new HashSet<>();
+
     private final Set<String> excludedResponseHeaders = new HashSet<>();
 
     public Set<String> getExcludedUris() {

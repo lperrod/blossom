@@ -1,11 +1,14 @@
 package com.blossomproject.ui.api.administration;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-import com.blossomproject.core.common.search.SearchEngineImpl;
 import com.blossomproject.core.role.RoleCreateForm;
 import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RoleService;
 import com.blossomproject.core.role.RoleUpdateForm;
+import com.blossomproject.module.search.common.AbstractQueryBuilder;
+import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
+import com.blossomproject.module.search.common.AbstractSearchResponse;
+import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -36,10 +39,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class RolesApiController {
 
   private final RoleService roleService;
-  private final SearchEngineImpl<RoleDTO> searchEngine;
+
+  private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine;
 
   public RolesApiController(RoleService roleService,
-    SearchEngineImpl<RoleDTO> searchEngine) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, RoleDTO> searchEngine) {
     this.roleService = roleService;
     this.searchEngine = searchEngine;
   }
@@ -51,10 +55,7 @@ public class RolesApiController {
     if (Strings.isNullOrEmpty(q)) {
       return this.roleService.getAll(pageable);
     }
-    if (this.searchEngine != null) {
-      return this.searchEngine.search(q, pageable).getPage();
-    }
-    return this.roleService.getAllWithSearch(pageable, q);
+    return this.searchEngine.search(q, pageable).getPage();
   }
 
   @PostMapping

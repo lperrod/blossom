@@ -1,15 +1,15 @@
 package com.blossomproject.core.user;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.event.CreatedEvent;
 import com.blossomproject.core.common.event.UpdatedEvent;
 import com.blossomproject.core.common.mapper.DTOMapper;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
-import com.blossomproject.core.common.service.GenericCrudServiceImpl;
+import com.blossomproject.core.common.service.GenericSearchAndCrudServiceImpl;
 import com.blossomproject.core.common.utils.action_token.ActionToken;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,12 +28,16 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
  */
-public class UserServiceImpl extends GenericCrudServiceImpl<UserDTO, User> implements UserService {
+public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, User> implements UserService {
 
   private final PasswordEncoder passwordEncoder;
+
   private final UserDao userDao;
+
   private final ActionTokenService tokenService;
+
   private final UserMailService userMailService;
+
   private final byte[] defaultAvatar;
 
   private final String creationDateParameter = "creationDate";

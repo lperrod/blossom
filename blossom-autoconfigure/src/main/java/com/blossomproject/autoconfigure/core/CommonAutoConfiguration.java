@@ -1,5 +1,6 @@
 package com.blossomproject.autoconfigure.core;
 
+import com.blossomproject.autoconfigure.module.search.elasticsearch.ElasticsearchAutoConfiguration;
 import com.blossomproject.core.common.mapper.MapperPlugin;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.service.ReadOnlyServicePlugin;
