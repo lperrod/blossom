@@ -5,7 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import com.blossomproject.core.common.utils.liquibase.BlossomSpringLiquibase.BlossomSpringResourceOpener;
 import java.util.Set;
-import liquibase.integration.spring.SpringLiquibase.SpringResourceOpener;
+import java.util.SortedSet;
+import liquibase.integration.spring.SpringResourceAccessor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -17,10 +18,11 @@ public class BlossomSpringLiquibaseTest {
 
   @Test
   public void should_create_resource_opener() throws Exception {
-    BlossomSpringLiquibase blossomLiquibase = new BlossomSpringLiquibase();
+    ResourceLoader resourceLoader = new DefaultResourceLoader();
+    BlossomSpringLiquibase blossomLiquibase = new BlossomSpringLiquibase(resourceLoader);
     blossomLiquibase.setChangeLog("test");
-    blossomLiquibase.setResourceLoader(new DefaultResourceLoader());
-    SpringResourceOpener resourceOpener = blossomLiquibase.createResourceOpener();
+    blossomLiquibase.setResourceLoader(resourceLoader);
+    SpringResourceAccessor resourceOpener = blossomLiquibase.createResourceOpener();
     assertNotNull(resourceOpener);
     assertTrue(resourceOpener instanceof BlossomSpringResourceOpener);
   }
@@ -35,10 +37,10 @@ public class BlossomSpringLiquibaseTest {
     boolean includeDirectories = true;
     boolean recursive = true;
 
-    BlossomSpringLiquibase blossomLiquibase = new BlossomSpringLiquibase();
+    BlossomSpringLiquibase blossomLiquibase = new BlossomSpringLiquibase(resourceLoader);
     blossomLiquibase.setChangeLog(changelog);
     blossomLiquibase.setResourceLoader(resourceLoader);
-    SpringResourceOpener resourceOpener = blossomLiquibase.createResourceOpener();
+    SpringResourceAccessor resourceOpener = blossomLiquibase.createResourceOpener();
 
     Set<String> result = resourceOpener.list(null, changelog, includeFiles, includeDirectories, recursive);
 
@@ -54,12 +56,12 @@ public class BlossomSpringLiquibaseTest {
     boolean includeDirectories = true;
     boolean recursive = true;
 
-    BlossomSpringLiquibase blossomLiquibase = new BlossomSpringLiquibase();
+    BlossomSpringLiquibase blossomLiquibase = new BlossomSpringLiquibase(resourceLoader);
     blossomLiquibase.setChangeLog(changelog);
     blossomLiquibase.setResourceLoader(resourceLoader);
-    SpringResourceOpener resourceOpener = blossomLiquibase.createResourceOpener();
+    SpringResourceAccessor resourceOpener = blossomLiquibase.createResourceOpener();
 
-    Set<String> result = resourceOpener.list(null, changelog, includeFiles, includeDirectories, recursive);
+    SortedSet<String> result = resourceOpener.list(null, changelog, includeFiles, includeDirectories, recursive);
 
     assertNotNull(result);
   }

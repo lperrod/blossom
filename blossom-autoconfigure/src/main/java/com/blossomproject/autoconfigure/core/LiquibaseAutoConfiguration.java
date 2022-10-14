@@ -22,6 +22,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.orm.jpa.AbstractEntityManagerFactoryBean;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
@@ -56,7 +57,7 @@ public class LiquibaseAutoConfiguration {
     @Bean
     public SpringLiquibase liquibase(
       ObjectProvider<DataSource> dataSourceProvider,
-      @LiquibaseDataSource ObjectProvider<DataSource> liquibaseDataSourceProvider) {
+      @LiquibaseDataSource ObjectProvider<DataSource> liquibaseDataSourceProvider, ResourceLoader resourceLoader) {
       DataSource dataSource = liquibaseDataSourceProvider.getIfAvailable();
       if (dataSource == null && properties.getUrl() != null && properties.getUser() != null) {
         dataSource = createLiquibaseDatasource();
@@ -64,7 +65,7 @@ public class LiquibaseAutoConfiguration {
         dataSource = dataSourceProvider.getIfUnique();
       }
 
-      BlossomSpringLiquibase liquibase = new BlossomSpringLiquibase();
+      BlossomSpringLiquibase liquibase = new BlossomSpringLiquibase(resourceLoader);
       liquibase.setDataSource(dataSource);
       liquibase.setChangeLog(this.properties.getChangeLog());
       liquibase.setContexts(this.properties.getContexts());

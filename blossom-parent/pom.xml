@@ -40,11 +40,7 @@
         <groupId>org.bouncycastle</groupId>
         <version>${bouncycastle.version}</version>
       </dependency>
-      <dependency>
-        <artifactId>liquibase-core</artifactId>
-        <groupId>org.liquibase</groupId>
-        <version>${liquibase.version}</version>
-      </dependency>
+
       <dependency>
         <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
         <groupId>org.camunda.bpm.springboot</groupId>
