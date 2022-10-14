@@ -5,12 +5,14 @@ import com.blossomproject.core.common.PluginConstants;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.module.article.Article;
+import com.blossomproject.module.article.ArticleDTO;
 import com.blossomproject.module.article.ArticleDTOMapper;
 import com.blossomproject.module.article.ArticleDao;
 import com.blossomproject.module.article.ArticleDaoImpl;
 import com.blossomproject.module.article.ArticleRepository;
 import com.blossomproject.module.article.ArticleService;
 import com.blossomproject.module.article.ArticleServiceImpl;
+import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -44,6 +46,31 @@ public class ArticleAutoConfiguration {
     ApplicationEventPublisher eventPublisher) {
     return new ArticleServiceImpl(articleDao, articleDTOMapper, eventPublisher,
       associationServicePlugins);
+  }
+
+  @Bean
+  public SearchEngineConfiguration<ArticleDTO> articleSearchEngineConfiguration() {
+    return new SearchEngineConfiguration<ArticleDTO>() {
+      @Override
+      public String getName() {
+        return "menu.content.articles";
+      }
+
+      @Override
+      public Class<ArticleDTO> getSupportedClass() {
+        return ArticleDTO.class;
+      }
+
+      @Override
+      public String[] getFields() {
+        return new String[]{"dto.name", "dto.summary", "dto.content", "dto.status"};
+      }
+
+      @Override
+      public String getAlias() {
+        return "articles";
+      }
+    };
   }
 
   @Bean

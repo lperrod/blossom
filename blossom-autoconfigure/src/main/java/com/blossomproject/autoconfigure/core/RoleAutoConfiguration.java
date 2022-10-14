@@ -5,12 +5,15 @@ import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.core.role.Role;
+import com.blossomproject.core.role.RoleDTO;
 import com.blossomproject.core.role.RoleDTOMapper;
 import com.blossomproject.core.role.RoleDao;
 import com.blossomproject.core.role.RoleDaoImpl;
 import com.blossomproject.core.role.RoleRepository;
 import com.blossomproject.core.role.RoleService;
 import com.blossomproject.core.role.RoleServiceImpl;
+import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
+import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -61,6 +64,38 @@ public class RoleAutoConfiguration {
     return new RoleDTOMapper();
   }
 
+
+  @Bean
+  public DefaultSearchEngineImpl<RoleDTO> roleDefaultSearchEngine(RoleService roleService,
+    SearchEngineConfiguration<RoleDTO> roleSearchEngineConfiguration) {
+    return new DefaultSearchEngineImpl<>(roleSearchEngineConfiguration, roleService);
+  }
+
+
+  @Bean
+  public SearchEngineConfiguration<RoleDTO> roleSearchEngineConfiguration() {
+    return new SearchEngineConfiguration<RoleDTO>() {
+      @Override
+      public String getName() {
+        return "menu.administration.roles";
+      }
+
+      @Override
+      public Class<RoleDTO> getSupportedClass() {
+        return RoleDTO.class;
+      }
+
+      @Override
+      public String[] getFields() {
+        return new String[]{"dto.name", "dto.description"};
+      }
+
+      @Override
+      public String getAlias() {
+        return "roles";
+      }
+    };
+  }
 
 }
 

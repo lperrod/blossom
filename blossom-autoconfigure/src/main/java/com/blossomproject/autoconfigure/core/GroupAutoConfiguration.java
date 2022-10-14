@@ -4,12 +4,15 @@ import com.blossomproject.core.common.PluginConstants;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.group.Group;
+import com.blossomproject.core.group.GroupDTO;
 import com.blossomproject.core.group.GroupDTOMapper;
 import com.blossomproject.core.group.GroupDao;
 import com.blossomproject.core.group.GroupDaoImpl;
 import com.blossomproject.core.group.GroupRepository;
 import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.group.GroupServiceImpl;
+import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
+import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -56,5 +59,36 @@ public class GroupAutoConfiguration {
     return new GroupDTOMapper();
   }
 
+
+  @Bean
+  public SearchEngineConfiguration<GroupDTO> groupSearchEngineConfiguration() {
+    return new SearchEngineConfiguration<GroupDTO>() {
+      @Override
+      public String getName() {
+        return "menu.administration.groups";
+      }
+
+      @Override
+      public Class<GroupDTO> getSupportedClass() {
+        return GroupDTO.class;
+      }
+
+      @Override
+      public String[] getFields() {
+        return new String[]{"dto.name", "dto.description"};
+      }
+
+      @Override
+      public String getAlias() {
+        return "groups";
+      }
+    };
+  }
+
+  @Bean
+  public DefaultSearchEngineImpl<GroupDTO> groupDefaultSearchEngine(GroupService groupService,
+    SearchEngineConfiguration<GroupDTO> groupSearchEngineConfiguration) {
+    return new DefaultSearchEngineImpl<>(groupSearchEngineConfiguration, groupService);
+  }
 
 }

@@ -8,6 +8,7 @@ import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
 import com.blossomproject.core.common.utils.mail.MailSender;
 import com.blossomproject.core.user.User;
+import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserDTOMapper;
 import com.blossomproject.core.user.UserDao;
 import com.blossomproject.core.user.UserDaoImpl;
@@ -16,6 +17,8 @@ import com.blossomproject.core.user.UserMailServiceImpl;
 import com.blossomproject.core.user.UserRepository;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.core.user.UserServiceImpl;
+import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
+import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +90,38 @@ public class UserAutoConfiguration {
   public CacheConfig userDaoCacheConfig() {
     return CacheConfigBuilder.create(UserDaoImpl.class.getCanonicalName())
       .specification("expireAfterWrite=15m").build();
+  }
+
+  @Bean
+  public DefaultSearchEngineImpl<UserDTO> userDefaultSearchEngine(UserService userService,
+    SearchEngineConfiguration<UserDTO> userSearchEngineConfiguration) {
+    return new DefaultSearchEngineImpl<>(userSearchEngineConfiguration, userService);
+  }
+
+  @Bean
+  public SearchEngineConfiguration<UserDTO> userSearchEngineConfiguration() {
+    return new SearchEngineConfiguration<UserDTO>() {
+      @Override
+      public String getName() {
+        return "menu.administration.users";
+      }
+
+      @Override
+      public Class<UserDTO> getSupportedClass() {
+        return UserDTO.class;
+      }
+
+      @Override
+      public String[] getFields() {
+        return new String[]{"dto.identifier", "dto.email", "dto.firstname", "dto.lastname",
+          "dto.company", "dto.description", "dto.function"};
+      }
+
+      @Override
+      public String getAlias() {
+        return "users";
+      }
+    };
   }
 
 
