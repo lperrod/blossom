@@ -5,6 +5,7 @@ import com.blossomproject.core.common.event.CreatedEvent;
 import com.blossomproject.core.common.event.UpdatedEvent;
 import com.blossomproject.core.common.mapper.DTOMapper;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
+import com.blossomproject.core.common.service.GenericAssociationServiceImpl;
 import com.blossomproject.core.common.service.GenericSearchAndCrudServiceImpl;
 import com.blossomproject.core.common.utils.action_token.ActionToken;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
@@ -20,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Created by Maël Gargadennnec on 03/05/2017.
  */
 public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, User> implements UserService {
+
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GenericAssociationServiceImpl.class);
 
   private final PasswordEncoder passwordEncoder;
 
@@ -42,12 +48,21 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
 
   private final String creationDateParameter = "creationDate";
 
+  private final String activationTokenDuration;
+
+  private final String activationTokenChronoUnit;
+
+  private final String passwordTokenDuration;
+
+  private final String passwordTokenChronoUnit;
+
   public UserServiceImpl(
     UserDao dao, DTOMapper<User, UserDTO> mapper,
     ApplicationEventPublisher publisher,
     PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry,
     PasswordEncoder passwordEncoder, ActionTokenService tokenService, UserMailService userMailService,
-    byte[] defaultAvatar) {
+    byte[] defaultAvatar, String activationTokenDuration, String activationTokenChronoUnit, String passwordTokenDuration,
+    String passwordTokenChronoUnit) {
     super(dao, mapper, publisher, associationRegistry);
     Preconditions.checkNotNull(passwordEncoder);
     Preconditions.checkNotNull(dao);
@@ -59,6 +74,10 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
     this.tokenService = tokenService;
     this.userMailService = userMailService;
     this.defaultAvatar = defaultAvatar;
+    this.activationTokenChronoUnit = activationTokenChronoUnit;
+    this.activationTokenDuration = activationTokenDuration;
+    this.passwordTokenChronoUnit = passwordTokenChronoUnit;
+    this.passwordTokenDuration = passwordTokenDuration;
   }
 
   @Override
@@ -195,7 +214,9 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
     ActionToken actionToken = new ActionToken();
     actionToken.setAction(UserService.USER_ACTIVATION);
     actionToken.setUserId(user.getId());
-    actionToken.setExpirationDate(Instant.now().plus(3, ChronoUnit.DAYS));
+
+    actionToken.setExpirationDate(Instant.now()
+      .plus(getChronoDuration(activationTokenDuration, 3), getChronoUnit(activationTokenChronoUnit, ChronoUnit.DAYS)));
 
     Map<String, String> additionalParameters = new HashMap<>();
     additionalParameters.put(creationDateParameter, Long.toString(Instant.now().toEpochMilli()));
@@ -208,7 +229,8 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
     ActionToken actionToken = new ActionToken();
     actionToken.setAction(UserService.USER_RESET_PASSWORD);
     actionToken.setUserId(user.getId());
-    actionToken.setExpirationDate(Instant.now().plus(3, ChronoUnit.HOURS));
+    actionToken.setExpirationDate(
+      Instant.now().plus(getChronoDuration(passwordTokenDuration, 3), getChronoUnit(passwordTokenChronoUnit, ChronoUnit.HOURS)));
 
     Map<String, String> additionalParameters = new HashMap<>();
     additionalParameters.put(creationDateParameter, Long.toString(Instant.now().toEpochMilli()));
@@ -216,4 +238,24 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
 
     return tokenService.generateToken(actionToken);
   }
+
+  private ChronoUnit getChronoUnit(String chronoUnit, ChronoUnit fallBack) {
+    try {
+      return ChronoUnit.valueOf(chronoUnit);
+    } catch (Exception e) {
+      LOGGER.warn("Impossible de parser la chrono unit {}", chronoUnit, e);
+      return fallBack;
+    }
+  }
+
+
+  private int getChronoDuration(String chronoDuration, int fallBack) {
+    try {
+      return Integer.parseInt(chronoDuration);
+    } catch (Exception e) {
+      LOGGER.warn("Impossible de parser la chrono duration {}", chronoDuration, e);
+      return fallBack;
+    }
+  }
+
 }

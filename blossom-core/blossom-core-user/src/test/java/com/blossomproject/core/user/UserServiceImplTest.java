@@ -9,14 +9,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.event.CreatedEvent;
 import com.blossomproject.core.common.event.UpdatedEvent;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.utils.action_token.ActionToken;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -58,6 +58,7 @@ public class UserServiceImplTest {
 
   @Mock
   private ApplicationEventPublisher publisher;
+
   @Mock
   private PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry;
 
@@ -67,7 +68,7 @@ public class UserServiceImplTest {
   public void setUp() throws Exception {
     this.userService = spy(
       new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-        tokenService, userMailService, defaultAvatar));
+        tokenService, userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS"));
   }
 
   @Test
@@ -331,41 +332,41 @@ public class UserServiceImplTest {
   @Test
   public void test_user_service_impl_nothing_null() throws Exception {
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, userMailService, defaultAvatar);
+      tokenService, userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_impl_password_encoder_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, null, tokenService,
-      userMailService, defaultAvatar);
+      userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_impl_token_service_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder, null,
-      userMailService, defaultAvatar);
+      userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_impl_dao_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(null, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, userMailService, defaultAvatar);
+      tokenService, userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_mail_service_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, null, defaultAvatar);
+      tokenService, null, defaultAvatar, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_default_avatar_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, userMailService, null);
+      tokenService, userMailService, null, "3", "DAYS", "3", "HOURS");
   }
 }

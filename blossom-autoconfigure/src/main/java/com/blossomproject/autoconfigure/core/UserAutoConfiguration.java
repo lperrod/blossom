@@ -31,6 +31,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.plugin.core.PluginRegistry;
@@ -44,6 +45,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AutoConfigureAfter(CommonAutoConfiguration.class)
 @EnableJpaRepositories(basePackageClasses = UserRepository.class)
 @EntityScan(basePackageClasses = User.class)
+@PropertySource("classpath:/user.properties")
 public class UserAutoConfiguration {
 
   @Qualifier(PluginConstants.PLUGIN_ASSOCIATION_SERVICE)
@@ -63,14 +65,19 @@ public class UserAutoConfiguration {
     PasswordEncoder passwordEncoder, ActionTokenService actionTokenService,
     UserMailService userMailService,
     ApplicationEventPublisher eventPublisher,
-    @Value("classpath:/images/avatar.jpeg") Resource defaultAvatarFile) throws IOException {
+    @Value("classpath:/images/avatar.jpeg") Resource defaultAvatarFile,
+    @Value("activationTokenDuration") String activationTokenDuration,
+    @Value("activationTokenChronoUnit") String activationTokenChronoUnit,
+    @Value("passwordTokenDuration") String passwordTokenDuration,
+    @Value("passwordTokenChronoUnit") String passwordTokenChronoUnit) throws IOException {
     if (!defaultAvatarFile.exists()) {
       throw new RuntimeException("Cannot find default user avatar on the classpath.");
     }
     return new UserServiceImpl(userDao, userDTOMapper, eventPublisher, associationServicePlugins,
       passwordEncoder,
       actionTokenService, userMailService,
-      ByteStreams.toByteArray(defaultAvatarFile.getInputStream()));
+      ByteStreams.toByteArray(defaultAvatarFile.getInputStream()), activationTokenDuration, activationTokenChronoUnit,
+      passwordTokenDuration, passwordTokenChronoUnit);
   }
 
   @Bean
