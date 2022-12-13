@@ -14,6 +14,13 @@
             <version>5.0.0</version>
             <classifier>jakarta</classifier>
           </dependency>
+
+          <dependency>
+            <artifactId>querydsl-jpa</artifactId>
+            <groupId>com.querydsl</groupId>
+            <version>5.0.0</version>
+            <classifier>jakarta</classifier>
+          </dependency>
         </dependencies>
         <executions>
           <execution>
