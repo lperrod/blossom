@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -91,7 +92,7 @@ public class FormLoginWebSecurityConfigurerAdapter {
 
     http.authorizeHttpRequests(
       authorize -> authorize.requestMatchers(PUBLIC_URLS).permitAll().requestMatchers(BLOSSOM_PUBLIC_URLS).permitAll()
-        .requestMatchers(PROTECTED_URLS).fullyAuthenticated());
+        .requestMatchers(new NegatedRequestMatcher(new OrRequestMatcher(PUBLIC_URLS, BLOSSOM_PUBLIC_URLS))).fullyAuthenticated());
 
     http
       .authenticationProvider(limitLoginAuthenticationProvider)
