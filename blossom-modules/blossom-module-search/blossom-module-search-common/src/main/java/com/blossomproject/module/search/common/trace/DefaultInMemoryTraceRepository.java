@@ -171,7 +171,7 @@ public class DefaultInMemoryTraceRepository extends InMemoryHttpExchangeReposito
 
   private void computeResponseContentType(LocalDateTime localDateTime, HttpExchange HttpExchange) {
     computeData(localDateTime, responseContentTypeStats,
-      HttpExchange.getResponse().getHeaders().computeIfAbsent("Content-Type", key -> Lists.newArrayList("")).get(0));
+      HttpExchange.getResponse().getHeaders().get("Content-Type").get(0));
   }
 
   private void computeResponseTimeHistogram(LocalDateTime localDateTime, HttpExchange HttpExchange) {
