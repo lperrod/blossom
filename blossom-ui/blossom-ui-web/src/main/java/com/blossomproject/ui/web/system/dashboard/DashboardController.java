@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.metrics.MetricsEndpoint;
-import org.springframework.boot.actuate.metrics.MetricsEndpoint.MetricResponse;
+import org.springframework.boot.actuate.metrics.MetricsEndpoint.MetricDescriptor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +29,10 @@ import org.springframework.web.servlet.ModelAndView;
 @PreAuthorize("hasAuthority('system:dashboard:manager')")
 public class DashboardController {
 
-  private final static Logger logger = LoggerFactory.getLogger(DashboardController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DashboardController.class);
 
   private final HealthEndpoint healthEndpoint;
+
   private final MetricsEndpoint metricsEndpoint;
 
   @Autowired
@@ -98,7 +99,7 @@ public class DashboardController {
         .stream()
         .filter(t -> t.getTag().equals("action")).flatMap(action -> action.getValues().stream())
         .map(value -> {
-          MetricResponse metric = metricsEndpoint
+          MetricDescriptor metric = metricsEndpoint
             .metric("jvm.gc.pause", Lists.newArrayList("action:" + value));
           return new GCMetric(
             value,
@@ -139,6 +140,7 @@ public class DashboardController {
   public static class JVMMemoryUsage {
 
     private final long total;
+
     private final long free;
 
     public JVMMemoryUsage(long total, long free) {
@@ -166,8 +168,11 @@ public class DashboardController {
   public static class MemoryUsage {
 
     private final long init;
+
     private final long used;
+
     private final long committed;
+
     private final long max;
 
     public MemoryUsage(long init, long used, long committed, long max) {
@@ -201,7 +206,9 @@ public class DashboardController {
   public static class ClassMetrics {
 
     private final long total;
+
     private final long loaded;
+
     private final long unloaded;
 
     public ClassMetrics(long loaded, long unloaded) {
@@ -240,7 +247,9 @@ public class DashboardController {
   public static class GCMetric {
 
     private final String name;
+
     private final long count;
+
     private final double time;
 
     public GCMetric(String name, long count, double time) {
@@ -265,7 +274,9 @@ public class DashboardController {
   public static class ThreadMetrics {
 
     private final long live;
+
     private final long peak;
+
     private final long daemon;
 
     public ThreadMetrics(long live, long peak, long daemon) {
@@ -303,7 +314,9 @@ public class DashboardController {
   public class MemoryMetrics {
 
     private final JVMMemoryUsage jvm;
+
     private final MemoryUsage heap;
+
     private final MemoryUsage nonheap;
 
     public MemoryMetrics(JVMMemoryUsage jvm, MemoryUsage heap, MemoryUsage nonheap) {
@@ -329,8 +342,11 @@ public class DashboardController {
   public class JVMMetrics {
 
     private final ClassMetrics classes;
+
     private final GCMetrics gcs;
+
     private final ThreadMetrics threads;
+
     private final ProcessorMetrics processors;
 
     public JVMMetrics(ClassMetrics classes, GCMetrics gcs, ThreadMetrics threads,

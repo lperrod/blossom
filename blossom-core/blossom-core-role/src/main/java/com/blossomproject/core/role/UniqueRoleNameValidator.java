@@ -3,14 +3,16 @@ package com.blossomproject.core.role;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.Optional;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 class UniqueRoleNameValidator implements ConstraintValidator<UniqueRoleName, Object> {
 
   private RoleRepository roleRepository;
+
   private String field;
+
   private String idField;
 
   public UniqueRoleNameValidator(RoleRepository roleRepository) {

@@ -20,12 +20,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.springframework.boot.actuate.trace.http.HttpTrace;
-import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
+import org.springframework.boot.actuate.web.exchanges.HttpExchange;
+import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 
-public class DefaultInMemoryTraceRepository extends InMemoryHttpTraceRepository implements TraceRepository {
+public class DefaultInMemoryTraceRepository extends InMemoryHttpExchangeRepository implements TraceRepository {
 
-  private final Map<LocalDateTime, List<HttpTrace>> traces = new ConcurrentHashMap<>();
+  private final Map<LocalDateTime, List<HttpExchange>> traces = new ConcurrentHashMap<>();
 
   private final Map<Long, Map<String, Integer>> responseTimeHistogram = new ConcurrentHashMap<>();
 
@@ -101,13 +101,13 @@ public class DefaultInMemoryTraceRepository extends InMemoryHttpTraceRepository 
   }
 
   @Override
-  public List<HttpTrace> findAll() {
-    return traces.values().stream().flatMap(List::stream).sorted(Comparator.comparing(HttpTrace::getTimestamp))
+  public List<HttpExchange> findAll() {
+    return traces.values().stream().flatMap(List::stream).sorted(Comparator.comparing(HttpExchange::getTimestamp))
       .collect(Collectors.toList());
   }
 
   @Override
-  public void add(HttpTrace trace) {
+  public void add(HttpExchange trace) {
 
     String path = trace.getRequest().getUri().getPath();
     if (Strings.isNullOrEmpty(path)) {
@@ -151,31 +151,31 @@ public class DefaultInMemoryTraceRepository extends InMemoryHttpTraceRepository 
 
   }
 
-  private void computeAllTraces(LocalDateTime localDateTime, HttpTrace httpTrace) {
-    List<HttpTrace> tracesForTime = traces.computeIfAbsent(localDateTime, value -> new ArrayList<>());
-    tracesForTime.add(httpTrace);
+  private void computeAllTraces(LocalDateTime localDateTime, HttpExchange HttpExchange) {
+    List<HttpExchange> tracesForTime = traces.computeIfAbsent(localDateTime, value -> new ArrayList<>());
+    tracesForTime.add(HttpExchange);
     traces.put(localDateTime, tracesForTime);
   }
 
-  private void computeResponseStatusStat(LocalDateTime localDateTime, HttpTrace httpTrace) {
-    computeData(localDateTime, responseStatusStats, String.valueOf(httpTrace.getResponse().getStatus()));
+  private void computeResponseStatusStat(LocalDateTime localDateTime, HttpExchange HttpExchange) {
+    computeData(localDateTime, responseStatusStats, String.valueOf(HttpExchange.getResponse().getStatus()));
   }
 
-  private void computeCalledUris(LocalDateTime localDateTime, HttpTrace httpTrace) {
-    computeData(localDateTime, calledUris, httpTrace.getRequest().getUri().toString());
+  private void computeCalledUris(LocalDateTime localDateTime, HttpExchange HttpExchange) {
+    computeData(localDateTime, calledUris, HttpExchange.getRequest().getUri().toString());
   }
 
-  private void computeRequestHistogram(LocalDateTime localDateTime, HttpTrace httpTrace) {
-    computeData(localDateTime, requestHistogram, httpTrace.getRequest().getMethod());
+  private void computeRequestHistogram(LocalDateTime localDateTime, HttpExchange HttpExchange) {
+    computeData(localDateTime, requestHistogram, HttpExchange.getRequest().getMethod());
   }
 
-  private void computeResponseContentType(LocalDateTime localDateTime, HttpTrace httpTrace) {
+  private void computeResponseContentType(LocalDateTime localDateTime, HttpExchange HttpExchange) {
     computeData(localDateTime, responseContentTypeStats,
-      httpTrace.getResponse().getHeaders().computeIfAbsent("Content-Type", key -> Lists.newArrayList("")).get(0));
+      HttpExchange.getResponse().getHeaders().computeIfAbsent("Content-Type", key -> Lists.newArrayList("")).get(0));
   }
 
-  private void computeResponseTimeHistogram(LocalDateTime localDateTime, HttpTrace httpTrace) {
-    computeData(localDateTime, responseTimeHistogram, String.valueOf(httpTrace.getTimeTaken()));
+  private void computeResponseTimeHistogram(LocalDateTime localDateTime, HttpExchange HttpExchange) {
+    computeData(localDateTime, responseTimeHistogram, String.valueOf(HttpExchange.getTimeTaken()));
   }
 
   private void computeData(LocalDateTime localDateTime,

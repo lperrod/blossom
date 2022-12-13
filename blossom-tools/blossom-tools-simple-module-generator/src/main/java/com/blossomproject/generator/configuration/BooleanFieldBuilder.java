@@ -2,7 +2,7 @@ package com.blossomproject.generator.configuration;
 
 import com.blossomproject.generator.configuration.model.Field;
 import com.blossomproject.generator.configuration.model.impl.DefaultField;
-import javax.persistence.TemporalType;
+import jakarta.persistence.TemporalType;
 
 public class BooleanFieldBuilder extends FieldBuilder<BooleanFieldBuilder> {
 

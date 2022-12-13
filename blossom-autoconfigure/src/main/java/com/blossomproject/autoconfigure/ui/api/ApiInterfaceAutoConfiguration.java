@@ -9,12 +9,12 @@ import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.api.OmnisearchApiController;
 import com.blossomproject.ui.api.StatusApiController;
 import com.blossomproject.ui.api.administration.UsersApiController;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -28,7 +28,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity.RequestMatcherConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -94,10 +93,9 @@ public class ApiInterfaceAutoConfiguration {
     public void configure(HttpSecurity http) throws Exception {
       http.authorizeRequests().anyRequest().fullyAuthenticated();
 
-      RequestMatcherConfigurer requests = http.requestMatchers();
       if (endpoints != null) {
         // Assume we are in an Authorization Server
-        requests
+        http.authorizeHttpRequests()
           .requestMatchers(new AndRequestMatcher(
             new NotOAuthRequestMatcher(endpoints.oauth2EndpointHandlerMapping()),
             new AntPathRequestMatcher("/" + BLOSSOM_API_BASE_PATH + "/**")));

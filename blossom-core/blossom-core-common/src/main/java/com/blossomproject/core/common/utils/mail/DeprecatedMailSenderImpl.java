@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.scheduling.annotation.Async;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 import java.io.File;
 import java.util.List;
 import java.util.Locale;

@@ -2,7 +2,7 @@ package com.blossomproject.ui.web.error;
 
 import com.blossomproject.ui.stereotype.BlossomController;
 import java.util.NoSuchElementException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,6 +16,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice(annotations = BlossomController.class)
 public class ErrorControllerAdvice {
+
   private final static Logger logger = LoggerFactory.getLogger(ErrorControllerAdvice.class);
 
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -1,6 +1,5 @@
 package com.blossomproject.ui.api.administration;
 
-import com.google.common.base.Preconditions;
 import com.blossomproject.core.association_user_group.AssociationUserGroupDTO;
 import com.blossomproject.core.association_user_group.AssociationUserGroupService;
 import com.blossomproject.core.group.GroupDTO;
@@ -8,9 +7,10 @@ import com.blossomproject.core.group.GroupService;
 import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.ui.stereotype.BlossomApiController;
+import com.google.common.base.Preconditions;
 import java.util.List;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +30,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MembershipsApiController {
 
   private final AssociationUserGroupService associationUserGroupService;
+
   private final UserService userService;
+
   private final GroupService groupService;
 
   public MembershipsApiController(AssociationUserGroupService associationUserGroupService,
@@ -118,6 +120,7 @@ public class MembershipsApiController {
 
     @NotNull
     private Long userId;
+
     @NotNull
     private Long groupId;
 

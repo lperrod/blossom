@@ -2,18 +2,18 @@ package com.blossomproject.ui;
 
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.ui.current_user.CurrentUser;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 public class BlossomAuthenticationSuccessHandlerImpl extends SavedRequestAwareAuthenticationSuccessHandler {
 
   private final UserService userService;
+
   private final Integer maxInactiveInterval;
 
   public BlossomAuthenticationSuccessHandlerImpl(UserService userService, Integer maxInactiveInterval) {

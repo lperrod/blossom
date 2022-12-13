@@ -2,14 +2,14 @@ package com.blossomproject.core.role;
 
 import com.blossomproject.core.common.entity.AbstractEntity;
 import java.util.List;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "blossom_role")
@@ -23,8 +23,8 @@ public class Role extends AbstractEntity {
   private String description;
 
   @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
-  @CollectionTable(name="blossom_role_privileges", joinColumns = @JoinColumn(name="id", referencedColumnName = "id"))
-  @Column(name="privilege")
+  @CollectionTable(name = "blossom_role_privileges", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
+  @Column(name = "privilege")
   private List<String> privileges;
 
   public String getName() {

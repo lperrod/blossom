@@ -1,6 +1,6 @@
 package com.blossomproject.core.common.utils.mail;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

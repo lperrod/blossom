@@ -5,7 +5,7 @@ import com.blossomproject.generator.configuration.model.Field;
 import com.blossomproject.generator.configuration.model.impl.TemporalField;
 import java.sql.Timestamp;
 import java.util.Date;
-import javax.persistence.TemporalType;
+import jakarta.persistence.TemporalType;
 
 public class TemporalFieldBuilder extends FieldBuilder<TemporalFieldBuilder> {
 

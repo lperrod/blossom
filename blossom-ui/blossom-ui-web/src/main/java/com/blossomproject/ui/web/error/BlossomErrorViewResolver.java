@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.template.TemplateAvailabilityProvider;
 import org.springframework.boot.autoconfigure.template.TemplateAvailabilityProviders;
 import org.springframework.boot.autoconfigure.web.WebProperties;
@@ -35,8 +35,11 @@ public class BlossomErrorViewResolver implements ErrorViewResolver, Ordered {
   }
 
   private final WebProperties resourceProperties;
+
   private final TemplateAvailabilityProviders templateAvailabilityProviders;
+
   private ApplicationContext applicationContext;
+
   private int order = Ordered.LOWEST_PRECEDENCE;
 
   public BlossomErrorViewResolver(ApplicationContext applicationContext,

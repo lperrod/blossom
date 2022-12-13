@@ -22,23 +22,27 @@
     <h3><@spring.message "login.page.welcome"/></h3>
     <p><@spring.message "login.page.description"/></p>
     <form class="m-t" role="form" method="POST" action="/blossom/login" autocomplete="off" novalidate>
-      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="<@spring.message "login.page.form.login"/>" required="required" name="username">
-      </div>
-      <div class="form-group">
-        <input type="password" class="form-control" placeholder="<@spring.message "login.page.form.password"/>" required="required" name="password">
-      </div>
-      <button type="submit" class="btn btn-primary block full-width m-b" id="login"><@spring.message "login.page.form.button.login"/></button>
 
-      <#if error.isPresent() && SPRING_SECURITY_LAST_EXCEPTION??>
-        <#if SPRING_SECURITY_LAST_EXCEPTION.message??>
-          <p class="alert alert-danger">${SPRING_SECURITY_LAST_EXCEPTION.message}</p>
+      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="<@spring.message "login.page.form.login"/>" required="required"
+               name="username">
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control" placeholder="<@spring.message "login.page.form.password"/>"
+               required="required" name="password">
+      </div>
+      <button type="submit" class="btn btn-primary block full-width m-b"
+              id="login"><@spring.message "login.page.form.button.login"/></button>
+
+        <#if error.isPresent() && SPRING_SECURITY_LAST_EXCEPTION??>
+            <#if SPRING_SECURITY_LAST_EXCEPTION.message??>
+              <p class="alert alert-danger">${SPRING_SECURITY_LAST_EXCEPTION.message}</p>
+            </#if>
         </#if>
-      </#if>
       <a href="/blossom/public/forgotten_password"><small><@spring.message "login.forgotten.password"/></small></a>
     </form>
-    <p class="m-t"> <small>Blossom &copy; 2017</small> </p>
+    <p class="m-t"><small>Blossom &copy; 2017</small></p>
   </div>
 </div>
 

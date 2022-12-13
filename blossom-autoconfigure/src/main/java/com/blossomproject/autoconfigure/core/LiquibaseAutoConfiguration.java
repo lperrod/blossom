@@ -2,9 +2,9 @@ package com.blossomproject.autoconfigure.core;
 
 import com.blossomproject.core.common.utils.liquibase.BlossomSpringLiquibase;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.EntityManagerFactory;
 import java.time.Duration;
 import java.util.function.Supplier;
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class LiquibaseAutoConfiguration {
       liquibase.setDefaultSchema(this.properties.getDefaultSchema());
       liquibase.setDropFirst(this.properties.isDropFirst());
       liquibase.setShouldRun(this.properties.isEnabled());
-      liquibase.setLabels(this.properties.getLabels());
+     
       liquibase.setChangeLogParameters(this.properties.getParameters());
       liquibase.setRollbackFile(this.properties.getRollbackFile());
       return liquibase;

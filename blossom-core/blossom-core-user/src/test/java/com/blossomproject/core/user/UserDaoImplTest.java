@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.junit.Assert;
 import org.junit.Rule;

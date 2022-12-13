@@ -1,10 +1,27 @@
 package com.blossomproject.core.common.utils.mail;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.sun.mail.smtp.SMTPMessage;
 import freemarker.template.Configuration;
+import jakarta.mail.Address;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,16 +32,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactory;
 
-import javax.mail.Address;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.*;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @RunWith(MockitoJUnitRunner.class)
 public class DeprecatedMailSenderImplTest {
 
@@ -32,14 +39,23 @@ public class DeprecatedMailSenderImplTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private MailSenderImpl mailSender;
+
   private JavaMailSender javaMailSender;
+
   private Configuration configuration;
+
   private MessageSource messageSource;
+
   private InternetAddress from;
+
   private String basePath;
+
   private Set<String> filters;
+
   private Locale locale;
+
   private MailFilter mailFilter;
+
   private AsyncMailSender asyncMailSender;
 
   @Before
@@ -48,7 +64,7 @@ public class DeprecatedMailSenderImplTest {
     when(javaMailSender.createMimeMessage()).thenReturn(new SMTPMessage((Session) null));
     doAnswer(invocationOnMock -> {
       MimeMessage mimeMessage = invocationOnMock.getArgument(0);
-      for (Address address: mimeMessage.getAllRecipients()) {
+      for (Address address : mimeMessage.getAllRecipients()) {
         assertNotNull(address);
       }
       return null;
@@ -334,7 +350,7 @@ public class DeprecatedMailSenderImplTest {
     Map<String, Object> parameters = new HashMap<>();
     String subject = "subject";
     String[] mailTo = {"test@test.test"};
-    this.mailSender.sendMail(htmlTemplate, parameters, subject, (String[])null, (String[])null, mailTo);
+    this.mailSender.sendMail(htmlTemplate, parameters, subject, (String[]) null, (String[]) null, mailTo);
 
     verify(javaMailSender, times(1)).send(any(MimeMessage.class));
   }
@@ -367,7 +383,7 @@ public class DeprecatedMailSenderImplTest {
     Map<String, Object> parameters = new HashMap<>();
     String subject = "subject";
     String[] mailTo = {"test@test.test", "test2@test.test"};
-    this.mailSender.sendMail(htmlTemplate, parameters, subject, (String[])null, (String[])null, mailTo);
+    this.mailSender.sendMail(htmlTemplate, parameters, subject, (String[]) null, (String[]) null, mailTo);
 
     verify(javaMailSender, times(1)).send(any(MimeMessage.class));
   }

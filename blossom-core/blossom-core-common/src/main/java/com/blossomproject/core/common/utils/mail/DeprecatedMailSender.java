@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 import org.springframework.core.io.InputStreamSource;
 
 /**
@@ -25,10 +25,12 @@ public interface DeprecatedMailSender {
     List<File> attachedFiles, String... mailTo) throws Exception;
 
   @Deprecated
-  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, String[] mailTo, String[] mailCc, String[] mailBcc) throws Exception;
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, String[] mailTo, String[] mailCc,
+    String[] mailBcc) throws Exception;
 
   @Deprecated
-  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, String[] mailTo,  String[] mailCc, String[] mailBcc)
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, String[] mailTo, String[] mailCc,
+    String[] mailBcc)
     throws Exception;
 
   @Deprecated
@@ -36,12 +38,13 @@ public interface DeprecatedMailSender {
     List<File> attachedFiles, String[] mailTo, String[] mailCc, String[] mailBcc) throws Exception;
 
   @Deprecated
-  void sendMail (String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale,
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale,
     List<File> attachedFiles, String[] mailTo, String[] mailCc, String[] mailBcc, boolean highPriority) throws Exception;
 
   @Deprecated
-  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, String attachmentName, InputStreamSource attachmentInputStreamSource,
-    String attachmentContentType, String[] mailTo, String[] mailCc, String[] mailBcc, boolean highPriority ) throws Exception;
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, String attachmentName,
+    InputStreamSource attachmentInputStreamSource,
+    String attachmentContentType, String[] mailTo, String[] mailCc, String[] mailBcc, boolean highPriority) throws Exception;
 
   @Deprecated
   void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, InternetAddress... mailTo) throws Exception;
@@ -55,10 +58,12 @@ public interface DeprecatedMailSender {
     List<File> attachedFiles, InternetAddress... mailTo) throws Exception;
 
   @Deprecated
-  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, InternetAddress[] mailTo, InternetAddress[] mailCc, InternetAddress[] mailBcc) throws Exception;
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, InternetAddress[] mailTo,
+    InternetAddress[] mailCc, InternetAddress[] mailBcc) throws Exception;
 
   @Deprecated
-  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, InternetAddress[] mailTo,  InternetAddress[] mailCc, InternetAddress[] mailBcc)
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, InternetAddress[] mailTo,
+    InternetAddress[] mailCc, InternetAddress[] mailBcc)
     throws Exception;
 
   @Deprecated
@@ -66,11 +71,14 @@ public interface DeprecatedMailSender {
     List<File> attachedFiles, InternetAddress[] mailTo, InternetAddress[] mailCc, InternetAddress[] mailBcc) throws Exception;
 
   @Deprecated
-  void sendMail (String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale,
-    List<File> attachedFiles, InternetAddress[] mailTo, InternetAddress[] mailCc, InternetAddress[] mailBcc, boolean highPriority) throws Exception;
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale,
+    List<File> attachedFiles, InternetAddress[] mailTo, InternetAddress[] mailCc, InternetAddress[] mailBcc, boolean highPriority)
+    throws Exception;
 
   @Deprecated
-  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, String attachmentName, InputStreamSource attachmentInputStreamSource,
-    String attachmentContentType, InternetAddress[] mailTo, InternetAddress[] mailCc, InternetAddress[] mailBcc, boolean highPriority ) throws Exception;
+  void sendMail(String htmlTemplate, Map<String, Object> ctx, String mailSubject, Locale locale, String attachmentName,
+    InputStreamSource attachmentInputStreamSource,
+    String attachmentContentType, InternetAddress[] mailTo, InternetAddress[] mailCc, InternetAddress[] mailBcc,
+    boolean highPriority) throws Exception;
 
 }

@@ -1,6 +1,6 @@
 package com.blossomproject.generator.configuration.model;
 
-import javax.persistence.TemporalType;
+import jakarta.persistence.TemporalType;
 
 public interface TemporalField extends Field {
 

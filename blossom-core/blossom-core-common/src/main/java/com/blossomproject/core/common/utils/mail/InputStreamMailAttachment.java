@@ -3,7 +3,7 @@ package com.blossomproject.core.common.utils.mail;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 
 public class InputStreamMailAttachment implements BlossomMailAttachment {
 

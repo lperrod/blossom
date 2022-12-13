@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import jakarta.annotation.PostConstruct;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -30,8 +30,8 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.trace.http.HttpTrace;
-import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
+import org.springframework.boot.actuate.web.exchanges.HttpExchange;
+import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.AntPathMatcher;
 
@@ -40,7 +40,7 @@ import org.springframework.util.AntPathMatcher;
  *
  * @author Maël Gargadennnec
  */
-public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepository implements
+public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpExchangeRepository implements
   TraceRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(ElasticsearchTraceRepositoryImpl.class);
@@ -79,7 +79,7 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepositor
    * @param requestHeaderFiltered List of AntMatcher patterns to ignore in request headers
    * @param responseHeadersFiltered List of AntMatcher patterns to ignore in response headers
    * @param settings the Elasticsearch index setting as json serialized string
-   * @param objectMapper a jackson ObjectMapper to serialize the HttpTrace objects
+   * @param objectMapper a jackson ObjectMapper to serialize the HttpExchange objects
    */
   public ElasticsearchTraceRepositoryImpl(Client client, BulkProcessor bulkProcessor, String index, Set<String> ignoredUris,
     Set<String> requestHeaderFiltered, Set<String> responseHeadersFiltered,
@@ -131,31 +131,31 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpTraceRepositor
   }
 
   /**
-   * Adds a new {@code HttpTrace} to the repository
+   * Adds a new {@code HttpExchange} to the repository
    *
-   * @param httpTrace the HttpTrace
+   * @param HttpExchange the HttpExchange
    */
   @Override
-  public void add(HttpTrace httpTrace) {
-    String path = httpTrace.getRequest().getUri().getPath();
+  public void add(HttpExchange HttpExchange) {
+    String path = HttpExchange.getRequest().getUri().getPath();
     if (Strings.isNullOrEmpty(path)) {
       return;
     }
 
     boolean ignore = ignoredPatterns.stream().anyMatch(pattern -> pattern.matcher(path).matches());
     if (!ignore) {
-      super.add(httpTrace);
+      super.add(HttpExchange);
       try {
-        indexTrace(httpTrace);
+        indexTrace(HttpExchange);
       } catch (JsonProcessingException e) {
         logger.error("Cannot index trace", e);
       }
     }
   }
 
-  void indexTrace(HttpTrace httpTrace) throws JsonProcessingException {
-    ObjectNode document = objectMapper.valueToTree(httpTrace);
-    document.put(TIMESTAMP_FIELD, httpTrace.getTimestamp().toEpochMilli());
+  void indexTrace(HttpExchange HttpExchange) throws JsonProcessingException {
+    ObjectNode document = objectMapper.valueToTree(HttpExchange);
+    document.put(TIMESTAMP_FIELD, HttpExchange.getTimestamp().toEpochMilli());
 
     if (document.get("request") != null && document.get("request").get("headers") != null) {
       for (Iterator<String> i = document.get("request").get("headers").fieldNames(); i.hasNext(); ) {

@@ -16,6 +16,7 @@ import com.blossomproject.ui.menu.MenuControllerAdvice;
 import com.blossomproject.ui.theme.Theme;
 import com.blossomproject.ui.theme.ThemeControllerAdvice;
 import com.blossomproject.ui.web.ActivationController;
+import com.blossomproject.ui.web.CSRFControllerAdvice;
 import com.blossomproject.ui.web.HomeController;
 import com.blossomproject.ui.web.LoginController;
 import com.blossomproject.ui.web.OmnisearchController;
@@ -23,10 +24,10 @@ import com.blossomproject.ui.web.ProfileController;
 import com.blossomproject.ui.web.error.BlossomErrorViewResolver;
 import com.blossomproject.ui.web.error.ErrorControllerAdvice;
 import com.blossomproject.ui.web.utils.session.BlossomSessionRegistryImpl;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
-import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +128,11 @@ public class WebInterfaceAutoConfiguration {
   @Bean
   public ThemeControllerAdvice themeControllerAdvice(ThemeResolver themeResolver) {
     return new ThemeControllerAdvice(themePlugins, themeResolver);
+  }
+
+  @Bean
+  public CSRFControllerAdvice csrfControllerAdvice() {
+    return new CSRFControllerAdvice();
   }
 
 

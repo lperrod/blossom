@@ -11,7 +11,8 @@
           <dependency>
             <artifactId>querydsl-apt</artifactId>
             <groupId>com.querydsl</groupId>
-            <version>4.1.4</version>
+            <version>5.0.0</version>
+            <classifier>jakarta</classifier>
           </dependency>
         </dependencies>
         <executions>
@@ -43,12 +44,12 @@
     <dependency>
       <artifactId>blossom-core-user</artifactId>
       <groupId>com.blossom-project</groupId>
-      <version>2.0.0-SNAPSHOT</version>
+      <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>blossom-core-group</artifactId>
       <groupId>com.blossom-project</groupId>
-      <version>2.0.0-SNAPSHOT</version>
+      <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -68,7 +69,7 @@
   <parent>
     <artifactId>blossom-core</artifactId>
     <groupId>com.blossom-project</groupId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
 

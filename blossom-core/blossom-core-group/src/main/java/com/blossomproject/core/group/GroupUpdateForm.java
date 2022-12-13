@@ -1,6 +1,6 @@
 package com.blossomproject.core.group;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @UniqueGroupName(idField = "id")
 public class GroupUpdateForm {

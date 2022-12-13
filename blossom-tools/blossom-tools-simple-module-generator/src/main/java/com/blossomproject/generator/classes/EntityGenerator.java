@@ -10,7 +10,7 @@ import com.blossomproject.generator.configuration.model.TemporalField;
 import com.blossomproject.generator.configuration.model.impl.BlobField;
 import com.blossomproject.generator.utils.GeneratorUtils;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.EnumSet;
 
 public class EntityGenerator implements ClassGenerator {

@@ -1,15 +1,17 @@
 package com.blossomproject.module.article;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ArticleDTO extends AbstractDTO {
 
   private String name;
+
   private String summary;
+
   private String content;
+
   private Article.Status status;
 
   public String getName() {

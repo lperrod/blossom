@@ -1,8 +1,7 @@
 package com.blossomproject.core.group;
 
+import jakarta.validation.constraints.NotBlank;
 import java.util.Locale;
-
-import javax.validation.constraints.NotBlank;
 
 @UniqueGroupName
 public class GroupCreateForm {

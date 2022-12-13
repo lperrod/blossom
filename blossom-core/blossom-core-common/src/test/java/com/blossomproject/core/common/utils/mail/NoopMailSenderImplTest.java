@@ -3,7 +3,7 @@ package com.blossomproject.core.common.utils.mail;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Locale;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

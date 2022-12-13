@@ -1,7 +1,7 @@
 package com.blossomproject.core.common.entity.converter;
 
 import java.util.Locale;
-import javax.persistence.AttributeConverter;
+import jakarta.persistence.AttributeConverter;
 
 /**
  * <p>Custom AttributeConverter to store {@link Locale} into a database column.</p>

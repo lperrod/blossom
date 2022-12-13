@@ -1,20 +1,26 @@
 package com.blossomproject.module.filemanager;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class FileDTO extends AbstractDTO {
 
   private String name;
+
   private String path;
+
   private String contentType;
+
   private String extension;
+
   private Long size;
+
   private List<String> tags;
+
   private String hash;
+
   private String hashAlgorithm;
 
   public String getName() {

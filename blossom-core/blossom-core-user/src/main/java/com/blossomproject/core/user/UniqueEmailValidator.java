@@ -3,14 +3,16 @@ package com.blossomproject.core.user;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.Optional;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, Object> {
 
   private UserRepository userRepository;
+
   private String field;
+
   private String idField;
 
   public UniqueEmailValidator(UserRepository userRepository) {

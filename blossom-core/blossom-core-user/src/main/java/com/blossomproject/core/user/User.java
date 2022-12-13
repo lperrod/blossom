@@ -2,10 +2,9 @@ package com.blossomproject.core.user;
 
 import com.blossomproject.core.common.entity.AbstractEntity;
 import com.blossomproject.core.common.entity.converter.LocaleConverter;
-
-import javax.persistence.*;
 import java.util.Date;
 import java.util.Locale;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "blossom_user")
@@ -17,16 +16,19 @@ public class User extends AbstractEntity {
   @Column(name = "password_hash", nullable = false)
   private String passwordHash;
 
-  @Lob @Column(name = "description")
+  @Lob
+  @Column(name = "description")
   private String description;
 
   @Column(name = "activated", nullable = false)
   private boolean activated;
 
-  @Column(name = "last_connection", nullable = true) @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "last_connection", nullable = true)
+  @Temporal(TemporalType.TIMESTAMP)
   private Date lastConnection;
 
-  @Column(name = "civility") @Enumerated(EnumType.STRING)
+  @Column(name = "civility")
+  @Enumerated(EnumType.STRING)
   private Civility civility;
 
   @Column(name = "firstname", nullable = false)
@@ -171,7 +173,8 @@ public class User extends AbstractEntity {
     UNKNOWN, MAN, WOMAN;
   }
 
-  @Override public String toString() {
+  @Override
+  public String toString() {
     return "User{" + "id=" + getId() + ", email='" + email.replaceFirst("@.*", "@***") + ", passwordHash='"
       + passwordHash.substring(0, 10) + '}';
   }

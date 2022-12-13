@@ -5,7 +5,7 @@ import com.blossomproject.core.common.actuator.TraceStatisticsMvcEndpoint;
 import com.blossomproject.module.search.common.trace.DefaultInMemoryTraceRepository;
 import java.util.HashSet;
 import java.util.Set;
-import org.springframework.boot.actuate.autoconfigure.trace.http.HttpTraceAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.web.exchanges.HttpExchangesAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.PropertySource;
  */
 @Configuration
 
-@AutoConfigureBefore(HttpTraceAutoConfiguration.class)
+@AutoConfigureBefore(HttpExchangesAutoConfiguration.class)
 @PropertySource("classpath:/actuator.properties")
 public class ActuatorAutoConfiguration {
 

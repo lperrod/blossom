@@ -1,9 +1,8 @@
 package com.blossomproject.module.filemanager;
 
 import com.blossomproject.core.common.entity.AbstractEntity;
-
-import javax.persistence.*;
 import java.util.List;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "blossom_file")
@@ -22,8 +21,8 @@ public class File extends AbstractEntity {
   private Long size;
 
   @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name="blossom_file_tags", joinColumns = @JoinColumn(name="id", referencedColumnName = "id"))
-  @Column(name="tag")
+  @CollectionTable(name = "blossom_file_tags", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
+  @Column(name = "tag")
   private List<String> tags;
 
   @Column(name = "hash", nullable = false, updatable = false)

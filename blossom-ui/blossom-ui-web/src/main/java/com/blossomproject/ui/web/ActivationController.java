@@ -6,20 +6,23 @@ import com.blossomproject.core.user.UserDTO;
 import com.blossomproject.core.user.UserService;
 import com.blossomproject.core.validation.FieldMatch;
 import com.blossomproject.ui.stereotype.BlossomController;
+import java.util.Optional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-import java.util.Optional;
 
 @BlossomController
 @RequestMapping("/public")
@@ -28,6 +31,7 @@ public class ActivationController {
   private static final Logger LOGGER = LoggerFactory.getLogger(ActivationController.class);
 
   private final ActionTokenService tokenService;
+
   private final UserService userService;
 
   @Autowired
@@ -84,8 +88,8 @@ public class ActivationController {
 
   @PostMapping("/change_password")
   public ModelAndView changePassword(Model model,
-                                     @Valid @ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm,
-                                     BindingResult bindingResult) {
+    @Valid @ModelAttribute("updatePasswordForm") UpdatePasswordForm updatePasswordForm,
+    BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
       return new ModelAndView("blossom/activation/change-password", "updatePasswordForm",
         updatePasswordForm);

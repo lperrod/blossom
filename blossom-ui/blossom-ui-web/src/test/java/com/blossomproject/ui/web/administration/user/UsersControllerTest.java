@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.tika.Tika;
 import org.junit.Assert;

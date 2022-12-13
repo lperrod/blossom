@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.blossomproject.generator.configuration.model.Field;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.TemporalType;
+import jakarta.persistence.TemporalType;
 
 public class FieldsBuilder {
 

@@ -2,7 +2,7 @@ package com.blossomproject.core.common.utils.mail;
 
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.io.File;
 
 public class FileMailAttachment implements BlossomMailAttachment {

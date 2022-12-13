@@ -1,7 +1,5 @@
 package com.blossomproject.autoconfigure.ui;
 
-import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
-
 import com.blossomproject.autoconfigure.ui.common.privileges.ResponsabilityPrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.common.privileges.RolePrivilegesConfiguration;
 import com.blossomproject.autoconfigure.ui.web.BlossomWebBackOfficeProperties;
@@ -32,13 +30,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,10 +45,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Order(SecurityProperties.DEFAULT_FILTER_ORDER)
 @PropertySource("classpath:/security.properties")
 @EnableConfigurationProperties({DefaultAccountProperties.class, BlossomWebBackOfficeProperties.class})
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class WebSecurityAutoConfiguration {
 
   public static final String BLOSSOM_REMEMBER_ME_COOKIE_NAME = "blossom";
+
   private static final Logger logger = LoggerFactory.getLogger(WebSecurityAutoConfiguration.class);
 
   @Bean
@@ -138,21 +131,5 @@ public class WebSecurityAutoConfiguration {
     return provider;
   }
 
-  @Configuration
-  @Order(Ordered.HIGHEST_PRECEDENCE)
-  public static class PublicWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      http.antMatcher("/public/**").csrf().disable();
-      http.antMatcher("/" + BLOSSOM_BASE_PATH + "/public/**").authorizeRequests().anyRequest()
-        .permitAll();
-    }
-
-    @Override
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-      return super.authenticationManagerBean();
-    }
-  }
 }

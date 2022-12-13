@@ -2,7 +2,7 @@ package com.blossomproject.core.validation;
 
 import org.springframework.plugin.core.Plugin;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 

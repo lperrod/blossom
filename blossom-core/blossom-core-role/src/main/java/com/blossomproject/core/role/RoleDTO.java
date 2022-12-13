@@ -2,13 +2,15 @@ package com.blossomproject.core.role;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class RoleDTO extends AbstractDTO {
 
   private String name;
+
   private String description;
+
   private List<String> privileges;
 
   public String getName() {

@@ -1,128 +1,140 @@
 package com.blossomproject.core.user;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 import java.util.Locale;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class UserDTO extends AbstractDTO {
-    private String identifier;
-    private String passwordHash;
-    private String description;
-    private boolean activated;
-    private Date lastConnection;
-    private User.Civility civility;
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String phone;
-    private String company;
-    private String function;
-    private Locale locale;
 
-    public String getIdentifier() {
-        return identifier;
-    }
+  private String identifier;
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
+  private String passwordHash;
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+  private String description;
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
+  private boolean activated;
 
-    public String getDescription() {
-        return description;
-    }
+  private Date lastConnection;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  private User.Civility civility;
 
-    public boolean isActivated() {
-        return activated;
-    }
+  private String firstname;
 
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
+  private String lastname;
 
-    public Date getLastConnection() {
-        return lastConnection;
-    }
+  private String email;
 
-    public void setLastConnection(Date lastConnection) {
-        this.lastConnection = lastConnection;
-    }
+  private String phone;
 
-    public User.Civility getCivility() {
-        return civility;
-    }
+  private String company;
 
-    public void setCivility(User.Civility civility) {
-        this.civility = civility;
-    }
+  private String function;
 
-    public String getFirstname() {
-        return firstname;
-    }
+  private Locale locale;
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
+  public String getIdentifier() {
+    return identifier;
+  }
 
-    public String getLastname() {
-        return lastname;
-    }
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
+  }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
+  public String getPasswordHash() {
+    return passwordHash;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public void setPasswordHash(String passwordHash) {
+    this.passwordHash = passwordHash;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getPhone() {
-        return phone;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
+  public boolean isActivated() {
+    return activated;
+  }
 
-    public String getCompany() {
-        return company;
-    }
+  public void setActivated(boolean activated) {
+    this.activated = activated;
+  }
 
-    public void setCompany(String company) {
-        this.company = company;
-    }
+  public Date getLastConnection() {
+    return lastConnection;
+  }
 
-    public String getFunction() {
-        return function;
-    }
+  public void setLastConnection(Date lastConnection) {
+    this.lastConnection = lastConnection;
+  }
 
-    public void setFunction(String function) {
-        this.function = function;
-    }
+  public User.Civility getCivility() {
+    return civility;
+  }
 
-    public Locale getLocale() {
-      return locale;
-    }
+  public void setCivility(User.Civility civility) {
+    this.civility = civility;
+  }
 
-    public void setLocale(Locale locale) {
-      this.locale = locale;
-    }
+  public String getFirstname() {
+    return firstname;
+  }
+
+  public void setFirstname(String firstname) {
+    this.firstname = firstname;
+  }
+
+  public String getLastname() {
+    return lastname;
+  }
+
+  public void setLastname(String lastname) {
+    this.lastname = lastname;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getCompany() {
+    return company;
+  }
+
+  public void setCompany(String company) {
+    this.company = company;
+  }
+
+  public String getFunction() {
+    return function;
+  }
+
+  public void setFunction(String function) {
+    this.function = function;
+  }
+
+  public Locale getLocale() {
+    return locale;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
 }

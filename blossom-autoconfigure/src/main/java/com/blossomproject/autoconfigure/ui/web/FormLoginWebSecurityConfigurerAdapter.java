@@ -1,5 +1,8 @@
 package com.blossomproject.autoconfigure.ui.web;
 
+import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
+import static com.blossomproject.autoconfigure.ui.WebSecurityAutoConfiguration.BLOSSOM_REMEMBER_ME_COOKIE_NAME;
+
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.ui.BlossomAuthenticationSuccessHandlerImpl;
 import com.blossomproject.ui.security.LimitLoginAuthenticationProvider;
@@ -9,30 +12,44 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
-
-import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
-import static com.blossomproject.autoconfigure.ui.WebSecurityAutoConfiguration.BLOSSOM_REMEMBER_ME_COOKIE_NAME;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @ConditionalOnBean(WebInterfaceAutoConfiguration.class)
 @AutoConfigureAfter(WebInterfaceAutoConfiguration.class)
 @Configuration
-public class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+public class FormLoginWebSecurityConfigurerAdapter {
+
+
+  private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
+    new AntPathRequestMatcher("/public/**"),
+    new AntPathRequestMatcher("/favicon.ico")
+  );
+
+  private static final RequestMatcher BLOSSOM_PUBLIC_URLS = new OrRequestMatcher(
+    new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/public/**"),
+    new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/login"));
+
+  private static final RequestMatcher PROTECTED_URLS = new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/**");
 
   private final UserDetailsService userDetailsService;
+
   private final BlossomAuthenticationSuccessHandlerImpl blossomAuthenticationSuccessHandler;
+
   private final SessionRegistry sessionRegistry;
+
   private final Privilege switchUserPrivilege;
+
   private final LimitLoginAuthenticationProvider limitLoginAuthenticationProvider;
+
   private final BlossomWebBackOfficeProperties webBackOfficeProperties;
 
 
@@ -68,33 +85,35 @@ public class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurer
     return filter;
   }
 
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.authenticationProvider(limitLoginAuthenticationProvider);
-  }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.addFilterAfter(switchUserProcessingFilter(), FilterSecurityInterceptor.class);
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    http.antMatcher("/" + BLOSSOM_BASE_PATH + "/**")
-      .authorizeRequests().anyRequest().fullyAuthenticated()
-      .and().formLogin().loginPage("/" + BLOSSOM_BASE_PATH + "/login")
-      .failureUrl("/" + BLOSSOM_BASE_PATH + "/login?error")
-      .successHandler(blossomAuthenticationSuccessHandler).permitAll()
-      .and().logout()
+    http.authorizeHttpRequests(
+      authorize -> authorize.requestMatchers(PUBLIC_URLS).permitAll().requestMatchers(BLOSSOM_PUBLIC_URLS).permitAll()
+        .requestMatchers(PROTECTED_URLS).fullyAuthenticated());
+
+    http
+      .authenticationProvider(limitLoginAuthenticationProvider)
+      .addFilter(switchUserProcessingFilter())
+      .formLogin(
+        form -> form.loginPage("/" + BLOSSOM_BASE_PATH + "/login")
+          .failureUrl("/" + BLOSSOM_BASE_PATH + "/login?error").successHandler(blossomAuthenticationSuccessHandler))
+      .logout()
       .logoutRequestMatcher(new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/logout"))
       .deleteCookies(BLOSSOM_REMEMBER_ME_COOKIE_NAME)
       .logoutSuccessUrl("/" + BLOSSOM_BASE_PATH + "/login").permitAll()
       .and().rememberMe().rememberMeCookieName(BLOSSOM_REMEMBER_ME_COOKIE_NAME)
       .and().exceptionHandling().defaultAuthenticationEntryPointFor(
-      (request, response, authException) -> response.sendError(401),
-      new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"))
+        (request, response, authException) -> response.sendError(401),
+        new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"))
       .and().sessionManagement()
       .maximumSessions(webBackOfficeProperties.getMaxSessionsPerUser()).maxSessionsPreventsLogin(true)
       .expiredSessionStrategy(
         new WebInterfaceAutoConfiguration.BlossomInvalidSessionStrategy("/" + BLOSSOM_BASE_PATH + "/login"))
       .sessionRegistry(sessionRegistry);
-
+    return http.build();
   }
+
+
 }

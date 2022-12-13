@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class LoggerManagerController {
 
   private final static String ROOT_LOGGER = "ROOT";
+
   private final LoggersEndpoint loggersEndpoint;
 
   public LoggerManagerController(LoggersEndpoint loggersEndpoint) {
@@ -46,11 +47,11 @@ public class LoggerManagerController {
 
   @GetMapping("/{name:.+}")
   public ModelAndView loggerDetail(@PathVariable("name") String name, Model model) {
-    LoggersEndpoint.LoggerLevels levels = loggersEndpoint.loggerLevels(name);
+    LoggersEndpoint.LoggerLevelsDescriptor levels = loggersEndpoint.loggerLevels(name);
 
     model.addAttribute("logger", name);
     model.addAttribute("loggerLevels", levels);
-    model.addAttribute("levels", loggersEndpoint.loggers().get("levels"));
+    model.addAttribute("levels", loggersEndpoint.loggers().getLoggers().get("levels"));
 
     return new ModelAndView("blossom/system/loggers/logger-detail", model.asMap());
   }
@@ -68,12 +69,12 @@ public class LoggerManagerController {
   public @ResponseBody
   TreeNode<String> loggersTree(
     @RequestParam(name = "q", defaultValue = "", required = false) String q, Model model) {
-    LoggersEndpoint.LoggerLevels root = loggersEndpoint.loggerLevels(ROOT_LOGGER);
+    LoggersEndpoint.LoggerLevelsDescriptor root = loggersEndpoint.loggerLevels(ROOT_LOGGER);
     TreeNode<String> rootNode = new TreeNode<String>(ROOT_LOGGER, ROOT_LOGGER,
       root.getConfiguredLevel());
 
-    Map<String, Object> loggers = loggersEndpoint.loggers();
-    Map<String, LoggersEndpoint.LoggerLevels> loggerLevels = (Map<String, LoggersEndpoint.LoggerLevels>) loggers
+    Map<String, LoggersEndpoint.LoggerLevelsDescriptor> loggerLevels = (Map<String, LoggersEndpoint.LoggerLevelsDescriptor>) loggersEndpoint.loggers()
+      .getLoggers()
       .get("loggers");
 
     loggerLevels.entrySet()

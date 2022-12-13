@@ -1,9 +1,7 @@
-
 package com.blossomproject.module.article;
 
 import com.blossomproject.core.common.entity.AbstractEntity;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "blossom_article")
@@ -20,7 +18,8 @@ public class Article extends AbstractEntity {
   @Column(name = "content")
   private String content;
 
-  @Column(name = "status") @Enumerated(EnumType.STRING)
+  @Column(name = "status")
+  @Enumerated(EnumType.STRING)
   private Status status;
 
   public String getName() {

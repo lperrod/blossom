@@ -3,7 +3,7 @@ package com.blossomproject.core.user;
 import java.lang.annotation.Annotation;
 import java.util.Optional;
 
-import javax.validation.Payload;
+import jakarta.validation.Payload;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
