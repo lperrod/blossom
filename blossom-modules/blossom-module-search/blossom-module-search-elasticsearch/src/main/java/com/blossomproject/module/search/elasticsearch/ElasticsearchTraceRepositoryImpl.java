@@ -133,29 +133,29 @@ public class ElasticsearchTraceRepositoryImpl extends InMemoryHttpExchangeReposi
   /**
    * Adds a new {@code HttpExchange} to the repository
    *
-   * @param HttpExchange the HttpExchange
+   * @param httpExchange the HttpExchange
    */
   @Override
-  public void add(HttpExchange HttpExchange) {
-    String path = HttpExchange.getRequest().getUri().getPath();
+  public void add(HttpExchange httpExchange) {
+    String path = httpExchange.getRequest().getUri().getPath();
     if (Strings.isNullOrEmpty(path)) {
       return;
     }
 
     boolean ignore = ignoredPatterns.stream().anyMatch(pattern -> pattern.matcher(path).matches());
     if (!ignore) {
-      super.add(HttpExchange);
+      super.add(httpExchange);
       try {
-        indexTrace(HttpExchange);
+        indexTrace(httpExchange);
       } catch (JsonProcessingException e) {
         logger.error("Cannot index trace", e);
       }
     }
   }
 
-  void indexTrace(HttpExchange HttpExchange) throws JsonProcessingException {
-    ObjectNode document = objectMapper.valueToTree(HttpExchange);
-    document.put(TIMESTAMP_FIELD, HttpExchange.getTimestamp().toEpochMilli());
+  void indexTrace(HttpExchange httpExchange) throws JsonProcessingException {
+    ObjectNode document = objectMapper.valueToTree(httpExchange);
+    document.put(TIMESTAMP_FIELD, httpExchange.getTimestamp().toEpochMilli());
 
     if (document.get("request") != null && document.get("request").get("headers") != null) {
       for (Iterator<String> i = document.get("request").get("headers").fieldNames(); i.hasNext(); ) {
