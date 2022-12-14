@@ -38,7 +38,7 @@ public class MenuInterceptor implements HandlerInterceptor {
       List<String> currentMenu = Lists.newArrayList();
       if (!StringUtils.isEmpty(menuId) && registry.hasPluginFor(menuId)) {
 
-        MenuItem menuItem = registry.getPluginFor(menuId).get();
+        MenuItem menuItem = registry.getPluginFor(menuId).orElse(null);
         while (menuItem != null) {
           currentMenu.add(menuItem.key());
           menuItem = menuItem.parent();

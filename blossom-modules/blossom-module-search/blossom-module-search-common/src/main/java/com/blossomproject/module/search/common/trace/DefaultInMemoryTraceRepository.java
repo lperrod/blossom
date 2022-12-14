@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.springframework.boot.actuate.web.exchanges.HttpExchange;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
+import org.springframework.util.CollectionUtils;
 
 public class DefaultInMemoryTraceRepository extends InMemoryHttpExchangeRepository implements TraceRepository {
 
@@ -170,8 +171,11 @@ public class DefaultInMemoryTraceRepository extends InMemoryHttpExchangeReposito
   }
 
   private void computeResponseContentType(LocalDateTime localDateTime, HttpExchange httpExchange) {
-    computeData(localDateTime, responseContentTypeStats,
-      httpExchange.getResponse().getHeaders().get("Content-Type").get(0));
+    Map<String, List<String>> headers = httpExchange.getResponse().getHeaders();
+    if (headers != null && !CollectionUtils.isEmpty(headers.get("Content-Type"))) {
+      computeData(localDateTime, responseContentTypeStats,
+        headers.get("Content-Type").get(0));
+    }
   }
 
   private void computeResponseTimeHistogram(LocalDateTime localDateTime, HttpExchange httpExchange) {
