@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, User> implements UserService {
 
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GenericAssociationServiceImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
   private final PasswordEncoder passwordEncoder;
 

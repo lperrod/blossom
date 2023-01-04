@@ -66,10 +66,10 @@ public class UserAutoConfiguration {
     UserMailService userMailService,
     ApplicationEventPublisher eventPublisher,
     @Value("classpath:/images/avatar.jpeg") Resource defaultAvatarFile,
-    @Value("activationTokenDuration") String activationTokenDuration,
-    @Value("activationTokenChronoUnit") String activationTokenChronoUnit,
-    @Value("passwordTokenDuration") String passwordTokenDuration,
-    @Value("passwordTokenChronoUnit") String passwordTokenChronoUnit) throws IOException {
+    @Value("${activationTokenDuration}") String activationTokenDuration,
+    @Value("${activationTokenChronoUnit}") String activationTokenChronoUnit,
+    @Value("${passwordTokenDuration}") String passwordTokenDuration,
+    @Value("${passwordTokenChronoUnit}") String passwordTokenChronoUnit) throws IOException {
     if (!defaultAvatarFile.exists()) {
       throw new RuntimeException("Cannot find default user avatar on the classpath.");
     }
