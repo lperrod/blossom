@@ -39,7 +39,7 @@
 
           <div class="col-lg-12">
             <form action="?" id="updatePasswordForm" class="m-t" role="form" method="POST" novalidate>
-
+              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
               <@spring.bind "updatePasswordForm"/>
               <#assign hasGlobalError = spring.status.error/>
 

@@ -33,6 +33,7 @@
 
             <div class="col-lg-12">
               <form class="m-t" role="form" method="POST" novalidate>
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                 <@spring.bind "askPasswordForm.loginOrEmail"/>
                 <div class="form-group">
                   <input type="text" name="loginOrEmail" class="form-control"  value="${askPasswordForm.loginOrEmail}" placeholder="<@spring.message "ask.password.form.loginOrEmail.label"/>" required="">
