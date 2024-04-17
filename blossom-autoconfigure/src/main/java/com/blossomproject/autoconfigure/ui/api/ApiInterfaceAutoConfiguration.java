@@ -91,6 +91,7 @@ public class ApiInterfaceAutoConfiguration {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
+      http.headers().frameOptions().sameOrigin();
       http.authorizeRequests().anyRequest().fullyAuthenticated();
 
       if (endpoints != null) {
