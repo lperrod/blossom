@@ -90,6 +90,7 @@ public class FormLoginWebSecurityConfigurerAdapter {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+    http.headers().frameOptions().sameOrigin();
     http.authorizeHttpRequests(
       authorize -> authorize.requestMatchers(PUBLIC_URLS).permitAll().requestMatchers(BLOSSOM_PUBLIC_URLS).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new OrRequestMatcher(PUBLIC_URLS, BLOSSOM_PUBLIC_URLS))).fullyAuthenticated());
