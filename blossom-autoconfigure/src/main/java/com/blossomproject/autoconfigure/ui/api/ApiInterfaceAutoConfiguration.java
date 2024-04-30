@@ -87,7 +87,7 @@ public class ApiInterfaceAutoConfiguration {
   public static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
 
-    @Value("${CSP_ANCESTORS}")
+    @Value("${CSP_ANCESTORS:}")
     String cspAncestors;
 
     @Autowired(required = false)
