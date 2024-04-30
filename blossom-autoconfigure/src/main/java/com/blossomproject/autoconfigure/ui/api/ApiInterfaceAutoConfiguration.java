@@ -87,7 +87,7 @@ public class ApiInterfaceAutoConfiguration {
   public static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
 
-    @Value("${CSP_ANCESTORS:'self'}")
+    @Value("${CSP_ANCESTORS}")
     String cspAncestors;
 
     @Autowired(required = false)
@@ -101,9 +101,11 @@ public class ApiInterfaceAutoConfiguration {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       http.headers().frameOptions().sameOrigin();
+      String cspValue  = "frame-ancestors 'self' https://fonts.gstatic.com https://fonts.googleapis.com";
       if(StringUtils.hasText(cspAncestors)){
-        http.headers().contentSecurityPolicy("frame-ancestors " + cspAncestors );
+        cspValue += " " + cspAncestors;
       }
+      http.headers().contentSecurityPolicy(cspValue);
 
       http.authorizeRequests().anyRequest().fullyAuthenticated();
 
