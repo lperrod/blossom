@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -56,6 +57,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.StringUtils;
 
 /**
  * Created by Maël Gargadennnec on 04/05/2017.
@@ -64,6 +66,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @ConditionalOnWebApplication
 @ConditionalOnClass(UsersApiController.class)
 public class ApiInterfaceAutoConfiguration {
+
+
+
 
   @Bean
   public OmnisearchApiController omnisearchApiController(OmnisearchService omnisearchService,
@@ -81,6 +86,10 @@ public class ApiInterfaceAutoConfiguration {
   @AutoConfigureAfter(WebSecurityAutoConfiguration.class)
   public static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
+
+    @Value("${CSP_ANCESTORS:self}")
+    String cspAncestors;
+
     @Autowired(required = false)
     private AuthorizationServerEndpointsConfiguration endpoints;
 
@@ -92,6 +101,10 @@ public class ApiInterfaceAutoConfiguration {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       http.headers().frameOptions().sameOrigin();
+      if(StringUtils.hasText(cspAncestors)){
+        http.headers().contentSecurityPolicy("frame-ancestors " + cspAncestors );
+      }
+
       http.authorizeRequests().anyRequest().fullyAuthenticated();
 
       if (endpoints != null) {
