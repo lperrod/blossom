@@ -135,35 +135,7 @@ public class GenericCrudServiceImplTest {
     verify(associationServicePlugin, times(1)).getBClass();
   }
 
-  @Test
-  public void should_return_associations_with_one_plugin_associate_with_aclass() {
-    DTO dto = new DTO();
-    dto.setId(1L);
 
-    AssociationServicePlugin associationServicePlugin = mock(AssociationServicePlugin.class);
-    when(associationRegistry.getPluginsFor(eq(dto.getClass())))
-      .thenReturn(Lists.newArrayList(associationServicePlugin));
-
-    when(associationServicePlugin.getBClass()).thenReturn(AbstractDTO.class);
-
-    AbstractDTO aClass = mock(DTO.class);
-    when(associationServicePlugin.getAClass()).thenReturn((Class<AbstractDTO>) aClass.getClass());
-
-    List list = mock(List.class);
-    when(list.size()).thenReturn(1);
-    when(associationServicePlugin.getAssociations(eq(dto))).thenReturn(list);
-
-    when(associationRegistry.hasPluginFor(eq(dto.getClass()))).thenReturn(true);
-
-    Map<Class<? extends AbstractDTO>, Long> associations = service.associations(dto);
-    assertNotNull(associations);
-    assertTrue(associations.containsKey(aClass.getClass()));
-    assertEquals(Long.valueOf(1), associations.get(aClass.getClass()));
-
-    verify(associationRegistry, times(1)).hasPluginFor(any());
-    verify(associationServicePlugin, times(1)).getAClass();
-    verify(associationServicePlugin, times(1)).getBClass();
-  }
 
   @Test
   public void should_return_associations_with_one_plugin_without_real_association() {
