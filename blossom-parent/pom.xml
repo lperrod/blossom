@@ -132,7 +132,7 @@
     <powermock.version>2.0.9</powermock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring.plugin.core.version>3.0.0</spring.plugin.core.version>
-    <springboot.version>3.0.0</springboot.version>
+    <springboot.version>3.4.3</springboot.version>
     <tika.version>2.6.0</tika.version>
     <commons-io.version>2.11.0</commons-io.version>
   </properties>
