@@ -68,7 +68,7 @@ public class LiquibaseAutoConfiguration {
       BlossomSpringLiquibase liquibase = new BlossomSpringLiquibase(resourceLoader);
       liquibase.setDataSource(dataSource);
       liquibase.setChangeLog(this.properties.getChangeLog());
-      liquibase.setContexts(this.properties.getContexts());
+      liquibase.setContexts(String.join(",",this.properties.getContexts()));
       liquibase.setDefaultSchema(this.properties.getDefaultSchema());
       liquibase.setDropFirst(this.properties.isDropFirst());
       liquibase.setShouldRun(this.properties.isEnabled());
