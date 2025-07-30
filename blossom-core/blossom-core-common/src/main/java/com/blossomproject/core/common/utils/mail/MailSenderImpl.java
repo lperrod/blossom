@@ -236,7 +236,7 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
       emailbuilder.to(new SendContact(dest.getAddress()));
     });
 
-    emailbuilder.from(new SendContact(mail.getFrom().getAddress())).htmlPart(htmlContent).textPart(textContent).attachments(convertAttachment(mail.getAttachments())).templateErrorReporting(new SendContact(mail.getFrom().getAddress())).subject(mail.getMailSubject());
+    emailbuilder.from(new SendContact(mail.getFrom().getAddress())).htmlPart(htmlContent).textPart(textContent).attachments(convertAttachment(mail.getAttachments())).subject(mail.getMailSubject());
     var emailRequest = SendEmailsRequest.builder().message(emailbuilder.build()).build();
    try{
      var response = emailRequest.sendWith(mailjetClient );
