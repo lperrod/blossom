@@ -17,4 +17,8 @@ public class FileMailAttachment implements BlossomMailAttachment {
   public void appendTo(MimeMessageHelper mimeMessageHelper) throws MessagingException {
     mimeMessageHelper.addAttachment(file.getName(), file);
   }
+
+  public File getFile() {
+    return file;
+  }
 }

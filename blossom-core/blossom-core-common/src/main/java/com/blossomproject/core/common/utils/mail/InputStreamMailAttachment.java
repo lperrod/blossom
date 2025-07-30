@@ -17,6 +17,18 @@ public class InputStreamMailAttachment implements BlossomMailAttachment {
     this.contentType = contentType;
   }
 
+  public String getFilename() {
+    return filename;
+  }
+
+  public InputStreamSource getSource() {
+    return source;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
+
   @Override
   public void appendTo(MimeMessageHelper mimeMessageHelper) throws MessagingException {
     mimeMessageHelper.addAttachment(filename, source, contentType);

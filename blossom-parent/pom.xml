@@ -103,6 +103,11 @@
         <groupId>org.elasticsearch.client</groupId>
         <version>${elasticsearch.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.mailjet</groupId>
+        <artifactId>mailjet-client</artifactId>
+        <version>${mailjet.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -135,6 +140,7 @@
     <springboot.version>3.4.3</springboot.version>
     <tika.version>2.6.0</tika.version>
     <commons-io.version>2.11.0</commons-io.version>
+    <mailjet.version>5.2.5</mailjet.version>
   </properties>
 
   <url>http://maven.apache.org</url>

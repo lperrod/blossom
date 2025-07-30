@@ -146,6 +146,11 @@
       <groupId>org.glassfish.jaxb</groupId>
     </dependency>
 
+    <dependency>
+      <groupId>com.mailjet</groupId>
+      <artifactId>mailjet-client</artifactId>
+    </dependency>
+
 
 
 

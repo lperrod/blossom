@@ -1,10 +1,17 @@
 package com.blossomproject.core.common.utils.mail;
 
 import com.google.common.base.Preconditions;
+import com.mailjet.client.MailjetClient;
+import com.mailjet.client.transactional.Attachment;
+import com.mailjet.client.transactional.SendContact;
+import com.mailjet.client.transactional.SendEmailsRequest;
+import com.mailjet.client.transactional.TransactionalEmail;
 import freemarker.template.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -13,7 +20,12 @@ import org.springframework.util.concurrent.ListenableFuture;
 import jakarta.mail.Message;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,12 +43,16 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
   private final AsyncMailSender asyncMailSender;
   private final InternetAddress from;
   private final Set<Pattern> filters;
+  private final MailjetClient mailjetClient;
+  private final boolean mailjetEnabled;
 
   public MailSenderImpl(JavaMailSender javaMailSender, Configuration freemarkerConfiguration,
                         MessageSource messageSource, String basePath, Locale defaultLocale,
                         MailFilter filter, AsyncMailSender asyncMailSender, InternetAddress from,
-                        Set<String> filters) {
-    Preconditions.checkNotNull(javaMailSender);
+                        Set<String> filters, MailjetClient mailjetClient,@Value("${mailjetEnabled:false}") boolean mailjetEnabled) {
+      this.mailjetClient = mailjetClient;
+      this.mailjetEnabled = mailjetEnabled;
+      Preconditions.checkNotNull(javaMailSender);
     Preconditions.checkNotNull(freemarkerConfiguration);
     Preconditions.checkNotNull(messageSource);
     Preconditions.checkNotNull(basePath);
@@ -113,6 +129,9 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
     Preconditions.checkArgument(mail.getMailSubject() != null);
     Preconditions.checkArgument(Stream.of(mail.getHtmlTemplate(), mail.getHtmlBody(), mail.getTextBody(), mail.getTextTemplate()).anyMatch(Objects::nonNull));
 
+    if(mailjetEnabled && mailjetClient != null){
+      sendViaMailjet(mail);
+    }
     final Map<String, Object> ctx = new HashMap<>(mail.getCtx());
     this.enrichContext(ctx, mail.getLocale());
 
@@ -188,6 +207,75 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
       Arrays.toString(message.getMimeMessage().getRecipients(Message.RecipientType.TO)),
       Arrays.toString(message.getMimeMessage().getRecipients(Message.RecipientType.CC)),
       Arrays.toString(message.getMimeMessage().getRecipients(Message.RecipientType.BCC)));
+  }
+
+  private void sendViaMailjet(BlossomMailImpl mail) throws Exception {
+
+    final Map<String, Object> ctx = new HashMap<>(mail.getCtx());
+    this.enrichContext(ctx, mail.getLocale());
+
+
+    String htmlContent = null;
+    if (mail.getHtmlTemplate() != null) {
+      final Template template = this.freemarkerConfiguration.getTemplate("mail/" + mail.getHtmlTemplate() + ".ftl");
+      htmlContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, ctx);
+    } else if (mail.getHtmlBody() != null) {
+      htmlContent = mail.getHtmlBody();
+    }
+
+    String textContent = null;
+    if (mail.getTextTemplate() != null) {
+      final Template template = this.freemarkerConfiguration.getTemplate("mail/" + mail.getTextTemplate() + ".ftl");
+      textContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, ctx);
+    } else if (mail.getTextBody() != null) {
+      textContent = mail.getTextBody();
+    }
+
+    TransactionalEmail.TransactionalEmailBuilder emailbuilder = TransactionalEmail.builder();
+    Stream.concat(mail.getBcc().stream(),Stream.concat(mail.getCc().stream(),mail.getTo().stream())).forEach(dest -> {
+      emailbuilder.to(new SendContact(dest.getAddress()));
+    });
+
+    emailbuilder.from(new SendContact(mail.getFrom().getAddress())).htmlPart(htmlContent).textPart(textContent).attachments(convertAttachment(mail.getAttachments())).templateErrorReporting(new SendContact(mail.getFrom().getAddress())).subject(mail.getMailSubject());
+    var emailRequest = SendEmailsRequest.builder().message(emailbuilder.build()).build();
+   try{
+     var response = emailRequest.sendWith(mailjetClient );
+     LOGGER.info("Result from email sending via mailjet : {}", response);
+   }catch (Exception e){
+     LOGGER.error("Unable to send mailjet email : {}", e.getMessage());
+   }
+  }
+
+  private List<Attachment> convertAttachment(List<BlossomMailAttachment> attachments){
+    return attachments.stream().map(this::convertAttachment).filter(Objects::nonNull).collect(Collectors.toList());
+  }
+
+  Attachment convertAttachment(BlossomMailAttachment attachment){
+    if(attachment instanceof InputStreamMailAttachment inputStreamMailAttachment){
+
+      return Attachment.builder().filename(inputStreamMailAttachment.getFilename()).contentType(inputStreamMailAttachment.getContentType()).base64Content(convertInputStreamToString(inputStreamMailAttachment.getSource())).build();
+    }else if(attachment instanceof FileMailAttachment fileMailAttachment){
+    return Attachment.builder().build();
+    }
+return null;
+  }
+
+
+  private String convertInputStreamToString(InputStreamSource inputStreamSource){
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    byte[] buffer = new byte[8192]; // 8KB buffer
+    int bytesRead;
+    try{
+      var inputStream = inputStreamSource.getInputStream();
+      while ((bytesRead = inputStream.read(buffer)) != -1) {
+        outputStream.write(buffer, 0, bytesRead);
+      }
+    }catch (Exception e){
+      LOGGER.error("Unable to convert to base64 string : {}", e.getMessage());
+    }
+
+    byte[] bytes = outputStream.toByteArray();
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   private void enrichContext(Map<String, Object> ctx, Locale locale) {
