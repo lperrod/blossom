@@ -49,7 +49,7 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
   public MailSenderImpl(JavaMailSender javaMailSender, Configuration freemarkerConfiguration,
                         MessageSource messageSource, String basePath, Locale defaultLocale,
                         MailFilter filter, AsyncMailSender asyncMailSender, InternetAddress from,
-                        Set<String> filters, MailjetClient mailjetClient,@Value("${mailjetEnabled:false}") boolean mailjetEnabled) {
+                        Set<String> filters, MailjetClient mailjetClient,boolean mailjetEnabled) {
       this.mailjetClient = mailjetClient;
       this.mailjetEnabled = mailjetEnabled;
       Preconditions.checkNotNull(javaMailSender);

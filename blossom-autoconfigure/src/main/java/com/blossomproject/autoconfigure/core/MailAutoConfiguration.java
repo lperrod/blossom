@@ -12,7 +12,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+
+import com.mailjet.client.ClientOptions;
+import com.mailjet.client.MailjetClient;
 import jakarta.mail.internet.InternetAddress;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -23,10 +27,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @AutoConfigureAfter(MailSenderAutoConfiguration.class)
 public class MailAutoConfiguration {
+
+
 
   @Configuration
   @ConfigurationProperties("blossom.mail")
@@ -74,11 +81,11 @@ public class MailAutoConfiguration {
   @ConditionalOnBean(JavaMailSender.class)
   @ConditionalOnMissingBean(MailSender.class)
   public MailSender blossomMailSender(JavaMailSender javaMailSender,
-    MessageSource messageSource,
-    freemarker.template.Configuration configuration,
-    Set<Locale> availableLocales,
-    MailsenderProperties properties, MailFilter mailFilter,
-    AsyncMailSender asyncMailSender)
+                                      MessageSource messageSource,
+                                      freemarker.template.Configuration configuration,
+                                      Set<Locale> availableLocales,
+                                      MailsenderProperties properties, MailFilter mailFilter,
+                                      AsyncMailSender asyncMailSender, @Value("${mailjetAPIKey:fake}") String mailjetAPIKey, @Value("${mailjetAPISecret:fake}") String mailjetAPISecret,@Value("${mailjetEnabled:false}") boolean mailjetEnabled)
     throws UnsupportedEncodingException {
 
     return new MailSenderImpl(
@@ -90,7 +97,7 @@ public class MailAutoConfiguration {
       mailFilter,
       asyncMailSender,
       new InternetAddress(properties.getFrom(), properties.getFromName()),
-      properties.getFilters()
+      properties.getFilters(),new MailjetClient(ClientOptions.builder().apiKey(mailjetAPIKey).apiSecretKey(mailjetAPISecret).build()),mailjetEnabled
     );
   }
 
