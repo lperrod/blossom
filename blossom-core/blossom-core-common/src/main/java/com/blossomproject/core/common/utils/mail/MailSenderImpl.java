@@ -131,6 +131,7 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
 
     if(mailjetEnabled && mailjetClient != null){
       sendViaMailjet(mail);
+      return;
     }
     final Map<String, Object> ctx = new HashMap<>(mail.getCtx());
     this.enrichContext(ctx, mail.getLocale());
