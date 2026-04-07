@@ -78,8 +78,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <artifactId>jsass</artifactId>
-      <groupId>io.bit3</groupId>
+      <groupId>de.larsgrefer.sass</groupId>
+      <artifactId>sass-embedded-host</artifactId>
     </dependency>
   </dependencies>
 

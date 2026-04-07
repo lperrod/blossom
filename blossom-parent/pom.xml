@@ -58,15 +58,9 @@
         <version>${guava.version}</version>
       </dependency>
       <dependency>
-        <artifactId>jsass</artifactId>
-        <groupId>io.bit3</groupId>
-        <version>${jsass.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-        </exclusions>
+        <groupId>de.larsgrefer.sass</groupId>
+        <artifactId>sass-embedded-host</artifactId>
+        <version>${sass-embedded.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -131,7 +125,7 @@
     <jakarta.annotation>2.1.1</jakarta.annotation>
     <jakarta.validation>3.1.0</jakarta.validation>
     <jna.version>5.16.0</jna.version>
-    <jsass.version>5.11.0</jsass.version>
+    <sass-embedded.version>4.4.0</sass-embedded.version>
     <liquibase.version>4.31.0</liquibase.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
