@@ -21,7 +21,7 @@
 
       <dependency>
         <artifactId>jna</artifactId>
-        <groupId>com.sun.jna</groupId>
+        <groupId>net.java.dev.jna</groupId>
         <version>${jna.version}</version>
       </dependency>
 
@@ -31,12 +31,12 @@
         <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
-        <artifactId>bcprov-jdk15on</artifactId>
+        <artifactId>bcprov-jdk18on</artifactId>
         <groupId>org.bouncycastle</groupId>
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
-        <artifactId>bcmail-jdk15on</artifactId>
+        <artifactId>bcmail-jdk18on</artifactId>
         <groupId>org.bouncycastle</groupId>
         <version>${bouncycastle.version}</version>
       </dependency>
@@ -56,16 +56,6 @@
         <artifactId>guava</artifactId>
         <groupId>com.google.guava</groupId>
         <version>${guava.version}</version>
-      </dependency>
-      <dependency>
-        <artifactId>powermock-module-junit4</artifactId>
-        <groupId>org.powermock</groupId>
-        <version>${powermock.version}</version>
-      </dependency>
-      <dependency>
-        <artifactId>powermock-api-mockito2</artifactId>
-        <groupId>org.powermock</groupId>
-        <version>${powermock.version}</version>
       </dependency>
       <dependency>
         <artifactId>jsass</artifactId>
@@ -108,6 +98,18 @@
         <artifactId>mailjet-client</artifactId>
         <version>${mailjet.version}</version>
       </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.vintage</groupId>
+        <artifactId>junit-vintage-engine</artifactId>
+        <version>6.0.1</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -122,25 +124,25 @@
   </parent>
 
   <properties>
-    <bouncycastle.version>1.70</bouncycastle.version>
-    <camunda.version>3.2.0</camunda.version>
-    <commons-lang3.version>3.12.0</commons-lang3.version>
-    <guava.version>31.1-jre</guava.version>
+    <bouncycastle.version>1.80</bouncycastle.version>
+    <camunda.version>7.22.0</camunda.version>
+    <commons-lang3.version>3.17.0</commons-lang3.version>
+    <guava.version>33.4.0-jre</guava.version>
     <jakarta.annotation>2.1.1</jakarta.annotation>
-    <jakarta.validation>3.0.2</jakarta.validation>
-    <jna.version>3.0.9</jna.version>
-    <jsass.version>5.10.5</jsass.version>
-    <liquibase.version>4.18.0</liquibase.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <jakarta.validation>3.1.0</jakarta.validation>
+    <jna.version>5.16.0</jna.version>
+    <jsass.version>5.11.0</jsass.version>
+    <liquibase.version>4.31.0</liquibase.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <elasticsearch.version>7.17.7</elasticsearch.version>
-    <powermock.version>2.0.9</powermock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <querydsl.version>5.1.0</querydsl.version>
     <spring.plugin.core.version>3.0.0</spring.plugin.core.version>
-    <springboot.version>3.4.3</springboot.version>
-    <tika.version>2.6.0</tika.version>
-    <commons-io.version>2.11.0</commons-io.version>
-    <mailjet.version>5.2.5</mailjet.version>
+    <springboot.version>4.0.0</springboot.version>
+    <tika.version>3.1.0</tika.version>
+    <commons-io.version>2.18.0</commons-io.version>
+    <mailjet.version>5.2.6</mailjet.version>
   </properties>
 
   <url>http://maven.apache.org</url>

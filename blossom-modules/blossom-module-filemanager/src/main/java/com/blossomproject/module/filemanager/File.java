@@ -20,7 +20,7 @@ public class File extends AbstractEntity {
   @Column(name = "size", nullable = false)
   private Long size;
 
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(name = "blossom_file_tags", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
   @Column(name = "tag")
   private List<String> tags;

@@ -2,21 +2,14 @@ package com.blossomproject.ui.web.content.filemanager;
 
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
-import java.io.IOException;
-import java.sql.SQLException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * Created by Maël Gargadennnec on 22/05/2017.
- */
 @Controller
 @RequestMapping("/files")
 public class FileController {
@@ -28,14 +21,13 @@ public class FileController {
   }
 
   @GetMapping("/{id}")
-  public void serve(@PathVariable("id") Long fileId, HttpServletRequest req, HttpServletResponse res)
-    throws SQLException, IOException {
+  public void serve(@PathVariable("id") Long fileId, HttpServletResponse res) {
     FileDTO fileDTO = fileService.getOne(fileId);
     if (fileDTO != null) {
       res.setHeader(HttpHeaders.CONTENT_TYPE, fileDTO.getContentType());
       res.setHeader(HttpHeaders.CONTENT_LENGTH, fileDTO.getSize() + "");
       res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "Content-Disposition: inline; filename=\"" + fileDTO.getName() + "\"");
-      StreamUtils.copy(fileService.download(fileId), res.getOutputStream());
+      res.setStatus(HttpStatus.NO_CONTENT.value());
       return;
     }
 

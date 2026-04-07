@@ -18,10 +18,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthEndpoint;
-import org.springframework.boot.actuate.health.Status;
-import org.springframework.boot.actuate.health.SystemHealth;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.contributor.Status;
+import org.springframework.boot.health.actuate.endpoint.SystemHealthDescriptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -42,7 +43,7 @@ public class StatusApiControllerTest {
     Health.Builder builder = new Health.Builder(Status.UP, map);
     Health health = builder.build();
 
-    doReturn(health).when(controller).filteredDetails(any(), any(List.class));
+    doReturn(health).when(controller).toFilteredHealth(any(), any(List.class));
 
     ResponseEntity<Health> response = controller.status(Optional.empty());
 
@@ -58,7 +59,7 @@ public class StatusApiControllerTest {
     Health.Builder builder = new Health.Builder(Status.DOWN, map);
     Health health = builder.build();
 
-    doReturn(health).when(controller).filteredDetails(any(), any(List.class));
+    doReturn(health).when(controller).toFilteredHealth(any(), any(List.class));
 
     ResponseEntity<Health> response = controller.status(Optional.empty());
 
@@ -74,7 +75,7 @@ public class StatusApiControllerTest {
     Health.Builder builder = new Health.Builder(Status.UP, map);
     Health health = builder.build();
 
-    doReturn(health).when(controller).filteredDetails(any(), any(List.class));
+    doReturn(health).when(controller).toFilteredHealth(any(), any(List.class));
 
     ResponseEntity<Health> response = controller.status(Optional.of(Lists.newArrayList("test1", "test2")));
 
@@ -90,7 +91,7 @@ public class StatusApiControllerTest {
     Health.Builder builder = new Health.Builder(Status.DOWN, map);
     Health health = builder.build();
 
-    doReturn(health).when(controller).filteredDetails(any(), any(List.class));
+    doReturn(health).when(controller).toFilteredHealth(any(), any(List.class));
 
     ResponseEntity<Health> response = controller.status(Optional.of(Lists.newArrayList("test1", "test2")));
 
@@ -101,33 +102,22 @@ public class StatusApiControllerTest {
 
   @Test
   public void should_filter_details_without_excludes() throws Exception {
-    Health.Builder builder = new Health.Builder(Status.DOWN);
-    Health healthChild = builder.build();
-    Health.Builder builder2 = new Health.Builder(Status.DOWN);
-    builder2.withDetail("healthChild", healthChild);
-    Health health = builder2.build();
-
-    SystemHealth systemHealth = Mockito.mock(SystemHealth.class);
+    SystemHealthDescriptor systemHealth = Mockito.mock(SystemHealthDescriptor.class);
     doReturn(Status.UP).when(systemHealth).getStatus();
+    doReturn(new HashMap<String, HealthDescriptor>()).when(systemHealth).getComponents();
 
-    Health healthResponse = controller.filteredDetails(systemHealth, Lists.newArrayList());
+    Health healthResponse = controller.toFilteredHealth(systemHealth, Lists.newArrayList());
     assertNotNull(healthResponse);
     assertEquals(healthResponse.getStatus(), systemHealth.getStatus());
-
   }
 
   @Test
   public void should_filter_details_with_excludes() throws Exception {
-    Health.Builder builder = new Health.Builder(Status.DOWN);
-    Health healthChild = builder.build();
-    Health.Builder builder2 = new Health.Builder(Status.DOWN);
-    builder2.withDetail("healthChild", healthChild);
-    Health health = builder2.build();
-
-    SystemHealth systemHealth = Mockito.mock(SystemHealth.class);
+    SystemHealthDescriptor systemHealth = Mockito.mock(SystemHealthDescriptor.class);
     doReturn(Status.UP).when(systemHealth).getStatus();
+    doReturn(new HashMap<String, HealthDescriptor>()).when(systemHealth).getComponents();
 
-    Health healthResponse = controller.filteredDetails(systemHealth, Lists.newArrayList("healthChild"));
+    Health healthResponse = controller.toFilteredHealth(systemHealth, Lists.newArrayList("healthChild"));
     assertNotNull(healthResponse);
     assertTrue(healthResponse.getDetails().isEmpty());
   }

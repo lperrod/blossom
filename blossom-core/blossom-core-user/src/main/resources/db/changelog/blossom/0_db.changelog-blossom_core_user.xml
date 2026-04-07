@@ -100,4 +100,11 @@
     <sql>UPDATE blossom_user SET job_title = function</sql>
   </changeSet>
 
+  <changeSet id="blossom_core_user_drop_avatar_column" author="blossom">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="blossom_user" columnName="avatar"/>
+    </preConditions>
+    <dropColumn tableName="blossom_user" columnName="avatar"/>
+  </changeSet>
+
 </databaseChangeLog>

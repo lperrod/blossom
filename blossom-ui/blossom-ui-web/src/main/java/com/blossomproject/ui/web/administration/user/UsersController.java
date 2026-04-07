@@ -15,8 +15,6 @@ import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -25,15 +23,12 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
@@ -45,7 +40,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -62,15 +56,11 @@ public class UsersController {
 
   private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine;
 
-  private final Tika tika;
-
   public UsersController(
     UserService userService,
-    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine,
-    Tika tika) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine) {
     this.userService = userService;
     this.searchEngine = searchEngine;
-    this.tika = tika;
   }
 
   @GetMapping
@@ -197,51 +187,6 @@ public class UsersController {
       new ModelAndView("blossom/users/userinformations-edit", model.asMap());
     modelAndView.setStatus(status.orElse(HttpStatus.OK));
     return modelAndView;
-  }
-
-  @GetMapping(value = "/{id}/avatar")
-  @ResponseBody
-  public ResponseEntity<InputStreamResource> displayAvatar(@PathVariable Long id)
-    throws IOException {
-    InputStream avatar = this.userService.loadAvatar(id);
-
-    MediaType mediaType = MediaType.parseMediaType(this.tika.detect(avatar));
-    if (!mediaType.isCompatibleWith(MediaType.parseMediaType("image/*"))) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-
-    return ResponseEntity.ok()
-      .contentType(MediaType.parseMediaType(this.tika.detect(avatar)))
-      .body(new InputStreamResource(avatar));
-  }
-
-  @GetMapping("/{id}/_avatar/_edit")
-  @PreAuthorize("hasAuthority('administration:users:write')")
-  public ModelAndView getUserAvatarForm(@PathVariable Long id, Model model) {
-    UserDTO user = this.userService.getOne(id);
-    if (user == null) {
-      throw new NoSuchElementException(String.format("User=%s not found", id));
-    }
-    return new ModelAndView("blossom/users/useravatar-edit-modal", "user", user);
-  }
-
-  @PostMapping("/{id}/_avatar/_edit")
-  @PreAuthorize("hasAuthority('administration:users:write')")
-  public ResponseEntity<Void> handleUserAvatarUpdateForm(
-    @PathVariable Long id, @RequestParam("avatar") MultipartFile file) throws IOException {
-    UserDTO user = this.userService.getOne(id);
-    if (user == null) {
-      throw new NoSuchElementException(String.format("User=%s not found", id));
-    }
-
-    byte[] avatarBytes = file.getBytes();
-    MediaType mediaType = MediaType.parseMediaType(this.tika.detect(avatarBytes));
-    if (!mediaType.isCompatibleWith(MediaType.parseMediaType("image/*"))) {
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-    }
-
-    this.userService.updateAvatar(id, avatarBytes);
-    return ResponseEntity.ok().build();
   }
 
   @PostMapping("/{id}/_delete")

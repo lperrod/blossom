@@ -4,7 +4,6 @@ import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.liquibase.LiquibaseEndpoint;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Created by Maël Gargadennnec on 04/05/2017.
+ * Created by Mael Gargadennnec on 04/05/2017.
  */
 @BlossomController
 @RequestMapping("/system/liquibase")
@@ -22,15 +21,15 @@ public class LiquibaseController {
 
   private final static Logger logger = LoggerFactory.getLogger(LiquibaseController.class);
 
-  private final LiquibaseEndpoint liquibaseEndpoint;
+  private final BlossomLiquibaseEndpoint liquibaseEndpoint;
 
-  public LiquibaseController(LiquibaseEndpoint liquibaseEndpoint) {
+  public LiquibaseController(BlossomLiquibaseEndpoint liquibaseEndpoint) {
     this.liquibaseEndpoint = liquibaseEndpoint;
   }
 
   @GetMapping
   public ModelAndView liquibase(Model model) {
-    return new ModelAndView("blossom/system/liquibase/liquibase", "reports", liquibaseEndpoint.liquibaseBeans().getContexts().get("application").getLiquibaseBeans());
+    return new ModelAndView("blossom/system/liquibase/liquibase", "reports", liquibaseEndpoint.getLiquibaseBeans());
   }
 
 }

@@ -6,10 +6,8 @@ import com.blossomproject.core.common.service.GenericSearchAndCrudServiceImpl;
 import com.blossomproject.module.filemanager.digest.DigestUtil;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.io.DigestInputStream;
@@ -20,28 +18,22 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Created by Maël Gargadennnec on 03/05/2017.
- */
 public class FileServiceImpl extends GenericSearchAndCrudServiceImpl<FileDTO, File> implements FileService {
 
   private final static Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
   private final DigestUtil digestUtil;
 
-  private final FileContentDao fileContentDao;
-
-  public FileServiceImpl(FileDao dao, FileDTOMapper mapper, FileContentDao fileContentDao, DigestUtil digestUtil,
+  public FileServiceImpl(FileDao dao, FileDTOMapper mapper, DigestUtil digestUtil,
     ApplicationEventPublisher publisher,
     PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry) {
     super(dao, mapper, publisher, associationRegistry);
-    this.fileContentDao = fileContentDao;
     this.digestUtil = digestUtil;
   }
 
   @Override
   @Transactional
-  public FileDTO upload(MultipartFile multipartFile) throws SQLException, IOException {
+  public FileDTO upload(MultipartFile multipartFile) throws IOException {
     String extension = Files.getFileExtension(multipartFile.getOriginalFilename());
     if (extension != null) {
       extension = extension.toLowerCase();
@@ -54,26 +46,17 @@ public class FileServiceImpl extends GenericSearchAndCrudServiceImpl<FileDTO, Fi
     newFile.setExtension(extension);
     newFile.setTags(Lists.newArrayList());
 
-    InputStream is = multipartFile.getInputStream();
+    try (InputStream is = multipartFile.getInputStream()) {
+      Digest digest = new SHA256Digest();
+      DigestInputStream digestStream = new DigestInputStream(is, digest);
 
-    Digest digest = new SHA256Digest();
-    DigestInputStream digestStream = new DigestInputStream(is, digest);
+      String hash = digestUtil.getHash(digestStream);
+      String hashAlgorithm = digest.getAlgorithmName();
 
-    String hash = digestUtil.getHash(digestStream);
-    String hashAlgorithm = digest.getAlgorithmName();
+      newFile.setHash(hash);
+      newFile.setHashAlgorithm(hashAlgorithm);
+    }
 
-    newFile.setHash(hash);
-    newFile.setHashAlgorithm(hashAlgorithm);
-
-    FileDTO createdFile = this.create(newFile);
-
-    this.fileContentDao.store(this.mapper.mapDto(createdFile), is, multipartFile.getSize());
-
-    return createdFile;
-  }
-
-  @Override
-  public InputStream download(long fileId) throws SQLException, FileNotFoundException {
-    return this.fileContentDao.read(fileId);
+    return this.create(newFile);
   }
 }

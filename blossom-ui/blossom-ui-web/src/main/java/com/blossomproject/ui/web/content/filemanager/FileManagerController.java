@@ -9,7 +9,6 @@ import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.OpenedMenu;
 import com.blossomproject.ui.stereotype.BlossomController;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -86,7 +85,7 @@ public class FileManagerController {
     }
     try {
       fileService.upload(uploadedFile);
-    } catch (IOException | SQLException e) {
+    } catch (IOException e) {
       logger.error("Cannot save multipart file !", e);
     }
   }

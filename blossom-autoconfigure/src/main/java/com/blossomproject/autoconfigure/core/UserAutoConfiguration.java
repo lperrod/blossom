@@ -19,20 +19,17 @@ import com.blossomproject.core.user.UserService;
 import com.blossomproject.core.user.UserServiceImpl;
 import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
 import com.blossomproject.module.search.common.SearchEngineConfiguration;
-import com.google.common.io.ByteStreams;
-import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,18 +62,14 @@ public class UserAutoConfiguration {
     PasswordEncoder passwordEncoder, ActionTokenService actionTokenService,
     UserMailService userMailService,
     ApplicationEventPublisher eventPublisher,
-    @Value("classpath:/images/avatar.jpeg") Resource defaultAvatarFile,
     @Value("${activationTokenDuration}") String activationTokenDuration,
     @Value("${activationTokenChronoUnit}") String activationTokenChronoUnit,
     @Value("${passwordTokenDuration}") String passwordTokenDuration,
-    @Value("${passwordTokenChronoUnit}") String passwordTokenChronoUnit) throws IOException {
-    if (!defaultAvatarFile.exists()) {
-      throw new RuntimeException("Cannot find default user avatar on the classpath.");
-    }
+    @Value("${passwordTokenChronoUnit}") String passwordTokenChronoUnit) {
     return new UserServiceImpl(userDao, userDTOMapper, eventPublisher, associationServicePlugins,
       passwordEncoder,
       actionTokenService, userMailService,
-      ByteStreams.toByteArray(defaultAvatarFile.getInputStream()), activationTokenDuration, activationTokenChronoUnit,
+      activationTokenDuration, activationTokenChronoUnit,
       passwordTokenDuration, passwordTokenChronoUnit);
   }
 

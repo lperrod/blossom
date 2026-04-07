@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.blossomproject.core.user.User.Civility;
 
@@ -38,7 +38,6 @@ public class UserDTOMapperTest {
     userToMap.setPhone("somePhone");
     userToMap.setCompany("someCompany");
     userToMap.setFunction("someFunction");
-    userToMap.setAvatar(new byte[]{0});
     userToMap.setLocale(Locale.FRANCE);
 
     UserDTO mappedUser = userMapper.mapEntity(userToMap);

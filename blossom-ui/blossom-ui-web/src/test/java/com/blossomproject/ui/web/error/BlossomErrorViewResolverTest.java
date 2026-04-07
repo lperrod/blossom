@@ -18,7 +18,7 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.hibernate.engine.jdbc.ReaderInputStream;
+import java.io.ByteArrayInputStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -283,7 +283,7 @@ public class BlossomErrorViewResolverTest {
   @Test
   public void should_render_html_resource_view() throws Exception {
     Resource resource = mock(Resource.class);
-    when(resource.getInputStream()).thenReturn(new ReaderInputStream(new StringReader("test")));
+    when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("test".getBytes()));
 
     BlossomErrorViewResolver.HtmlResourceView spyHtmlResourceView = spy(new BlossomErrorViewResolver.HtmlResourceView(resource));
 
@@ -316,7 +316,7 @@ public class BlossomErrorViewResolverTest {
   @Test
   public void should_render_html_resource_view_output_stream_exception() throws Exception {
     Resource resource = mock(Resource.class);
-    when(resource.getInputStream()).thenReturn(new ReaderInputStream(new StringReader("test")));
+    when(resource.getInputStream()).thenReturn(new ByteArrayInputStream("test".getBytes()));
 
     BlossomErrorViewResolver.HtmlResourceView spyHtmlResourceView = spy(new BlossomErrorViewResolver.HtmlResourceView(resource));
 

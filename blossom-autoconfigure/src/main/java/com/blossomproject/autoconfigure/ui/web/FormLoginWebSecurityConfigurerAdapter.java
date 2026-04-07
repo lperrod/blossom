@@ -18,7 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
@@ -31,15 +31,13 @@ public class FormLoginWebSecurityConfigurerAdapter {
 
 
   private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-    new AntPathRequestMatcher("/public/**"),
-    new AntPathRequestMatcher("/favicon.ico")
+    PathPatternRequestMatcher.pathPattern("/public/**"),
+    PathPatternRequestMatcher.pathPattern("/favicon.ico")
   );
 
   private static final RequestMatcher BLOSSOM_PUBLIC_URLS = new OrRequestMatcher(
-    new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/public/**"),
-    new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/login"));
-
-  private static final RequestMatcher PROTECTED_URLS = new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/**");
+    PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/public/**"),
+    PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/login"));
 
   private final UserDetailsService userDetailsService;
 
@@ -90,30 +88,37 @@ public class FormLoginWebSecurityConfigurerAdapter {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    http.headers().frameOptions().sameOrigin();
+    http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+
     http.authorizeHttpRequests(
-      authorize -> authorize.requestMatchers(PUBLIC_URLS).permitAll().requestMatchers(BLOSSOM_PUBLIC_URLS).permitAll()
+      authorize -> authorize
+        .requestMatchers(PUBLIC_URLS).permitAll()
+        .requestMatchers(BLOSSOM_PUBLIC_URLS).permitAll()
         .requestMatchers(new NegatedRequestMatcher(new OrRequestMatcher(PUBLIC_URLS, BLOSSOM_PUBLIC_URLS))).fullyAuthenticated());
 
     http
       .authenticationProvider(limitLoginAuthenticationProvider)
       .addFilter(switchUserProcessingFilter())
-      .formLogin(
-        form -> form.loginPage("/" + BLOSSOM_BASE_PATH + "/login")
-          .failureUrl("/" + BLOSSOM_BASE_PATH + "/login?error").successHandler(blossomAuthenticationSuccessHandler))
-      .logout()
-      .logoutRequestMatcher(new AntPathRequestMatcher("/" + BLOSSOM_BASE_PATH + "/logout"))
-      .deleteCookies(BLOSSOM_REMEMBER_ME_COOKIE_NAME)
-      .logoutSuccessUrl("/" + BLOSSOM_BASE_PATH + "/login").permitAll()
-      .and().rememberMe().rememberMeCookieName(BLOSSOM_REMEMBER_ME_COOKIE_NAME)
-      .and().exceptionHandling().defaultAuthenticationEntryPointFor(
-        (request, response, authException) -> response.sendError(401),
-        new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"))
-      .and().sessionManagement()
-      .maximumSessions(webBackOfficeProperties.getMaxSessionsPerUser()).maxSessionsPreventsLogin(true)
-      .expiredSessionStrategy(
-        new WebInterfaceAutoConfiguration.BlossomInvalidSessionStrategy("/" + BLOSSOM_BASE_PATH + "/login"))
-      .sessionRegistry(sessionRegistry);
+      .formLogin(form -> form
+        .loginPage("/" + BLOSSOM_BASE_PATH + "/login")
+        .failureUrl("/" + BLOSSOM_BASE_PATH + "/login?error")
+        .successHandler(blossomAuthenticationSuccessHandler))
+      .logout(logout -> logout
+        .logoutRequestMatcher(PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/logout"))
+        .deleteCookies(BLOSSOM_REMEMBER_ME_COOKIE_NAME)
+        .logoutSuccessUrl("/" + BLOSSOM_BASE_PATH + "/login").permitAll())
+      .rememberMe(rememberMe -> rememberMe
+        .rememberMeCookieName(BLOSSOM_REMEMBER_ME_COOKIE_NAME))
+      .exceptionHandling(exceptionHandling -> exceptionHandling
+        .defaultAuthenticationEntryPointFor(
+          (request, response, authException) -> response.sendError(401),
+          new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest")))
+      .sessionManagement(sessionManagement -> sessionManagement
+        .maximumSessions(webBackOfficeProperties.getMaxSessionsPerUser()).maxSessionsPreventsLogin(true)
+        .expiredSessionStrategy(
+          new WebInterfaceAutoConfiguration.BlossomInvalidSessionStrategy("/" + BLOSSOM_BASE_PATH + "/login"))
+        .sessionRegistry(sessionRegistry));
+
     return http.build();
   }
 

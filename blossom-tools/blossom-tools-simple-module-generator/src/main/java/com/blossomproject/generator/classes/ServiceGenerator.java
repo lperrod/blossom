@@ -18,8 +18,8 @@ public class ServiceGenerator implements ClassGenerator {
 
   @Override
   public void prepare(Settings settings, JCodeModel codeModel) {
-    this.dtoClass = codeModel.ref(GeneratorUtils.getDtoFullyQualifiedClassName(settings));;
-    this.createFormClass = codeModel.ref(GeneratorUtils.getCreateFormFullyQualifiedClassName(settings));;
+    this.dtoClass = codeModel.ref(GeneratorUtils.getDtoFullyQualifiedClassName(settings));
+    this.createFormClass = codeModel.ref(GeneratorUtils.getCreateFormFullyQualifiedClassName(settings));
     this.updateFormClass = codeModel.ref(GeneratorUtils.getUpdateFormFullyQualifiedClassName(settings));
   }
 

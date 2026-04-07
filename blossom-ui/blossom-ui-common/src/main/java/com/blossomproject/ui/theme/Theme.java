@@ -11,7 +11,7 @@ import org.springframework.context.support.StaticMessageSource;
 import org.springframework.plugin.core.Plugin;
 
 @Qualifier(value = PluginConstants.PLUGIN_THEME)
-public class Theme implements org.springframework.ui.context.Theme, Plugin<String> {
+public class Theme implements Plugin<String> {
   public final static String BLOSSOM_THEME_NAME="Blossom";
 
   private final String name;
@@ -32,12 +32,10 @@ public class Theme implements org.springframework.ui.context.Theme, Plugin<Strin
     return themeMessageSource;
   }
 
-  @Override
   public String getName() {
     return this.name;
   }
 
-  @Override
   public MessageSource getMessageSource() {
     return this.messageSource;
   }

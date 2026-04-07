@@ -25,7 +25,7 @@ public class ScssVariablesImpl implements IScssVariables {
   private String _navBg = "#2F4050";
   private String _navProfilePattern = "url('/blossom/public/css/patterns/header-profile.png')";
   private String _navTextColor = "#a7b1c2";
-  private String _navHeaderBg="url('/blossom/public/css/patterns/4.png') no-repeat";;
+  private String _navHeaderBg="url('/blossom/public/css/patterns/4.png') no-repeat";
 
   public ScssVariablesImpl(IScss parent) {
     this.parent = parent;

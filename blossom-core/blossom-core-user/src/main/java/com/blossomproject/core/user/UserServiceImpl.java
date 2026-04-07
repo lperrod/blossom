@@ -11,9 +11,6 @@ import com.blossomproject.core.common.utils.action_token.ActionToken;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -44,8 +41,6 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
 
   private final UserMailService userMailService;
 
-  private final byte[] defaultAvatar;
-
   private final String creationDateParameter = "creationDate";
 
   private final String activationTokenDuration;
@@ -61,19 +56,17 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
     ApplicationEventPublisher publisher,
     PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationRegistry,
     PasswordEncoder passwordEncoder, ActionTokenService tokenService, UserMailService userMailService,
-    byte[] defaultAvatar, String activationTokenDuration, String activationTokenChronoUnit, String passwordTokenDuration,
+    String activationTokenDuration, String activationTokenChronoUnit, String passwordTokenDuration,
     String passwordTokenChronoUnit) {
     super(dao, mapper, publisher, associationRegistry);
     Preconditions.checkNotNull(passwordEncoder);
     Preconditions.checkNotNull(dao);
     Preconditions.checkNotNull(tokenService);
     Preconditions.checkNotNull(userMailService);
-    Preconditions.checkNotNull(defaultAvatar);
     this.passwordEncoder = passwordEncoder;
     this.userDao = dao;
     this.tokenService = tokenService;
     this.userMailService = userMailService;
-    this.defaultAvatar = defaultAvatar;
     this.activationTokenChronoUnit = activationTokenChronoUnit;
     this.activationTokenDuration = activationTokenDuration;
     this.passwordTokenChronoUnit = passwordTokenChronoUnit;
@@ -183,26 +176,6 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
   public void askPasswordChange(long userId) throws Exception {
     UserDTO user = this.updatePassword(userId, passwordEncoder.encode(UUID.randomUUID().toString()));
     userMailService.sendChangePasswordEmail(user, generatePasswordResetToken(user));
-  }
-
-  @Override
-  @Transactional
-  public void updateAvatar(long id, byte[] avatar) {
-    UserDTO user = this.getOne(id);
-    if (user != null) {
-      this.userDao.updateAvatar(id, avatar);
-    }
-    this.publisher.publishEvent(new UpdatedEvent<>(this, user));
-  }
-
-  @Override
-  public InputStream loadAvatar(long id) throws IOException {
-    User user = this.userDao.getOne(id);
-    if (user != null && user.getAvatar() != null) {
-      return new ByteArrayInputStream(user.getAvatar());
-    } else {
-      return new ByteArrayInputStream(defaultAvatar);
-    }
   }
 
   protected String generateRandomPasswordHash() {

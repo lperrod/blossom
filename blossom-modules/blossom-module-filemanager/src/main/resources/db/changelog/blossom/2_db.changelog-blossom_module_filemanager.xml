@@ -109,4 +109,11 @@
     </createTable>
   </changeSet>
 
+  <changeSet id="blossom_module_filemanager_drop_file_content_table" author="blossom">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="blossom_file_content"/>
+    </preConditions>
+    <dropTable tableName="blossom_file_content"/>
+  </changeSet>
+
 </databaseChangeLog>

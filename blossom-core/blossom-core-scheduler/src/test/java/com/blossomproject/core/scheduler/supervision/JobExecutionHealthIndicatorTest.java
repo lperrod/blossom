@@ -6,8 +6,8 @@ import com.blossomproject.core.scheduler.job.SchedulerInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.quartz.JobKey;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.Status;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

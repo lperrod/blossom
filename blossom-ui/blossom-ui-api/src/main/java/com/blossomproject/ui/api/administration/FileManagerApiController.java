@@ -10,14 +10,11 @@ import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.io.IOException;
-import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Created by Maël Gargadennnec on 19/05/2017.
- */
 @BlossomApiController
 @RequestMapping("/content/filemanager")
 public class FileManagerApiController {
@@ -58,7 +52,6 @@ public class FileManagerApiController {
     return this.searchEngine.search(q, pageable).getPage();
   }
 
-
   @GetMapping("/{id}")
   @PreAuthorize("hasAuthority('content:filemanager:read')")
   public ResponseEntity<FileDTO> get(@PathVariable("id") Long id) {
@@ -81,29 +74,10 @@ public class FileManagerApiController {
     }
     try {
       return new ResponseEntity<>(service.upload(uploadedFile), HttpStatus.CREATED);
-    } catch (IOException | SQLException e) {
+    } catch (IOException e) {
       logger.error("Cannot save multipart file !", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-  }
-
-  @GetMapping("/{id}")
-  @PreAuthorize("hasAuthority('content:filemanager:read')")
-  public ResponseEntity<InputStreamResource> serve(@PathVariable("id") Long fileId)
-    throws SQLException, IOException {
-    Preconditions.checkArgument(fileId != null);
-    FileDTO fileDTO = service.getOne(fileId);
-    if (fileDTO != null) {
-      return ResponseEntity
-        .ok()
-        .header(HttpHeaders.CONTENT_TYPE, fileDTO.getContentType())
-        .header(HttpHeaders.CONTENT_LENGTH, fileDTO.getSize() + "")
-        .header(HttpHeaders.CONTENT_DISPOSITION,
-          "Content-Disposition: inline; filename=\"" + fileDTO.getName() + "\"")
-        .body(new InputStreamResource(service.download(fileId)));
-    }
-
-    return ResponseEntity.notFound().build();
   }
 
 }

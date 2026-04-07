@@ -1,6 +1,6 @@
 package com.blossomproject.core.common.utils.mail;
 
-import org.springframework.util.concurrent.ListenableFuture;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * An email ready to be sent
@@ -19,6 +19,6 @@ public interface BlossomMail {
    *
    * @return
    */
-  ListenableFuture<BlossomMail> asyncSend();
+  CompletableFuture<BlossomMail> asyncSend();
 
 }

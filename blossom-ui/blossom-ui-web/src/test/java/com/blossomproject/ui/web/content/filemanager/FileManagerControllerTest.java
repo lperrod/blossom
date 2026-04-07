@@ -9,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.FileService;
@@ -20,7 +19,6 @@ import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.module.search.common.SearchResult;
 import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.sql.SQLException;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,8 +26,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
@@ -42,7 +41,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 @RunWith(MockitoJUnitRunner.class)
-@PrepareForTest({LoggerFactory.class})
 public class FileManagerControllerTest {
 
   @Rule
@@ -104,7 +102,7 @@ public class FileManagerControllerTest {
   }
 
 
-  public void should_create_with_file_upload() throws IOException, SQLException {
+  public void should_create_with_file_upload() throws IOException {
     MultipartFile multipart = new MockMultipartFile("test.pdf", new byte[1024]);
     when(service.upload(eq(multipart))).thenReturn(new FileDTO());
 
@@ -114,17 +112,18 @@ public class FileManagerControllerTest {
 
   @Test
   @Ignore
-  public void should_create_with_io_exception() throws IOException, SQLException {
-    mockStatic(LoggerFactory.class);
-    when(LoggerFactory.getLogger(any(Class.class))).thenReturn(logger);
+  public void should_create_with_io_exception() throws IOException {
+    try (MockedStatic<LoggerFactory> mockedStatic = Mockito.mockStatic(LoggerFactory.class)) {
+      mockedStatic.when(() -> LoggerFactory.getLogger(any(Class.class))).thenReturn(logger);
 
-    MultipartFile multipart = new MockMultipartFile("test.pdf", new byte[1024]);
-    when(service.upload(eq(multipart))).thenThrow(new IOException());
+      MultipartFile multipart = new MockMultipartFile("test.pdf", new byte[1024]);
+      when(service.upload(eq(multipart))).thenThrow(new IOException());
 
-    controller.fileUpload(multipart, null);
+      controller.fileUpload(multipart, null);
 
-    verify(service, times(1)).upload(eq(multipart));
-    verify(logger, times(1)).error(any());
+      verify(service, times(1)).upload(eq(multipart));
+      verify(logger, times(1)).error(any());
+    }
   }
 
 }

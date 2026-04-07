@@ -47,10 +47,8 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
-import org.springframework.web.servlet.ThemeResolver;
-
 /**
- * Created by Maël Gargadennnec on 04/05/2017.
+ * Created by Mael Gargadennnec on 04/05/2017.
  */
 @Configuration
 @ConditionalOnWebApplication
@@ -126,8 +124,8 @@ public class WebInterfaceAutoConfiguration {
   }
 
   @Bean
-  public ThemeControllerAdvice themeControllerAdvice(ThemeResolver themeResolver) {
-    return new ThemeControllerAdvice(themePlugins, themeResolver);
+  public ThemeControllerAdvice themeControllerAdvice(String blossomDefaultThemeName) {
+    return new ThemeControllerAdvice(themePlugins, blossomDefaultThemeName);
   }
 
   @Bean

@@ -9,7 +9,6 @@ import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
 import com.blossomproject.module.search.common.AbstractSearchResponse;
 import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.api.administration.UsersApiController;
-import org.apache.tika.Tika;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -29,9 +28,8 @@ public class ApiAdministrationUserAutoConfiguration {
 
   @Bean
   public UsersApiController usersApiController(UserService userService,
-    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine,
-    Tika tika) {
-    return new UsersApiController(userService, searchEngine, tika);
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine) {
+    return new UsersApiController(userService, searchEngine);
   }
 
 }

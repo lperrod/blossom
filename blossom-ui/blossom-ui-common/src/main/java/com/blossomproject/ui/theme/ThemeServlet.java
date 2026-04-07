@@ -7,22 +7,21 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.ui.context.ThemeSource;
-import org.springframework.web.servlet.ThemeResolver;
+import org.springframework.plugin.core.PluginRegistry;
 
 
 public class ThemeServlet extends HttpServlet {
   public final static String BLOSSOM_THEME_SCSS_SERVLET = "/blossom/public/theme/style.css";
   public final static String BLOSSOM_THEME_MAIL_SCSS_SERVLET = "/blossom/public/theme/style_mail.css";
   private final Pattern cssPattern = Pattern.compile(".*/(?<name>[^_]\\w+)\\.css");
-  private final ThemeResolver themeResolver;
-  private final ThemeSource themeSource;
+  private final PluginRegistry<Theme, String> themeRegistry;
   private final ThemeCompiler themeCompiler;
+  private final String defaultThemeName;
 
-  public ThemeServlet(ThemeResolver themeResolver,
-    ThemeSource themeSource, ThemeCompiler themeCompiler) {
-    this.themeResolver = themeResolver;
-    this.themeSource = themeSource;
+  public ThemeServlet(PluginRegistry<Theme, String> themeRegistry,
+    String defaultThemeName, ThemeCompiler themeCompiler) {
+    this.themeRegistry = themeRegistry;
+    this.defaultThemeName = defaultThemeName;
     this.themeCompiler = themeCompiler;
   }
 
@@ -38,12 +37,12 @@ public class ThemeServlet extends HttpServlet {
       return;
     }
 
-    String themeName = themeResolver.resolveThemeName(request);
+    String themeName = defaultThemeName;
     if (themeName == null) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found");
       return;
     }
-    Theme theme = (Theme) themeSource.getTheme(themeName);
+    Theme theme = themeRegistry.getPluginFor(themeName).orElse(null);
     if (theme == null) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found");
       return;

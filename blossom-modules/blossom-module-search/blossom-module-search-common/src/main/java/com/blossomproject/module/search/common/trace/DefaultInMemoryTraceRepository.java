@@ -139,17 +139,15 @@ public class DefaultInMemoryTraceRepository extends InMemoryHttpExchangeReposito
   }
 
   private void deleteOldTraces(LocalDateTime dateTime) {
+    LocalDateTime threshold = dateTime.minusDays(8);
+    long thresholdTimestamp = Timestamp.valueOf(threshold).getTime();
 
-    LocalDateTime aWeekAgo = dateTime.minusDays(8);
-    traces.remove(aWeekAgo);
-    Long timestamp = Timestamp.valueOf(aWeekAgo).getTime();
-    responseTimeHistogram.remove(timestamp);
-    responseStatusStats.remove(timestamp);
-    requestHistogram.remove(timestamp);
-    calledUris.remove(timestamp);
-    responseContentTypeStats.remove(timestamp);
-
-
+    traces.keySet().removeIf(key -> !key.isAfter(threshold));
+    responseTimeHistogram.keySet().removeIf(key -> key <= thresholdTimestamp);
+    responseStatusStats.keySet().removeIf(key -> key <= thresholdTimestamp);
+    requestHistogram.keySet().removeIf(key -> key <= thresholdTimestamp);
+    calledUris.keySet().removeIf(key -> key <= thresholdTimestamp);
+    responseContentTypeStats.keySet().removeIf(key -> key <= thresholdTimestamp);
   }
 
   private void computeAllTraces(LocalDateTime localDateTime, HttpExchange httpExchange) {

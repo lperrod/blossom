@@ -11,7 +11,6 @@ import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
 import com.blossomproject.ui.web.administration.user.UsersController;
-import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -52,8 +51,8 @@ public class WebAdministrationUserAutoConfiguration {
   }
 
   @Bean
-  public UsersController usersController(UserService userService, Tika tika,
+  public UsersController usersController(UserService userService,
     SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> userSearchEngine) {
-    return new UsersController(userService, userSearchEngine, tika);
+    return new UsersController(userService, userSearchEngine);
   }
 }

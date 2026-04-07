@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthEndpoint;
-import org.springframework.boot.actuate.health.Status;
-import org.springframework.boot.actuate.health.SystemHealth;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.contributor.Status;
+import org.springframework.boot.health.actuate.endpoint.CompositeHealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.IndicatedHealthDescriptor;
+import org.springframework.boot.health.actuate.endpoint.SystemHealthDescriptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +37,8 @@ public class StatusApiController {
   @ResponseBody
   public ResponseEntity<Health> status(
     @RequestParam(value = "exclude", required = false, defaultValue = "") Optional<List<String>> excludes) {
-    Health health = filteredDetails((SystemHealth) healthEndpoint.health(), excludes.orElse(Lists.newArrayList()));
+    HealthDescriptor descriptor = healthEndpoint.health();
+    Health health = toFilteredHealth(descriptor, excludes.orElse(Lists.newArrayList()));
     if (health.getStatus().equals(Status.UP)) {
       return ResponseEntity.ok(health);
     }
@@ -42,32 +46,30 @@ public class StatusApiController {
   }
 
   @VisibleForTesting
-  Health filteredDetails(SystemHealth health, List<String> excludes) {
-    Health.Builder builder = new Health.Builder(health.getStatus());
+  Health toFilteredHealth(HealthDescriptor descriptor, List<String> excludes) {
+    Health.Builder builder = new Health.Builder(descriptor.getStatus());
 
-    health
-      .getComponents()
-      .entrySet()
-      .stream()
-      .filter(e -> e.getValue() instanceof Health && !excludes.contains(e.getKey()))
-      .forEach(
-        e -> builder.withDetail(e.getKey(), filteredHealthDetails((Health) e.getValue(), excludes))
-      );
-
-    return builder.build();
-  }
-
-  @VisibleForTesting
-  Health filteredHealthDetails(Health health, List<String> excludes) {
-    Health.Builder builder = new Health.Builder(health.getStatus());
-    health
-      .getDetails()
-      .entrySet()
-      .stream()
-      .filter(e -> e.getValue() instanceof Health && !excludes.contains(e.getKey()))
-      .forEach(
-        e -> builder.withDetail(e.getKey(), filteredHealthDetails((Health) e.getValue(), excludes))
-      );
+    if (descriptor instanceof CompositeHealthDescriptor) {
+      CompositeHealthDescriptor composite = (CompositeHealthDescriptor) descriptor;
+      composite
+        .getComponents()
+        .entrySet()
+        .stream()
+        .filter(e -> !excludes.contains(e.getKey()))
+        .forEach(
+          e -> builder.withDetail(e.getKey(), toFilteredHealth(e.getValue(), excludes))
+        );
+    } else if (descriptor instanceof IndicatedHealthDescriptor) {
+      IndicatedHealthDescriptor indicated = (IndicatedHealthDescriptor) descriptor;
+      indicated
+        .getDetails()
+        .entrySet()
+        .stream()
+        .filter(e -> !excludes.contains(e.getKey()))
+        .forEach(
+          e -> builder.withDetail(e.getKey(), e.getValue())
+        );
+    }
 
     return builder.build();
   }

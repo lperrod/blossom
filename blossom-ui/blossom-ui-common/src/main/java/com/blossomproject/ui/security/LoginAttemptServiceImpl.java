@@ -16,6 +16,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptsService {
 
     attemptsCache = Caffeine
       .<String, Map<String, Integer>>newBuilder()
+      .maximumSize(10_000)
       .expireAfterWrite(1, TimeUnit.DAYS)
       .build(key -> Maps.<String, Integer>newConcurrentMap());
   }

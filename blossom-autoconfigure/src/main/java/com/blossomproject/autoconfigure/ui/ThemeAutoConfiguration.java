@@ -1,10 +1,8 @@
 package com.blossomproject.autoconfigure.ui;
 
-import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
 import static com.blossomproject.ui.theme.Theme.BLOSSOM_THEME_NAME;
 import static com.blossomproject.ui.theme.ThemeServlet.BLOSSOM_THEME_MAIL_SCSS_SERVLET;
 import static com.blossomproject.ui.theme.ThemeServlet.BLOSSOM_THEME_SCSS_SERVLET;
-import static org.springframework.web.servlet.support.RequestContext.DEFAULT_THEME_NAME;
 
 import com.blossomproject.autoconfigure.ui.ThemeAutoConfiguration.BlossomThemeProperties;
 import com.blossomproject.core.common.PluginConstants;
@@ -24,7 +22,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -34,15 +32,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.config.EnablePluginRegistries;
-import org.springframework.ui.context.ThemeSource;
-import org.springframework.web.servlet.ThemeResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.theme.SessionThemeResolver;
-import org.springframework.web.servlet.theme.ThemeChangeInterceptor;
 
 /**
- * Created by Maël Gargadennnec on 05/05/2017.
+ * Created by Mael Gargadennnec on 05/05/2017.
  */
 @Configuration
 @EnablePluginRegistries({Theme.class})
@@ -69,7 +61,7 @@ public class ThemeAutoConfiguration {
   @ConditionalOnProperty(value = "blossom.theme.original.enabled", havingValue = "true", matchIfMissing = true)
   public Theme blossomTheme(ThemeBuilder themeBuilder) {
     return themeBuilder
-      .nameAndAliases(BLOSSOM_THEME_NAME, DEFAULT_THEME_NAME)
+      .nameAndAliases(BLOSSOM_THEME_NAME)
       .scss().done()
       .bodyClass("md-skin")
       .logo("/blossom/public/img/blossom-flower-bright.svg")
@@ -82,51 +74,17 @@ public class ThemeAutoConfiguration {
   }
 
   @Bean
-  public ServletRegistrationBean themeServlet(ThemeResolver themeResolver, ThemeSource themeSource,
-    ThemeCompiler themeCompiler) {
+  public ServletRegistrationBean themeServlet(ThemeCompiler themeCompiler) {
     ServletRegistrationBean registration = new ServletRegistrationBean();
-    registration.setServlet(new ThemeServlet(themeResolver, themeSource, themeCompiler));
+    registration.setServlet(new ThemeServlet(registry, blossomThemeProperties.getDefaultName(), themeCompiler));
     registration.setUrlMappings(Lists.newArrayList(BLOSSOM_THEME_SCSS_SERVLET, BLOSSOM_THEME_MAIL_SCSS_SERVLET));
     registration.setLoadOnStartup(1);
     return registration;
   }
 
-  @Configuration
-
-  public static class ThemeWebAutoConfiguration implements WebMvcConfigurer {
-
-    @Autowired
-    @Qualifier(value = PluginConstants.PLUGIN_THEME)
-    private PluginRegistry<Theme, String> registry;
-
-    @Autowired
-    private BlossomThemeProperties blossomThemeProperties;
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-      registry.addInterceptor(themeChangeInterceptor())
-        .addPathPatterns("/" + BLOSSOM_BASE_PATH + "/**");
-    }
-
-    @Bean
-
-    public ThemeSource themeSource() {
-      return name -> registry.getPluginFor(name).get();
-    }
-
-    @Bean
-    public ThemeResolver themeResolver() {
-      SessionThemeResolver themeResolver = new SessionThemeResolver();
-      themeResolver.setDefaultThemeName(blossomThemeProperties.getDefaultName());
-      return themeResolver;
-    }
-
-    @Bean
-    public ThemeChangeInterceptor themeChangeInterceptor() {
-      ThemeChangeInterceptor tci = new ThemeChangeInterceptor();
-      tci.setParamName("theme");
-      return tci;
-    }
+  @Bean
+  public String blossomDefaultThemeName() {
+    return blossomThemeProperties.getDefaultName();
   }
 
   @ConfigurationProperties(prefix = "blossom.theme")

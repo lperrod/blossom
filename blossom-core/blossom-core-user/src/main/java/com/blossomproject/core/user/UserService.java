@@ -2,8 +2,6 @@ package com.blossomproject.core.user;
 
 import com.blossomproject.core.common.service.SearchAndCrudService;
 import com.blossomproject.core.common.utils.action_token.ActionToken;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Optional;
 
@@ -41,10 +39,6 @@ public interface UserService extends SearchAndCrudService<UserDTO> {
   UserDTO updateLastConnection(Long id, Date lastConnection);
 
   void askPasswordChange(long id) throws Exception;
-
-  void updateAvatar(long id, byte[] avatar);
-
-  InputStream loadAvatar(long id) throws IOException;
 
   /**
    * Generate a valid password reset token for a user

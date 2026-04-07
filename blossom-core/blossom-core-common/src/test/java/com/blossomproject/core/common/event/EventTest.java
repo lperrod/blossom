@@ -6,7 +6,7 @@ import com.blossomproject.core.common.dto.AbstractAssociationDTO;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventTest {

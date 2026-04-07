@@ -15,7 +15,7 @@ import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.springframework.util.concurrent.ListenableFuture;
+import java.util.concurrent.CompletableFuture;
 
 import jakarta.mail.Message;
 import jakarta.mail.internet.InternetAddress;
@@ -100,12 +100,12 @@ public class MailSenderImpl extends DeprecatedMailSenderImpl implements MailSend
     }
 
     @Override
-    public ListenableFuture<com.blossomproject.core.common.utils.mail.BlossomMail> asyncSend() {
+    public CompletableFuture<com.blossomproject.core.common.utils.mail.BlossomMail> asyncSend() {
       return mailSender.sendAsync(this);
     }
   }
 
-  private ListenableFuture<com.blossomproject.core.common.utils.mail.BlossomMail> sendAsync(com.blossomproject.core.common.utils.mail.BlossomMail mail) {
+  private CompletableFuture<com.blossomproject.core.common.utils.mail.BlossomMail> sendAsync(com.blossomproject.core.common.utils.mail.BlossomMail mail) {
     return asyncMailSender.asyncSend(mail);
   }
 
@@ -263,20 +263,18 @@ return null;
 
 
   private String convertInputStreamToString(InputStreamSource inputStreamSource){
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    byte[] buffer = new byte[8192]; // 8KB buffer
-    int bytesRead;
-    try{
-      var inputStream = inputStreamSource.getInputStream();
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+         InputStream inputStream = inputStreamSource.getInputStream()) {
+      byte[] buffer = new byte[8192];
+      int bytesRead;
       while ((bytesRead = inputStream.read(buffer)) != -1) {
         outputStream.write(buffer, 0, bytesRead);
       }
-    }catch (Exception e){
+      return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+    } catch (Exception e) {
       LOGGER.error("Unable to convert to base64 string : {}", e.getMessage());
+      return "";
     }
-
-    byte[] bytes = outputStream.toByteArray();
-    return Base64.getEncoder().encodeToString(bytes);
   }
 
   private void enrichContext(Map<String, Object> ctx, Locale locale) {

@@ -2,11 +2,9 @@ package com.blossomproject.core.common.utils.mail;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.AsyncResult;
 
-/**
- * Created by Maël Gargadennnec on 04/05/2017.
- */
+import java.util.concurrent.CompletableFuture;
+
 public class NoopMailSenderImpl extends DeprecatedMailSenderImpl implements MailSender {
   private final static Logger LOGGER = LoggerFactory.getLogger(NoopMailSenderImpl.class);
 
@@ -24,8 +22,8 @@ public class NoopMailSenderImpl extends DeprecatedMailSenderImpl implements Mail
           }
 
           @Override
-          public AsyncResult<BlossomMail> asyncSend() {
-            return new AsyncResult<>(this);
+          public CompletableFuture<BlossomMail> asyncSend() {
+            return CompletableFuture.completedFuture(this);
           }
         };
       }

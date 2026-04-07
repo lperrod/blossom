@@ -1,6 +1,5 @@
 package com.blossomproject.ui.web.administration.user;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,15 +24,12 @@ import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.module.search.common.SearchResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.tika.Tika;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,17 +38,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,14 +60,11 @@ public class UsersControllerTest {
   @Mock
   private SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine;
 
-  @Mock
-  private Tika tika;
-
   private UsersController controller;
 
   @Before
   public void setUp() {
-    controller = new UsersController(service, searchEngine, tika);
+    controller = new UsersController(service, searchEngine);
   }
 
   @Test
@@ -259,107 +249,6 @@ public class UsersControllerTest {
     assertTrue(EqualsBuilder.reflectionEquals(userDTO, modelAndView.getModel().get("user")));
     assertTrue(EqualsBuilder.reflectionEquals(modelAndView.getModel().get("civilities"), User.Civility.values()));
     assertTrue(modelAndView.getStatus() == HttpStatus.CONFLICT);
-  }
-
-  @Test
-  public void should_get_avatar_with_id_found() throws Exception {
-    Long id = 1L;
-    InputStream avatar = new ByteArrayInputStream("test".getBytes());
-    when(service.loadAvatar(any(Long.class))).thenReturn(avatar);
-    when(tika.detect(any(InputStream.class))).thenReturn("image/png");
-    ResponseEntity<InputStreamResource> response = controller.displayAvatar(id);
-    verify(service, times(1)).loadAvatar(eq(id));
-    Assert.assertNotNull(response);
-    Assert.assertNotNull(response.getBody());
-    Assert.assertTrue((response.getBody().getInputStream().equals(avatar)));
-    Assert.assertTrue(response.getStatusCode() == HttpStatus.OK);
-  }
-
-  @Test
-  public void should_get_avatar_with_id_not_found() throws Exception {
-    Long id = 1L;
-    InputStream defaultAvatar = new ByteArrayInputStream("defaultAvatar".getBytes());
-    when(service.loadAvatar(any(Long.class))).thenReturn(defaultAvatar);
-    when(tika.detect(any(InputStream.class))).thenReturn("image/png");
-    ResponseEntity<InputStreamResource> response = controller.displayAvatar(id);
-    verify(service, times(1)).loadAvatar(eq(id));
-    Assert.assertNotNull(response);
-    Assert.assertNotNull(response.getBody());
-    Assert.assertTrue((response.getBody().getInputStream().equals(defaultAvatar)));
-    Assert.assertTrue(response.getStatusCode() == HttpStatus.OK);
-  }
-
-
-  @Test
-  public void should_display_avatar_form_with_id_found() throws Exception {
-    UserDTO userDTO = new UserDTO();
-    userDTO.setId(1L);
-    when(service.getOne(any(Long.class))).thenReturn(userDTO);
-    ModelAndView modelAndView = controller.getUserAvatarForm(1L, new ExtendedModelMap());
-    assertTrue(modelAndView.getViewName().equals("blossom/users/useravatar-edit-modal"));
-    assertTrue(EqualsBuilder.reflectionEquals(userDTO, modelAndView.getModel().get("user")));
-    verify(service, times(1)).getOne(eq(1L));
-  }
-
-  @Test
-  public void should_display_avatar_form_with_id_not_found() throws Exception {
-    when(service.getOne(any(Long.class))).thenReturn(null);
-    thrown.expect(NoSuchElementException.class);
-    thrown.expectMessage(String.format("User=%s not found", 1L));
-    controller.getUserAvatarForm(1L, new ExtendedModelMap());
-  }
-
-
-  @Test
-  public void should_update_avatar_with_id_found() throws Exception {
-    Long id = 1L;
-
-    when(service.getOne(any(Long.class))).thenAnswer(a -> {
-      UserDTO userDTO = new UserDTO();
-      userDTO.setId((Long) a.getArguments()[0]);
-      return userDTO;
-    });
-
-    when(tika.detect(any(byte[].class))).thenReturn("image/jpeg");
-
-    MultipartFile multipartFile = new MockMultipartFile("testFile", "content".getBytes());
-
-    controller.handleUserAvatarUpdateForm(id, multipartFile);
-    verify(service, times(1)).getOne(eq(id));
-    verify(service, times(1)).updateAvatar(eq(id), eq(multipartFile.getBytes()));
-  }
-
-  @Test
-  public void should_not_update_avatar_with_invalid_content_type() throws Exception {
-    Long id = 1L;
-
-    when(service.getOne(any(Long.class))).thenAnswer(a -> {
-      UserDTO userDTO = new UserDTO();
-      userDTO.setId((Long) a.getArguments()[0]);
-      return userDTO;
-    });
-
-    when(tika.detect(any(byte[].class))).thenReturn("text/html");
-
-    MultipartFile multipartFile = new MockMultipartFile("testFile", "content".getBytes());
-
-    ResponseEntity response = controller.handleUserAvatarUpdateForm(id, multipartFile);
-    verify(service, times(0)).updateAvatar(eq(id), eq(multipartFile.getBytes()));
-    assertEquals("Content should not be accepted", HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
-  }
-
-  @Test
-  public void should_update_avatar_with_id_not_found() throws Exception {
-    Long id = 1L;
-
-    when(service.getOne(any(Long.class))).thenReturn(null);
-
-    MultipartFile multipartFile = new MockMultipartFile("testFile", "content".getBytes());
-
-    thrown.expect(NoSuchElementException.class);
-    thrown.expectMessage(String.format("User=%s not found", id));
-
-    controller.handleUserAvatarUpdateForm(id, multipartFile);
   }
 
   @Test

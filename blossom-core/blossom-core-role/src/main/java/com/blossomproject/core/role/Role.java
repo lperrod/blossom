@@ -22,7 +22,7 @@ public class Role extends AbstractEntity {
   @Column(name = "description", nullable = false)
   private String description;
 
-  @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+  @ElementCollection(targetClass = String.class, fetch = FetchType.LAZY)
   @CollectionTable(name = "blossom_role_privileges", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
   @Column(name = "privilege")
   private List<String> privileges;

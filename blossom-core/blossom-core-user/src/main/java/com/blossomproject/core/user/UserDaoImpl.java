@@ -63,14 +63,6 @@ public class UserDaoImpl extends GenericSearchAndCrudDaoImpl<User> implements Us
 
   @Override
   @CachePut(key = "#a0+''")
-  public User updateAvatar(Long id, byte[] avatar) {
-    User user = repository.findById(id).orElse(null);
-    user.setAvatar(avatar);
-    return repository.save(user);
-  }
-
-  @Override
-  @CachePut(key = "#a0+''")
   public User updateLastConnection(Long id, Date lastConnection) {
     User user = repository.findById(id).orElse(null);
     if (user == null) {

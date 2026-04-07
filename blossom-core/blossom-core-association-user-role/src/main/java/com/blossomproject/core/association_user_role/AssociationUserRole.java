@@ -15,12 +15,12 @@ import org.hibernate.annotations.FetchMode;
 @Table(name = "blossom_association_user_role")
 public class AssociationUserRole extends AbstractAssociationEntity<User, Role> {
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
   @JoinColumn(name = "user_id", referencedColumnName = "id")
   private User a;
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
   @JoinColumn(name = "role_id", referencedColumnName = "id")
   private Role b;

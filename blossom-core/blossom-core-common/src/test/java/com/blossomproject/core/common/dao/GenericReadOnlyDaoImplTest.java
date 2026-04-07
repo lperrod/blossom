@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import com.blossomproject.core.common.entity.AbstractEntity;
 import com.blossomproject.core.common.repository.CrudRepository;
@@ -22,8 +21,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 
 @RunWith(MockitoJUnitRunner.class)
-@PrepareForTest({PersistenceProvider.class})
 public class GenericReadOnlyDaoImplTest {
 
   @Rule
@@ -54,11 +53,12 @@ public class GenericReadOnlyDaoImplTest {
   @Test
   @Ignore
   public void should_set_entity_manager() {
-    mockStatic(PersistenceProvider.class);
-    EntityManager entityManager = mock(EntityManager.class);
-    given(PersistenceProvider.fromEntityManager(entityManager))
-      .willReturn(mock(PersistenceProvider.class));
-    this.dao.setEntityManager(entityManager);
+    try (MockedStatic<PersistenceProvider> mockedStatic = Mockito.mockStatic(PersistenceProvider.class)) {
+      EntityManager entityManager = mock(EntityManager.class);
+      mockedStatic.when(() -> PersistenceProvider.fromEntityManager(entityManager))
+        .thenReturn(mock(PersistenceProvider.class));
+      this.dao.setEntityManager(entityManager);
+    }
   }
 
   @Test
@@ -70,23 +70,27 @@ public class GenericReadOnlyDaoImplTest {
   @Test
   @Ignore
   public void should_validate() {
-    mockStatic(PersistenceProvider.class);
-    EntityManager entityManager = mock(EntityManager.class);
-    given(PersistenceProvider.fromEntityManager(entityManager)).willReturn(mock(PersistenceProvider.class));
-    this.dao.setEntityManager(entityManager);
-    this.dao.validate();
+    try (MockedStatic<PersistenceProvider> mockedStatic = Mockito.mockStatic(PersistenceProvider.class)) {
+      EntityManager entityManager = mock(EntityManager.class);
+      mockedStatic.when(() -> PersistenceProvider.fromEntityManager(entityManager))
+        .thenReturn(mock(PersistenceProvider.class));
+      this.dao.setEntityManager(entityManager);
+      this.dao.validate();
+    }
   }
 
   @Test
   @Ignore
   public void should_get_querydsl() {
-    mockStatic(PersistenceProvider.class);
-    EntityManager entityManager = mock(EntityManager.class);
-    given(PersistenceProvider.fromEntityManager(entityManager)).willReturn(mock(PersistenceProvider.class));
-    this.dao.setEntityManager(entityManager);
-    this.dao.validate();
+    try (MockedStatic<PersistenceProvider> mockedStatic = Mockito.mockStatic(PersistenceProvider.class)) {
+      EntityManager entityManager = mock(EntityManager.class);
+      mockedStatic.when(() -> PersistenceProvider.fromEntityManager(entityManager))
+        .thenReturn(mock(PersistenceProvider.class));
+      this.dao.setEntityManager(entityManager);
+      this.dao.validate();
 
-    assertNotNull(this.dao.getQuerydsl());
+      assertNotNull(this.dao.getQuerydsl());
+    }
   }
 
   @Test

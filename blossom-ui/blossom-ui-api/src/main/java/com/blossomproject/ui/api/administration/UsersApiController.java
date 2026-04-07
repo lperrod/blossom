@@ -12,20 +12,14 @@ import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.apache.tika.Tika;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,8 +30,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by Maël Gargadennnec on 04/05/2017.
@@ -50,14 +42,10 @@ public class UsersApiController {
 
   private final SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine;
 
-  private final Tika tika;
-
   public UsersApiController(UserService userService,
-    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine,
-    Tika tika) {
+    SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, UserDTO> searchEngine) {
     this.userService = userService;
     this.searchEngine = searchEngine;
-    this.tika = tika;
   }
 
   @GetMapping
@@ -122,24 +110,4 @@ public class UsersApiController {
     }
   }
 
-  @GetMapping(value = "/{id}/avatar")
-  @ResponseBody
-  public ResponseEntity<InputStreamResource> displayAvatar(@PathVariable Long id)
-    throws IOException {
-    InputStream avatar = this.userService.loadAvatar(id);
-    return ResponseEntity.ok()
-      .contentType(MediaType.parseMediaType(this.tika.detect(avatar)))
-      .body(new InputStreamResource(avatar));
-  }
-
-  @PostMapping("/{id}/_avatar/_edit")
-  @PreAuthorize("hasAuthority('administration:users:write')")
-  public void updateAvatar(@PathVariable Long id, @RequestParam("avatar") MultipartFile file)
-    throws IOException {
-    UserDTO user = this.userService.getOne(id);
-    if (user == null) {
-      throw new NoSuchElementException(String.format("User=%s not found", id));
-    }
-    this.userService.updateAvatar(id, file.getBytes());
-  }
 }

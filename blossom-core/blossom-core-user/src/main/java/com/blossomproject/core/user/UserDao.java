@@ -17,6 +17,4 @@ public interface UserDao extends SearchAndCrudDao<User> {
   User updatePassword(Long id, String encodedPassword);
 
   User updateLastConnection(Long id, Date lastConnection);
-
-  User updateAvatar(Long id, byte[] avatar);
 }

@@ -6,11 +6,10 @@ import java.util.Optional;
 import java.util.Set;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.SimpleLocaleContext;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-/**
- * Created by Maël Gargadennnec on 05/06/2017.
- */
 public class RestrictedSessionLocaleResolver extends SessionLocaleResolver {
 
   private final Set<Locale> availableLocales;
@@ -18,45 +17,47 @@ public class RestrictedSessionLocaleResolver extends SessionLocaleResolver {
   public RestrictedSessionLocaleResolver(Set<Locale> availableLocales) {
     Preconditions.checkArgument(availableLocales != null && !availableLocales.isEmpty());
     this.availableLocales = availableLocales;
+    setDefaultLocaleFunction(this::resolveDefaultLocale);
   }
 
   @Override
-  public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-    if (availableLocales.contains(locale)) {
-      doSetLocale(request, response, locale);
-    } else {
-      Optional<Locale> closest = availableLocales.stream()
-        .filter(aLocale -> aLocale.getLanguage().equals(locale.getLanguage())).findFirst();
-      if (closest.isPresent()) {
-        doSetLocale(request, response, closest.get());
-        return;
-      }
-      if (getDefaultLocale() != null) {
-        doSetLocale(request, response, getDefaultLocale());
-      } else {
-        doSetLocale(request, response, availableLocales.iterator().next());
-      }
+  public void setLocaleContext(HttpServletRequest request, HttpServletResponse response, LocaleContext localeContext) {
+    Locale locale = localeContext != null ? localeContext.getLocale() : null;
+    if (locale == null) {
+      super.setLocaleContext(request, response, localeContext);
+      return;
     }
+
+    Locale resolvedLocale = resolveToAvailableLocale(locale);
+    super.setLocaleContext(request, response, new SimpleLocaleContext(resolvedLocale));
   }
 
-  @Override
-  protected Locale determineDefaultLocale(HttpServletRequest request) {
+  private Locale resolveDefaultLocale(HttpServletRequest request) {
     Locale requestLocale = request.getLocale();
     if (requestLocale != null) {
       if (availableLocales.contains(requestLocale)) {
         return requestLocale;
-      } else {
-        Optional<Locale> closest = availableLocales.stream()
-          .filter(aLocale -> aLocale.getLanguage().equals(requestLocale.getLanguage())).findFirst();
-        if (closest.isPresent()) {
-          return closest.get();
-        }
+      }
+      Optional<Locale> closest = availableLocales.stream()
+        .filter(aLocale -> aLocale.getLanguage().equals(requestLocale.getLanguage())).findFirst();
+      if (closest.isPresent()) {
+        return closest.get();
       }
     }
-    return super.determineDefaultLocale(request);
+    Locale defaultLocale = getDefaultLocale();
+    return defaultLocale != null ? defaultLocale : availableLocales.iterator().next();
   }
 
-  void doSetLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-    super.setLocale(request, response, locale);
+  private Locale resolveToAvailableLocale(Locale locale) {
+    if (availableLocales.contains(locale)) {
+      return locale;
+    }
+    Optional<Locale> closest = availableLocales.stream()
+      .filter(aLocale -> aLocale.getLanguage().equals(locale.getLanguage())).findFirst();
+    if (closest.isPresent()) {
+      return closest.get();
+    }
+    Locale defaultLocale = getDefaultLocale();
+    return defaultLocale != null ? defaultLocale : availableLocales.iterator().next();
   }
 }

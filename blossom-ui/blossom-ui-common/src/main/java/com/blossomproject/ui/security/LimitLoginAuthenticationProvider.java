@@ -14,7 +14,7 @@ public class LimitLoginAuthenticationProvider extends DaoAuthenticationProvider 
 
   public LimitLoginAuthenticationProvider(UserDetailsService userDetailsService,
     LoginAttemptsService userLoginAttemptsService) {
-    super.setUserDetailsService(userDetailsService);
+    super(userDetailsService);
     this.userLoginAttemptsService = userLoginAttemptsService;
   }
 

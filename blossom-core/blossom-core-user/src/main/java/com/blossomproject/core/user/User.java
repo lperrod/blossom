@@ -49,10 +49,6 @@ public class User extends AbstractEntity {
   @Column(name = "job_title")
   private String function;
 
-  @Lob
-  @Column(name = "avatar")
-  private byte[] avatar;
-
   @Convert(converter = LocaleConverter.class)
   @Column(name = "locale", nullable = false)
   private Locale locale;
@@ -151,14 +147,6 @@ public class User extends AbstractEntity {
 
   public void setFunction(String function) {
     this.function = function;
-  }
-
-  public byte[] getAvatar() {
-    return avatar;
-  }
-
-  public void setAvatar(byte[] avatar) {
-    this.avatar = avatar;
   }
 
   public Locale getLocale() {

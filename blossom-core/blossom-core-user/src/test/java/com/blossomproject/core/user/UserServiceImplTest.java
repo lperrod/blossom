@@ -16,8 +16,6 @@ import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.utils.action_token.ActionToken;
 import com.blossomproject.core.common.utils.action_token.ActionTokenService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
-import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -51,8 +49,6 @@ public class UserServiceImplTest {
   @Mock
   private UserMailService userMailService;
 
-  private byte[] defaultAvatar = new byte[1024];
-
   @Mock
   private UserDTOMapper userMapper;
 
@@ -68,7 +64,7 @@ public class UserServiceImplTest {
   public void setUp() throws Exception {
     this.userService = spy(
       new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-        tokenService, userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS"));
+        tokenService, userMailService, "3", "DAYS", "3", "HOURS"));
   }
 
   @Test
@@ -193,54 +189,6 @@ public class UserServiceImplTest {
   }
 
   @Test
-  public void test_update_avatar_user_not_null() throws Exception {
-    doReturn(new UserDTO()).when(userService).getOne(anyLong());
-
-    userService.updateAvatar(123456789L, new byte[]{});
-    verify(userDao, times(1)).updateAvatar(anyLong(), any(byte[].class));
-    verify(publisher, times(1)).publishEvent(any(UpdatedEvent.class));
-
-  }
-
-  @Test
-  public void test_update_avatar_user_null() throws Exception {
-    doReturn(null).when(userService).getOne(anyLong());
-
-    userService.updateAvatar(123456789L, new byte[]{});
-    verify(userDao, times(0)).updateAvatar(anyLong(), any(byte[].class));
-    verify(publisher, times(1)).publishEvent(any(UpdatedEvent.class));
-  }
-
-  @Test
-  public void test_load_avatar_not_null() throws Exception {
-    User userToReturn = new User();
-    byte[] avatar = new byte[]{0, 1, 2, 3};
-    userToReturn.setAvatar(avatar);
-    given(userDao.getOne(anyLong())).willReturn(userToReturn);
-
-    Assert.assertArrayEquals(avatar, ByteStreams.toByteArray(userService.loadAvatar(1L)));
-  }
-
-  @Test
-  public void test_load_avatar_user_null_so_fallback_to_default() throws Exception {
-    byte[] bytes = new byte[]{};
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-    given(userDao.getOne(anyLong())).willReturn(null);
-
-    userService.loadAvatar(123456789L);
-  }
-
-  @Test
-  public void test_load_avatar_user_not_nul_but_avatar_null_so_fallback_to_default()
-    throws Exception {
-    byte[] bytes = new byte[]{};
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-    given(userDao.getOne(anyLong())).willReturn(new User());
-
-    userService.loadAvatar(123456789L);
-  }
-
-  @Test
   public void test_generate_random_password_hash() throws Exception {
     String passwordHash = "someHash";
     given(passwordEncoder.encode(anyString())).willReturn(passwordHash);
@@ -332,41 +280,34 @@ public class UserServiceImplTest {
   @Test
   public void test_user_service_impl_nothing_null() throws Exception {
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
+      tokenService, userMailService, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_impl_password_encoder_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, null, tokenService,
-      userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
+      userMailService, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_impl_token_service_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder, null,
-      userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
+      userMailService, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_impl_dao_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(null, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, userMailService, defaultAvatar, "3", "DAYS", "3", "HOURS");
+      tokenService, userMailService, "3", "DAYS", "3", "HOURS");
   }
 
   @Test
   public void test_user_service_mail_service_null() throws Exception {
     thrown.expect(NullPointerException.class);
     new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, null, defaultAvatar, "3", "DAYS", "3", "HOURS");
-  }
-
-  @Test
-  public void test_user_service_default_avatar_null() throws Exception {
-    thrown.expect(NullPointerException.class);
-    new UserServiceImpl(userDao, userMapper, publisher, associationRegistry, passwordEncoder,
-      tokenService, userMailService, null, "3", "DAYS", "3", "HOURS");
+      tokenService, null, "3", "DAYS", "3", "HOURS");
   }
 }

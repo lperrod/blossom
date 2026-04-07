@@ -15,9 +15,7 @@ import com.blossomproject.module.search.common.AbstractSearchResponse;
 import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.module.search.common.SearchResult;
 import com.google.common.collect.Lists;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,17 +24,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
-;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileManagerApiControllerTest {
@@ -81,7 +75,7 @@ public class FileManagerApiControllerTest {
   }
 
   @Test
-  public void should_create_with_file_upload() throws IOException, SQLException {
+  public void should_create_with_file_upload() throws IOException {
     MultipartFile multipart = new MockMultipartFile("test.pdf", new byte[1024]);
     when(service.upload(eq(multipart))).thenReturn(new FileDTO());
 
@@ -95,7 +89,7 @@ public class FileManagerApiControllerTest {
   }
 
   @Test
-  public void should_create_with_io_exception() throws IOException, SQLException {
+  public void should_create_with_io_exception() throws IOException {
     MultipartFile multipart = new MockMultipartFile("test.pdf", new byte[1024]);
     when(service.upload(eq(multipart))).thenThrow(new IOException());
 
@@ -109,21 +103,7 @@ public class FileManagerApiControllerTest {
   }
 
   @Test
-  public void should_create_with_sql_exception() throws IOException, SQLException {
-    MultipartFile multipart = new MockMultipartFile("test.pdf", new byte[1024]);
-    when(service.upload(eq(multipart))).thenThrow(new SQLException());
-
-    ResponseEntity<FileDTO> response = controller.fileUpload(multipart);
-
-    verify(service, times(1)).upload(eq(multipart));
-
-    Assert.assertNotNull(response);
-    Assert.assertNull(response.getBody());
-    Assert.assertTrue(response.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @Test
-  public void should_create_empty_multipart() throws IOException, SQLException {
+  public void should_create_empty_multipart() throws IOException {
     MultipartFile multipart = mock(MultipartFile.class);
     when(multipart.isEmpty()).thenReturn(true);
 
@@ -164,50 +144,6 @@ public class FileManagerApiControllerTest {
     Long id = 1L;
     when(service.getOne(any(Long.class))).thenReturn(null);
     ResponseEntity<FileDTO> response = controller.get(id);
-    verify(service, times(1)).getOne(eq(id));
-    Assert.assertNotNull(response);
-    Assert.assertNull(response.getBody());
-    Assert.assertTrue(response.getStatusCode() == HttpStatus.NOT_FOUND);
-  }
-
-  @Test
-  public void should_serve_one_without_id() throws IOException, SQLException {
-    thrown.expect(IllegalArgumentException.class);
-    ResponseEntity<InputStreamResource> response = controller.serve(null);
-  }
-
-  @Test
-  public void should_serve_one_with_id_found() throws IOException, SQLException {
-    Long id = 1L;
-    FileDTO file = new FileDTO();
-    file.setContentType("application/pdf");
-    file.setName("test.pdf");
-    file.setId(1L);
-    file.setSize(1024L);
-
-    when(service.getOne(eq(id))).thenReturn(file);
-    when(service.download(eq(id))).thenReturn(new ByteArrayInputStream(new byte[1024]));
-
-    ResponseEntity<InputStreamResource> response = controller.serve(id);
-    verify(service, times(1)).getOne(eq(id));
-    Assert.assertNotNull(response);
-    Assert.assertNotNull(response.getBody());
-    Assert.assertTrue(response.getHeaders().containsKey(HttpHeaders.CONTENT_TYPE));
-    Assert.assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0).contains("application/pdf"));
-    Assert.assertTrue(response.getHeaders().containsKey(HttpHeaders.CONTENT_LENGTH));
-    Assert.assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_LENGTH).get(0).contains("1024"));
-    Assert.assertTrue(response.getHeaders().containsKey(HttpHeaders.CONTENT_DISPOSITION));
-    Assert.assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("test.pdf"));
-    Assert.assertTrue(response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0).contains("Content-Disposition: inline;"));
-
-    Assert.assertTrue(response.getStatusCode() == HttpStatus.OK);
-  }
-
-  @Test
-  public void should_serve_one_with_id_not_found() throws IOException, SQLException {
-    Long id = 1L;
-    when(service.getOne(any(Long.class))).thenReturn(null);
-    ResponseEntity<InputStreamResource> response = controller.serve(id);
     verify(service, times(1)).getOne(eq(id));
     Assert.assertNotNull(response);
     Assert.assertNull(response.getBody());

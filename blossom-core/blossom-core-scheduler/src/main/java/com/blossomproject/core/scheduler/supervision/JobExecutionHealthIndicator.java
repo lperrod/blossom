@@ -5,8 +5,8 @@ import com.blossomproject.core.scheduler.job.ScheduledJobService;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
 
 public class JobExecutionHealthIndicator implements HealthIndicator {
 
