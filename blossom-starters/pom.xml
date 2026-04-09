@@ -22,5 +22,6 @@
     <module>blossom-starter-bpmn</module>
     <module>blossom-starter-filemanager</module>
     <module>blossom-starter-articles</module>
+    <module>blossom-starter-ui-angular</module>
   </modules>
 </project>

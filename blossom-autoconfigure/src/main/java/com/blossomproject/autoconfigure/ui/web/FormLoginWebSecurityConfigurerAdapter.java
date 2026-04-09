@@ -17,6 +17,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -89,6 +90,9 @@ public class FormLoginWebSecurityConfigurerAdapter {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+
+    http.csrf(csrf -> csrf
+      .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
 
     http.authorizeHttpRequests(
       authorize -> authorize

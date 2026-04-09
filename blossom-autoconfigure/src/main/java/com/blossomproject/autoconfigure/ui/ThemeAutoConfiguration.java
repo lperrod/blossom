@@ -29,7 +29,6 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.plugin.core.config.EnablePluginRegistries;
 
@@ -69,8 +68,8 @@ public class ThemeAutoConfiguration {
   }
 
   @Bean
-  public ThemeCompiler themeCompiler(ResourceLoader resourceLoader) {
-    return new ThemeCompilerImpl(registry, resourceLoader);
+  public ThemeCompiler themeCompiler() {
+    return new ThemeCompilerImpl();
   }
 
   @Bean

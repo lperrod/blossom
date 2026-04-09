@@ -50,3 +50,16 @@ com.blossomproject.autoconfigure.ui.api.administration.ApiAdministrationMembersh
 com.blossomproject.autoconfigure.ui.api.administration.ApiAdministrationResponsabilityAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.administration.ApiAdministrationRoleAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.administration.ApiAdministrationUserAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.ApiConfigurationAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.ApiAuthAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.ApiProfileAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.ApiPrivilegesAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.content.ApiContentArticleAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemDashboardAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemLoggersAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemSchedulerAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemSessionsAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemCachesAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemLiquibaseAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.system.ApiSystemBpmnAutoConfiguration
+com.blossomproject.autoconfigure.ui.angular.AngularInterfaceAutoConfiguration

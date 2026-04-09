@@ -77,10 +77,6 @@
       <artifactId>junit-vintage-engine</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>de.larsgrefer.sass</groupId>
-      <artifactId>sass-embedded-host</artifactId>
-    </dependency>
   </dependencies>
 
   <modelVersion>4.0.0</modelVersion>

@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.StringUtils;
 
@@ -58,6 +59,8 @@ public class ApiInterfaceAutoConfiguration {
           final String csp = cspValue;
           headers.contentSecurityPolicy(policy -> policy.policyDirectives(csp));
         })
+        .csrf(csrf -> csrf
+          .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
         .authorizeHttpRequests(authorize -> authorize.anyRequest().fullyAuthenticated())
         .httpBasic(basic -> {});
 
