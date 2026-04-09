@@ -9,7 +9,6 @@ blossom:
     cluster-name: someName
     cluster-nodes: someUrl
     enabled: "no"
-
 spring:
   jpa:
     hibernate:
@@ -26,3 +25,5 @@ management:
   health:
     elasticsearch:
       enabled: false
+server:
+  port: 8081

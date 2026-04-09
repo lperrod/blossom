@@ -12,6 +12,9 @@
       ],
       "@blossom/ui": [
         "./projects/blossom/ui/src/public-api.ts"
+      ],
+      "@blossom/features": [
+        "./projects/blossom/features/src/public-api.ts"
       ]
     },
     "outDir": "./dist/out-tsc",

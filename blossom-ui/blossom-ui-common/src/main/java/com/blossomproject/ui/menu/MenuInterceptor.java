@@ -25,8 +25,7 @@ public class MenuInterceptor implements HandlerInterceptor {
   @Override
   public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)
     throws Exception {
-    if (handler != null && modelAndView != null) {
-      HandlerMethod hm = (HandlerMethod) handler;
+    if (handler instanceof HandlerMethod hm && modelAndView != null) {
       Method method = hm.getMethod();
 
       String menuId = null;

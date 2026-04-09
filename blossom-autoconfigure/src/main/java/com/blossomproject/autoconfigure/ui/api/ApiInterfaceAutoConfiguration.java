@@ -20,6 +20,7 @@ import org.springframework.plugin.core.PluginRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.StringUtils;
 
@@ -59,9 +60,19 @@ public class ApiInterfaceAutoConfiguration {
           final String csp = cspValue;
           headers.contentSecurityPolicy(policy -> policy.policyDirectives(csp));
         })
-        .csrf(csrf -> csrf
-          .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-        .authorizeHttpRequests(authorize -> authorize.anyRequest().fullyAuthenticated())
+        .csrf(csrf -> {
+          CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+          requestHandler.setCsrfRequestAttributeName(null); // opt out of deferred token, make it eager
+          csrf
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(requestHandler)
+            .ignoringRequestMatchers(
+              PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/login"),
+              PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/logout"));
+        })
+        .authorizeHttpRequests(authorize -> authorize
+          .requestMatchers(PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/login")).permitAll()
+          .anyRequest().fullyAuthenticated())
         .httpBasic(basic -> {});
 
       return http.build();

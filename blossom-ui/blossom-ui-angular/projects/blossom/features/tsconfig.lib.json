@@ -1,0 +1,18 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../out-tsc/lib",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true,
+    "types": [],
+    "paths": {
+      "@blossom/core": ["../../../dist/blossom/core"],
+      "@blossom/ui": ["../../../dist/blossom/ui"],
+      "@blossom/shell": ["../../../dist/blossom/shell"]
+    }
+  },
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}

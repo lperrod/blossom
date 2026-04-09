@@ -42,11 +42,14 @@ import { AuthService, ConfigurationService } from '@blossom/core';
     </div>
   `,
   styles: [`
-    .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f3f3f4; }
-    .login-card { width: 400px; padding: 24px; }
-    .full-width { width: 100%; }
-    .error-message { background: #f44336; color: white; padding: 12px; border-radius: 4px; margin-bottom: 16px; }
-    mat-card-header { margin-bottom: 24px; }
+    .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #2f4050; }
+    .login-card { width: 400px; padding: 32px; border-radius: 4px; }
+    .full-width { width: 100%; margin-bottom: 8px; }
+    .error-message { background: #ed5565; color: white; padding: 12px; border-radius: 4px; margin-bottom: 16px; font-size: 13px; }
+    mat-card-header { margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+    ::ng-deep .login-card .mat-mdc-card-title { font-size: 28px; font-weight: 300; color: #2f4050; }
+    ::ng-deep .login-card .mat-mdc-card-subtitle { font-size: 14px; color: #999; }
+    ::ng-deep .login-card .mat-mdc-flat-button.mat-primary { background-color: #1ab394; font-size: 14px; height: 44px; }
   `]
 })
 export class LoginComponent {

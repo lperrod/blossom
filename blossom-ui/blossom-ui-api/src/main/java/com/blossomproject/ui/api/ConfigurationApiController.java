@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,12 +26,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/configuration")
 public class ConfigurationApiController {
 
+  private static final String BLOSSOM_PREFIX = "/blossom";
+
   private final Menu menu;
   private final Set<Locale> availableLocales;
+  private final MessageSource messageSource;
 
-  public ConfigurationApiController(Menu menu, Set<Locale> availableLocales) {
+  public ConfigurationApiController(Menu menu, Set<Locale> availableLocales,
+    MessageSource messageSource) {
     this.menu = menu;
     this.availableLocales = availableLocales;
+    this.messageSource = messageSource;
   }
 
   @GetMapping
@@ -63,9 +70,10 @@ public class ConfigurationApiController {
       .anyMatch(a -> a instanceof SwitchUserGrantedAuthority);
     config.put("impersonating", impersonating);
 
-    // Menu tree (filtered by current user privileges)
+    // Menu tree (filtered by current user privileges, with resolved labels and normalized links)
+    Locale locale = LocaleContextHolder.getLocale();
     Collection<MenuItem> filteredItems = menu.filteredItems(currentUser);
-    config.put("menu", serializeMenuItems(filteredItems));
+    config.put("menu", serializeMenuItems(filteredItems, locale));
 
     // Available locales
     List<String> locales = availableLocales.stream()
@@ -76,13 +84,13 @@ public class ConfigurationApiController {
     return new ResponseEntity<>(config, HttpStatus.OK);
   }
 
-  private List<Map<String, Object>> serializeMenuItems(Collection<MenuItem> items) {
+  private List<Map<String, Object>> serializeMenuItems(Collection<MenuItem> items, Locale locale) {
     return items.stream().map(item -> {
       Map<String, Object> map = new HashMap<>();
       map.put("key", item.key());
-      map.put("label", item.label());
+      map.put("label", resolveLabel(item.label(), locale));
       map.put("icon", item.icon());
-      map.put("link", item.link());
+      map.put("link", normalizeLink(item.link()));
       map.put("level", item.level());
       map.put("order", item.order());
       map.put("privilege", item.privilege());
@@ -91,9 +99,31 @@ public class ConfigurationApiController {
       CurrentUser user = (CurrentUser) auth.getPrincipal();
       Collection<MenuItem> children = item.filteredItems(user);
       if (!children.isEmpty()) {
-        map.put("items", serializeMenuItems(children));
+        map.put("items", serializeMenuItems(children, locale));
       }
       return map;
     }).collect(Collectors.toList());
+  }
+
+  private String resolveLabel(String labelKey, Locale locale) {
+    if (labelKey == null) {
+      return null;
+    }
+    return messageSource.getMessage(labelKey, null, labelKey, locale);
+  }
+
+  private String normalizeLink(String link) {
+    if (link == null) {
+      return null;
+    }
+    // Strip the /blossom prefix so Angular routes work directly
+    // e.g. /blossom/system/dashboard -> /system/dashboard
+    if (link.startsWith(BLOSSOM_PREFIX + "/")) {
+      return link.substring(BLOSSOM_PREFIX.length());
+    }
+    if (link.equals(BLOSSOM_PREFIX)) {
+      return "/";
+    }
+    return link;
   }
 }

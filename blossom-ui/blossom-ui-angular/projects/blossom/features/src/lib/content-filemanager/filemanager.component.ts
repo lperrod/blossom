@@ -35,7 +35,7 @@ export class FileManagerComponent implements OnInit {
   files: FileDTO[] = []; columns = ['name', 'contentType', 'size', 'extension']; total = 0; private q = ''; private pg = 0;
   constructor(private svc: FileManagerService, private notify: NotificationService) {}
   ngOnInit(): void { this.load(); }
-  load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.files = p.content; this.total = p.totalElements; }); }
+  load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.files = p.content; this.total = p.page.totalElements; }); }
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
   onFileSelected(event: any): void {

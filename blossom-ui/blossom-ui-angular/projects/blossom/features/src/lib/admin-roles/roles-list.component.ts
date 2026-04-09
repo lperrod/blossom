@@ -32,7 +32,7 @@ export class RolesListComponent implements OnInit {
   roles: RoleDTO[] = []; columns = ['name', 'description']; total = 0; private q = ''; private pg = 0;
   constructor(private svc: RolesService, private router: Router, private dialog: MatDialog) {}
   ngOnInit(): void { this.load(); }
-  load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.roles = p.content; this.total = p.totalElements; }); }
+  load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.roles = p.content; this.total = p.page.totalElements; }); }
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
   goTo(id: number): void { this.router.navigate(['/administration/roles', id]); }

@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +19,7 @@ public class ApiConfigurationAutoConfiguration {
 
   @Bean
   public ConfigurationApiController configurationApiController(Menu menu,
-    Set<Locale> availableLocales) {
-    return new ConfigurationApiController(menu, availableLocales);
+    Set<Locale> availableLocales, MessageSource messageSource) {
+    return new ConfigurationApiController(menu, availableLocales, messageSource);
   }
 }

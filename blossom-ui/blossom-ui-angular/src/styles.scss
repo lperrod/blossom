@@ -1,19 +1,74 @@
-
-// Custom Theming for Angular Material
-// For more information: https://material.angular.dev/guide/theming
+// Custom Theming for Angular Material - Blossom Inspinia color scheme
 @use '@angular/material' as mat;
 
+// Blossom theme: teal primary (#1ab394), blue tertiary (#1c84c6)
 html {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
+      primary: mat.$cyan-palette,
       tertiary: mat.$blue-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
-}/* You can add global styles to this file, and also import other style files */
+}
+
+// Blossom color variables
+$sidebar-bg: #2f4050;
+$sidebar-bg-dark: #293846;
+$sidebar-text: #a7b1c2;
+$sidebar-active: #1ab394;
+$primary: #1ab394;
+$link-color: #1c84c6;
+$border-color: #e7eaec;
+$content-bg: #f3f3f4;
+$topbar-bg: #f3f3f4;
+$text-color: #676a6c;
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: $text-color; }
+
+// Override Material primary color to match Inspinia teal
+.mat-mdc-flat-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-mini-fab.mat-primary {
+  --mdc-filled-button-container-color: #{$primary};
+  --mdc-filled-button-label-text-color: white;
+}
+
+.mat-mdc-chip.mat-primary {
+  --mdc-chip-elevated-container-color: #{$primary};
+  --mdc-chip-label-text-color: white;
+}
+
+// Links
+a { color: $link-color; }
+
+// Content area
+.blossom-main {
+  background: $content-bg;
+}
+
+// Snackbar styles
+.snackbar-success { --mdc-snackbar-container-color: #{$primary}; --mdc-snackbar-supporting-text-color: white; }
+.snackbar-error { --mdc-snackbar-container-color: #ed5565; --mdc-snackbar-supporting-text-color: white; }
+.snackbar-info { --mdc-snackbar-container-color: #23c6c8; --mdc-snackbar-supporting-text-color: white; }
+
+// Progress bar
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: #{$primary};
+}
+
+// Slide toggle
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: #{$primary};
+  --mdc-switch-selected-handle-color: #{$primary};
+}
+
+// Tab active
+.mat-mdc-tab-group {
+  --mat-tab-header-active-focus-indicator-color: #{$primary};
+  --mat-tab-header-active-label-text-color: #{$primary};
+}

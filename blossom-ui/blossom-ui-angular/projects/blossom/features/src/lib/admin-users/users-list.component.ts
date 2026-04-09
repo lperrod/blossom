@@ -47,7 +47,7 @@ export class UsersListComponent implements OnInit {
   ngOnInit(): void { this.load(); }
 
   load(): void {
-    this.usersService.list(this.query, this.page).subscribe(p => { this.users = p.content; this.totalElements = p.totalElements; });
+    this.usersService.list(this.query, this.page).subscribe(p => { this.users = p.content; this.totalElements = p.page.totalElements; });
   }
 
   onSearch(q: string): void { this.query = q; this.page = 0; this.load(); }

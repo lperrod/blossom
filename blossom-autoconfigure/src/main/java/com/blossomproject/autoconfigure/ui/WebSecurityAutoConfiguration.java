@@ -31,6 +31,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.annotation.Order;
 import org.springframework.plugin.core.PluginRegistry;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -116,6 +118,12 @@ public class WebSecurityAutoConfiguration {
     UserService userService,
     BlossomWebBackOfficeProperties properties) {
     return new BlossomAuthenticationSuccessHandlerImpl(userService, properties.getMaxInactiveIntervalSeconds());
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(
+    AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
   }
 
   @Bean

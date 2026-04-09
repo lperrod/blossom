@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -30,6 +31,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @Configuration
 public class FormLoginWebSecurityConfigurerAdapter {
 
+  private static final String ANGULAR_LOGIN_PATH = "/" + BLOSSOM_BASE_PATH + "/ng/login";
 
   private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
     PathPatternRequestMatcher.pathPattern("/public/**"),
@@ -38,7 +40,9 @@ public class FormLoginWebSecurityConfigurerAdapter {
 
   private static final RequestMatcher BLOSSOM_PUBLIC_URLS = new OrRequestMatcher(
     PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/public/**"),
-    PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/login"));
+    PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/login"),
+    PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/ng/**")
+  );
 
   private final UserDetailsService userDetailsService;
 
@@ -80,8 +84,8 @@ public class FormLoginWebSecurityConfigurerAdapter {
     filter.setSwitchAuthorityRole(switchUserPrivilege.privilege());
     filter.setSwitchUserUrl("/" + BLOSSOM_BASE_PATH + "/administration/_impersonate");
     filter.setExitUserUrl("/" + BLOSSOM_BASE_PATH + "/administration/_impersonate/logout");
-    filter.setTargetUrl("/" + BLOSSOM_BASE_PATH);
-    filter.setSwitchFailureUrl("/" + BLOSSOM_BASE_PATH);
+    filter.setTargetUrl("/" + BLOSSOM_BASE_PATH + "/ng/");
+    filter.setSwitchFailureUrl("/" + BLOSSOM_BASE_PATH + "/ng/");
     return filter;
   }
 
@@ -91,8 +95,13 @@ public class FormLoginWebSecurityConfigurerAdapter {
 
     http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
-    http.csrf(csrf -> csrf
-      .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+    http.csrf(csrf -> {
+      CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+      requestHandler.setCsrfRequestAttributeName(null);
+      csrf
+        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+        .csrfTokenRequestHandler(requestHandler);
+    });
 
     http.authorizeHttpRequests(
       authorize -> authorize
@@ -104,13 +113,14 @@ public class FormLoginWebSecurityConfigurerAdapter {
       .authenticationProvider(limitLoginAuthenticationProvider)
       .addFilter(switchUserProcessingFilter())
       .formLogin(form -> form
-        .loginPage("/" + BLOSSOM_BASE_PATH + "/login")
-        .failureUrl("/" + BLOSSOM_BASE_PATH + "/login?error")
+        .loginPage(ANGULAR_LOGIN_PATH)
+        .loginProcessingUrl("/" + BLOSSOM_BASE_PATH + "/login")
+        .failureUrl(ANGULAR_LOGIN_PATH + "?error")
         .successHandler(blossomAuthenticationSuccessHandler))
       .logout(logout -> logout
         .logoutRequestMatcher(PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_BASE_PATH + "/logout"))
         .deleteCookies(BLOSSOM_REMEMBER_ME_COOKIE_NAME)
-        .logoutSuccessUrl("/" + BLOSSOM_BASE_PATH + "/login").permitAll())
+        .logoutSuccessUrl(ANGULAR_LOGIN_PATH).permitAll())
       .rememberMe(rememberMe -> rememberMe
         .rememberMeCookieName(BLOSSOM_REMEMBER_ME_COOKIE_NAME))
       .exceptionHandling(exceptionHandling -> exceptionHandling
@@ -120,7 +130,7 @@ public class FormLoginWebSecurityConfigurerAdapter {
       .sessionManagement(sessionManagement -> sessionManagement
         .maximumSessions(webBackOfficeProperties.getMaxSessionsPerUser()).maxSessionsPreventsLogin(true)
         .expiredSessionStrategy(
-          new WebInterfaceAutoConfiguration.BlossomInvalidSessionStrategy("/" + BLOSSOM_BASE_PATH + "/login"))
+          new WebInterfaceAutoConfiguration.BlossomInvalidSessionStrategy(ANGULAR_LOGIN_PATH))
         .sessionRegistry(sessionRegistry));
 
     return http.build();

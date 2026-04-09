@@ -23,7 +23,7 @@ import { SearchService } from './search.service';
         </mat-list-item>
       </mat-list>
       <mat-paginator
-        [length]="results.totalElements"
+        [length]="results.page.totalElements"
         [pageSize]="pageSize"
         (page)="onPage($event)"
         showFirstLastButtons>

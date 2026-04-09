@@ -218,6 +218,29 @@
           }
         }
       }
+    },
+    "@blossom/features": {
+      "projectType": "library",
+      "root": "projects/blossom/features",
+      "sourceRoot": "projects/blossom/features/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/blossom/features/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/blossom/features/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/blossom/features/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
     }
   }
 }

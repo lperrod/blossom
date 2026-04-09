@@ -1,11 +1,16 @@
 {
-  "name": "@blossom/core",
+  "name": "@blossom/features",
   "version": "4.0.0",
   "peerDependencies": {
     "@angular/common": "^19.0.0",
     "@angular/core": "^19.0.0",
     "@angular/router": "^19.0.0",
+    "@angular/forms": "^19.0.0",
+    "@angular/cdk": "^19.0.0",
     "@angular/material": "^19.0.0",
+    "@blossom/core": "^4.0.0",
+    "@blossom/ui": "^4.0.0",
+    "@blossom/shell": "^4.0.0",
     "rxjs": "^7.0.0"
   },
   "dependencies": {
