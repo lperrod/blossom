@@ -92,7 +92,18 @@ If your project has custom `@BlossomController` classes and FTL templates, conti
 
 ## Step 2: Create the Angular Workspace
 
-Your project needs its own Angular workspace to add custom pages alongside the Blossom defaults.
+Your project needs its own Angular workspace that **imports the prebuilt Blossom libraries** and adds your custom pages. You do NOT need to rebuild the Blossom UI -- just install the packages and compose your app.
+
+### Blossom Angular packages
+
+Blossom ships 4 prebuilt Angular libraries:
+
+| Package | What it provides |
+|---------|-----------------|
+| `@blossom/core` | Services (`AuthService`, `ConfigurationService`, `MenuService`, `NotificationService`), interceptors (CSRF, auth errors), guards (`authGuard`, `privilegeGuard`), models (`Page<T>`, `MenuItem`, `UserInfo`, etc.) |
+| `@blossom/ui` | Shared Material components (`BlossomTableComponent`, `ConfirmDialogComponent`, `SearchBarComponent`, `PrivilegeTreeComponent`, etc.) |
+| `@blossom/shell` | App shell (`LayoutComponent`, `SidebarComponent`, `TopbarComponent`, `LoginComponent`, `ErrorPageComponent`) |
+| `@blossom/features` | All 17 standard pages (users, groups, roles, dashboard, caches, etc.) + `blossomAppRoutes()` helper |
 
 ### 2.1 Create the module structure
 
@@ -106,18 +117,62 @@ my-project/
     angular.json
     package.json
     tsconfig.json
+    .npmrc                    # If needed for private registry
     src/
+      index.html
+      styles.scss
+      main.ts
       app/
         app.config.ts
         app.routes.ts
         app.component.ts
-        features/              # Your custom pages go here
+        features/             # Your custom pages ONLY
           my-feature/
-    projects/
-      my-feature-lib/          # Optional: reusable Angular libraries
+            my-feature.component.ts
+            my-feature.service.ts
+            routes.ts
 ```
 
-### 2.2 Create the Angular module pom.xml
+### 2.2 Initialize the Angular workspace
+
+```bash
+cd my-project-angular
+npx @angular/cli@19 new my-app --directory=. --routing --style=scss --skip-git --ssr=false
+npm install @angular/material @angular/cdk @angular/animations
+```
+
+### 2.3 Install the Blossom libraries
+
+The built libraries are available in the blossom source tree at `blossom-ui/blossom-ui-angular/dist/blossom/`. Install them from there, or if they are published to an npm registry:
+
+```bash
+# Option A: Install from a local path (during development)
+npm install ../path-to-blossom/blossom-ui/blossom-ui-angular/dist/blossom/core
+npm install ../path-to-blossom/blossom-ui/blossom-ui-angular/dist/blossom/ui
+npm install ../path-to-blossom/blossom-ui/blossom-ui-angular/dist/blossom/shell
+npm install ../path-to-blossom/blossom-ui/blossom-ui-angular/dist/blossom/features
+
+# Option B: Install from npm registry (if published)
+npm install @blossom/core @blossom/ui @blossom/shell @blossom/features
+```
+
+To build the libraries from the blossom source (one-time step):
+
+```bash
+cd blossom/blossom-ui/blossom-ui-angular
+npm install
+npm run build:libs    # Builds @blossom/core, @blossom/ui, @blossom/shell, @blossom/features
+```
+
+### 2.4 Add an `.npmrc` if needed
+
+If your environment has a private npm registry that does not mirror public packages, create `.npmrc`:
+
+```
+registry=https://registry.npmjs.org/
+```
+
+### 2.5 Create the Maven pom.xml
 
 ```xml
 <!-- my-project-angular/pom.xml -->
@@ -176,6 +231,25 @@ my-project/
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>clean-angular-output</id>
+            <phase>generate-resources</phase>
+            <goals><goal>clean</goal></goals>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.outputDirectory}/static/blossom</directory>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
@@ -198,57 +272,62 @@ my-project/
 </project>
 ```
 
-### 2.3 Initialize the Angular workspace
-
-```bash
-cd my-project-angular
-npx @angular/cli@19 new my-app --directory=. --routing --style=scss --skip-git --ssr=false
-npm install @angular/material @angular/cdk @angular/animations
-```
-
-### 2.4 Add an `.npmrc` if needed
-
-If your environment has a private npm registry that does not mirror public packages, create `.npmrc`:
-
-```
-registry=https://registry.npmjs.org/
-```
-
 ---
 
 ## Step 3: Wire Up the Angular App
 
-### 3.1 Configure `tsconfig.json` paths
+### 3.1 Configure `app.routes.ts` -- the simple way
 
-The Blossom Angular libraries (`@blossom/core`, `@blossom/ui`, `@blossom/shell`) are published as part of the `blossom-ui-angular` JAR. For development, point to them in your `node_modules` or install them as npm packages.
+The `@blossom/features` package provides `blossomAppRoutes()` which returns all standard Blossom routes (login, layout, all 17 pages, error pages). To add your custom pages alongside the defaults:
 
-Since they ship inside the blossom JAR at build time, the simplest approach during development is to symlink or copy them. Alternatively, if blossom publishes them to a registry:
+```typescript
+import { Routes } from '@angular/router';
+import { blossomAppRoutes } from '@blossom/features';
+import { privilegeGuard } from '@blossom/core';
 
-```json
-// tsconfig.json
-{
-  "compilerOptions": {
-    "paths": {
-      "@blossom/core": ["./node_modules/@blossom/core"],
-      "@blossom/ui": ["./node_modules/@blossom/ui"],
-      "@blossom/shell": ["./node_modules/@blossom/shell"]
-    }
-  }
-}
+export const routes: Routes = blossomAppRoutes([
+  // Your custom routes -- these are added inside the layout alongside the standard pages
+  {
+    path: 'my-feature',
+    loadChildren: () => import('./features/my-feature/routes').then(m => m.MY_FEATURE_ROUTES),
+    canActivate: [privilegeGuard],
+    data: { privilege: 'my:feature:read' }
+  },
+  // Add more custom routes here...
+]);
 ```
 
-For the initial setup, copy the library sources from `blossom-ui-angular/projects/blossom/` into your workspace's `projects/` directory and reference them directly:
+That's it. `blossomAppRoutes()` provides the login page, the authenticated layout shell, all 17 standard admin/system/content pages, and error pages. Your custom routes are merged in automatically.
 
-```json
-{
-  "compilerOptions": {
-    "paths": {
-      "@blossom/core": ["./projects/blossom/core/src/public-api.ts"],
-      "@blossom/ui": ["./projects/blossom/ui/src/public-api.ts"],
-      "@blossom/shell": ["./projects/blossom/shell/src/public-api.ts"]
-    }
+### 3.1b Cherry-pick specific pages (advanced)
+
+If you only want some of the standard pages, import individual route configs instead:
+
+```typescript
+import { Routes } from '@angular/router';
+import { LayoutComponent, LoginComponent, ErrorPageComponent } from '@blossom/shell';
+import { authGuard, privilegeGuard } from '@blossom/core';
+import { USERS_ROUTES, GROUPS_ROUTES, DASHBOARD_ROUTES } from '@blossom/features';
+
+export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  {
+    path: '',
+    component: LayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      // Only the standard pages you want:
+      { path: 'administration/users', loadChildren: () => Promise.resolve(USERS_ROUTES), canActivate: [privilegeGuard], data: { privilege: 'administration:users:read' } },
+      { path: 'administration/groups', loadChildren: () => Promise.resolve(GROUPS_ROUTES), canActivate: [privilegeGuard], data: { privilege: 'administration:groups:read' } },
+      { path: 'system/dashboard', loadChildren: () => Promise.resolve(DASHBOARD_ROUTES), canActivate: [privilegeGuard], data: { privilege: 'system:dashboard:manager' } },
+      // Your custom pages:
+      { path: 'my-feature', loadChildren: () => import('./features/my-feature/routes').then(m => m.MY_FEATURE_ROUTES) },
+      // Error pages
+      { path: '403', component: ErrorPageComponent, data: { code: '403', message: 'Access Denied', icon: 'lock' } },
+      { path: '**', component: ErrorPageComponent, data: { code: '404', message: 'Page not found', icon: 'error_outline' } },
+    ]
   }
-}
+];
 ```
 
 ### 3.2 Configure `app.config.ts`
@@ -713,46 +792,31 @@ java -jar my-project-server/target/my-project-server.jar
 
 ## Reference: Angular Project Structure
 
+A downstream project with custom pages looks like this:
+
 ```
 my-project-angular/
   .npmrc                          # npm registry config (if needed)
   angular.json                    # Angular CLI workspace config
-  package.json                    # npm dependencies
-  tsconfig.json                   # TypeScript config with @blossom/* paths
+  package.json                    # @blossom/* packages as dependencies
+  tsconfig.json                   # TypeScript config
   pom.xml                         # Maven build with frontend-maven-plugin
   src/
     index.html                    # SPA entry point (base href="/blossom/ng/")
-    styles.scss                   # Global styles (Angular Material theme)
+    styles.scss                   # Global styles (imports blossom theme)
     main.ts                       # Bootstrap
     app/
       app.config.ts               # Providers: router, http, interceptors, APP_INITIALIZER
-      app.routes.ts               # All routes (standard + custom)
+      app.routes.ts               # blossomAppRoutes([...your custom routes])
       app.component.ts            # Root component (<router-outlet>)
-      features/
-        home/                     # Home page
-        profile/                  # User profile
-        search/                   # Omnisearch
-        admin-users/              # User CRUD
-        admin-groups/             # Group CRUD
-        admin-roles/              # Role CRUD + privilege tree
-        admin-memberships/        # User-group associations
-        admin-responsibilities/   # User-role associations
-        content-articles/         # Article CRUD
-        content-filemanager/      # File upload/list
-        system-dashboard/         # Health/memory/JVM metrics
-        system-caches/            # Cache management
-        system-sessions/          # Session management
-        system-loggers/           # Logger tree + level config
-        system-scheduler/         # Job scheduler
-        system-liquibase/         # DB migration history
-        system-bpmn/              # BPMN process viewer
-        my-feature/               # YOUR CUSTOM PAGES
-  projects/
-    blossom/
-      core/                       # @blossom/core - services, guards, interceptors, models
-      ui/                         # @blossom/ui - shared Material components
-      shell/                      # @blossom/shell - layout, sidebar, topbar, login
+      features/                   # YOUR CUSTOM PAGES ONLY
+        my-feature/
+          my-feature.component.ts
+          my-feature.service.ts
+          routes.ts
 ```
+
+You do NOT need `projects/blossom/*` in your workspace. All standard pages come from the prebuilt `@blossom/features` package. Your workspace only contains your custom pages.
 
 ---
 
@@ -865,6 +929,30 @@ All endpoints are under `/blossom/api/` and require authentication (session or H
 | `TopbarComponent` | Component | User menu, logout |
 | `LoginComponent` | Component | Login page |
 | `ErrorPageComponent` | Component | Configurable error page (403, 404, 500) |
+
+### From `@blossom/features`
+
+| Export | Type | Purpose |
+|--------|------|---------|
+| `blossomAppRoutes(extra?)` | Function | Returns complete app routes (login + layout + all pages + error pages). Pass an array of extra `Routes` to add custom pages inside the layout. |
+| `blossomDefaultRoutes()` | Function | Returns only the child routes (all 17 pages + error pages) for use inside a custom `LayoutComponent` children config. |
+| `HOME_ROUTES` | Routes | Home page routes |
+| `PROFILE_ROUTES` | Routes | Profile page routes |
+| `SEARCH_ROUTES` | Routes | Omnisearch routes |
+| `USERS_ROUTES` | Routes | User CRUD routes |
+| `GROUPS_ROUTES` | Routes | Group CRUD routes |
+| `ROLES_ROUTES` | Routes | Role CRUD + privilege tree routes |
+| `MEMBERSHIPS_ROUTES` | Routes | User-group association routes |
+| `RESPONSIBILITIES_ROUTES` | Routes | User-role association routes |
+| `ARTICLES_ROUTES` | Routes | Article CRUD routes |
+| `FILEMANAGER_ROUTES` | Routes | File manager routes |
+| `DASHBOARD_ROUTES` | Routes | System dashboard routes |
+| `CACHES_ROUTES` | Routes | Cache management routes |
+| `SESSIONS_ROUTES` | Routes | Session management routes |
+| `LOGGERS_ROUTES` | Routes | Logger tree routes |
+| `SCHEDULER_ROUTES` | Routes | Scheduler routes |
+| `LIQUIBASE_ROUTES` | Routes | Liquibase migration routes |
+| `BPMN_ROUTES` | Routes | BPMN process viewer routes |
 
 ---
 
