@@ -72,7 +72,7 @@ public class AuthApiController {
 
   private Map<String, Object> buildUserResponse(CurrentUser currentUser) {
     Map<String, Object> userInfo = new HashMap<>();
-    userInfo.put("id", currentUser.getUser().getId());
+    userInfo.put("id", String.valueOf(currentUser.getUser().getId()));
     userInfo.put("identifier", currentUser.getUser().getIdentifier());
     userInfo.put("firstname", currentUser.getUser().getFirstname());
     userInfo.put("lastname", currentUser.getUser().getLastname());

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Page } from '@blossom/core';
 
 export interface UserDTO {
-  id: number; identifier: string; firstname: string; lastname: string; email: string;
+  id: string; identifier: string; firstname: string; lastname: string; email: string;
   phone: string; company: string; function: string; description: string; civility: string;
   activated: boolean; locale: string; lastConnection: string;
 }
@@ -20,8 +20,8 @@ export class UsersService {
     if (q) params.q = q;
     return this.http.get<Page<UserDTO>>(this.API, { params });
   }
-  get(id: number): Observable<UserDTO> { return this.http.get<UserDTO>(`${this.API}/${id}`); }
+  get(id: string): Observable<UserDTO> { return this.http.get<UserDTO>(`${this.API}/${id}`); }
   create(form: any): Observable<UserDTO> { return this.http.post<UserDTO>(this.API, form); }
-  update(id: number, form: any): Observable<UserDTO> { return this.http.put<UserDTO>(`${this.API}/${id}`, form); }
-  delete(id: number, force = false): Observable<any> { return this.http.delete(`${this.API}/${id}`, { params: { force: force.toString() } }); }
+  update(id: string, form: any): Observable<UserDTO> { return this.http.put<UserDTO>(`${this.API}/${id}`, form); }
+  delete(id: string, force = false): Observable<any> { return this.http.delete(`${this.API}/${id}`, { params: { force: force.toString() } }); }
 }

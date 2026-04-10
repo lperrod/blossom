@@ -52,7 +52,7 @@ export class UsersListComponent implements OnInit {
 
   onSearch(q: string): void { this.query = q; this.page = 0; this.load(); }
   onPage(e: PageEvent): void { this.page = e.pageIndex; this.load(); }
-  goToDetail(id: number): void { this.router.navigate(['/administration/users', id]); }
+  goToDetail(id: string): void { this.router.navigate(['/administration/users', id]); }
 
   openCreateDialog(): void {
     this.dialog.open(UserCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); });

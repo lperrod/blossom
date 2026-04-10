@@ -65,7 +65,7 @@ export class UserDetailComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router: Router, private usersService: UsersService, private dialog: MatDialog, private notify: NotificationService) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id')!;
     this.usersService.get(id).subscribe(u => this.user = u);
   }
 

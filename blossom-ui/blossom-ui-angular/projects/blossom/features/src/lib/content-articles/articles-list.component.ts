@@ -48,6 +48,6 @@ export class ArticlesListComponent implements OnInit {
   load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.articles = p.content; this.total = p.page.totalElements; }); }
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
-  goTo(id: number): void { this.router.navigate(['/content/articles', id]); }
+  goTo(id: string): void { this.router.navigate(['/content/articles', id]); }
   openCreate(): void { this.dialog.open(ArticleCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
 }

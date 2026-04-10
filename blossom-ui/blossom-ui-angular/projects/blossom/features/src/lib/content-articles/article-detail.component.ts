@@ -43,7 +43,7 @@ import { ArticlesService, ArticleDTO } from './articles.service';
 export class ArticleDetailComponent implements OnInit {
   article: ArticleDTO | null = null; editing = false;
   constructor(private route: ActivatedRoute, private router: Router, private svc: ArticlesService, private dialog: MatDialog, private notify: NotificationService) {}
-  ngOnInit(): void { this.svc.get(Number(this.route.snapshot.paramMap.get('id'))).subscribe(a => this.article = a); }
+  ngOnInit(): void { this.svc.get(this.route.snapshot.paramMap.get('id')!).subscribe(a => this.article = a); }
   save(): void { if (!this.article) return; this.svc.update(this.article.id, this.article).subscribe({ next: a => { this.article = a; this.editing = false; this.notify.success('Article updated'); }, error: () => this.notify.error('Failed') }); }
   confirmDelete(): void { if (!this.article) return; this.dialog.open(ConfirmDialogComponent, { data: { title: 'Delete Article', message: `Delete ${this.article.name}?`, confirmText: 'Delete' } }).afterClosed().subscribe(r => { if (r) this.svc.delete(this.article!.id).subscribe({ next: () => { this.notify.success('Article deleted'); this.router.navigate(['/content/articles']); } }); }); }
 }

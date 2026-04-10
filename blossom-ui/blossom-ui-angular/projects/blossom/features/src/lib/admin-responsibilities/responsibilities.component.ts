@@ -48,5 +48,5 @@ export class ResponsibilitiesComponent implements OnInit {
   }
   loadResponsibilities(): void { if (this.selectedUserId) this.svc.getByUser(this.selectedUserId).subscribe(r => this.responsibilities = r); }
   associate(): void { if (this.selectedUserId && this.selectedRoleId) this.svc.associate(this.selectedUserId, this.selectedRoleId).subscribe({ next: () => { this.notify.success('Associated'); this.loadResponsibilities(); }, error: () => this.notify.error('Failed') }); }
-  dissociate(id: number): void { this.svc.dissociate(id).subscribe(() => { this.notify.success('Dissociated'); this.loadResponsibilities(); }); }
+  dissociate(id: string): void { this.svc.dissociate(id).subscribe(() => { this.notify.success('Dissociated'); this.loadResponsibilities(); }); }
 }

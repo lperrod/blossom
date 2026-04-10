@@ -32,7 +32,7 @@ import { GroupsService, GroupDTO } from './groups.service';
 export class GroupDetailComponent implements OnInit {
   group: GroupDTO | null = null; editing = false;
   constructor(private route: ActivatedRoute, private router: Router, private svc: GroupsService, private dialog: MatDialog, private notify: NotificationService) {}
-  ngOnInit(): void { this.svc.get(Number(this.route.snapshot.paramMap.get('id'))).subscribe(g => this.group = g); }
+  ngOnInit(): void { this.svc.get(this.route.snapshot.paramMap.get('id')!).subscribe(g => this.group = g); }
   save(): void { if (!this.group) return; this.svc.update(this.group.id, this.group).subscribe({ next: g => { this.group = g; this.editing = false; this.notify.success('Group updated'); }, error: () => this.notify.error('Failed') }); }
   confirmDelete(): void { if (!this.group) return; this.dialog.open(ConfirmDialogComponent, { data: { title: 'Delete Group', message: `Delete ${this.group.name}?`, confirmText: 'Delete' } }).afterClosed().subscribe(r => { if (r) this.svc.delete(this.group!.id).subscribe({ next: () => { this.notify.success('Group deleted'); this.router.navigate(['/administration/groups']); } }); }); }
 }

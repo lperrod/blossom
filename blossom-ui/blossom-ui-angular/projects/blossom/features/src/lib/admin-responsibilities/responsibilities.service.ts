@@ -9,5 +9,5 @@ export class ResponsibilitiesService {
   getByUser(userId: number): Observable<any[]> { return this.http.get<any[]>(this.API, { params: { userId: userId.toString() } }); }
   getByRole(roleId: number): Observable<any[]> { return this.http.get<any[]>(this.API, { params: { roleId: roleId.toString() } }); }
   associate(userId: number, roleId: number): Observable<any> { return this.http.post<any>(this.API, { userId, roleId }); }
-  dissociate(id: number): Observable<void> { return this.http.delete<void>(`${this.API}/${id}`); }
+  dissociate(id: string): Observable<void> { return this.http.delete<void>(`${this.API}/${id}`); }
 }

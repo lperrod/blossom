@@ -38,7 +38,7 @@ public class ProfileApiController {
     }
 
     Map<String, Object> profile = new HashMap<>();
-    profile.put("id", user.getId());
+    profile.put("id", String.valueOf(user.getId()));
     profile.put("identifier", user.getIdentifier());
     profile.put("firstname", user.getFirstname());
     profile.put("lastname", user.getLastname());

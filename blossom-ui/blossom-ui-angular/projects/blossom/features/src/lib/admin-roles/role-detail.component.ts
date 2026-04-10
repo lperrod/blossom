@@ -38,7 +38,7 @@ export class RoleDetailComponent implements OnInit {
   role: RoleDTO | null = null; editing = false; availablePrivileges: any[] = [];
   constructor(private route: ActivatedRoute, private router: Router, private svc: RolesService, private dialog: MatDialog, private notify: NotificationService) {}
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id')!;
     this.svc.get(id).subscribe(r => this.role = r);
     this.svc.getPrivileges().subscribe(p => this.availablePrivileges = p);
   }

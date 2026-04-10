@@ -35,6 +35,6 @@ export class RolesListComponent implements OnInit {
   load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.roles = p.content; this.total = p.page.totalElements; }); }
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
-  goTo(id: number): void { this.router.navigate(['/administration/roles', id]); }
+  goTo(id: string): void { this.router.navigate(['/administration/roles', id]); }
   openCreate(): void { this.dialog.open(RoleCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
 }

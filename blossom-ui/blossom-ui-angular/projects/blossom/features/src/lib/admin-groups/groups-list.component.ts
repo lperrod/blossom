@@ -57,6 +57,6 @@ export class GroupsListComponent implements OnInit {
   load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.groups = p.content; this.total = p.page.totalElements; }); }
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
-  goTo(id: number): void { this.router.navigate(['/administration/groups', id]); }
+  goTo(id: string): void { this.router.navigate(['/administration/groups', id]); }
   openCreate(): void { this.dialog.open(GroupCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
 }

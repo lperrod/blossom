@@ -49,5 +49,5 @@ export class MembershipsComponent implements OnInit {
   }
   loadMemberships(): void { if (this.selectedUserId) this.svc.getByUser(this.selectedUserId).subscribe(m => this.memberships = m); }
   associate(): void { if (this.selectedUserId && this.selectedGroupId) this.svc.associate(this.selectedUserId, this.selectedGroupId).subscribe({ next: () => { this.notify.success('Associated'); this.loadMemberships(); }, error: () => this.notify.error('Failed') }); }
-  dissociate(id: number): void { this.svc.dissociate(id).subscribe(() => { this.notify.success('Dissociated'); this.loadMemberships(); }); }
+  dissociate(id: string): void { this.svc.dissociate(id).subscribe(() => { this.notify.success('Dissociated'); this.loadMemberships(); }); }
 }
