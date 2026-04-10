@@ -56,15 +56,15 @@ import { MenuService, MenuItem } from '@blossom/core';
     }
     .sidebar-header {
       padding: 20px 16px;
-      background: #293846;
+      background: #1ab394;
       text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid #e7eaec;
     }
     .brand {
       color: white;
       margin: 0;
       font-size: 22px;
-      font-weight: 300;
+      font-weight: 400;
       letter-spacing: 1px;
     }
     .sidebar-nav {
@@ -75,27 +75,27 @@ import { MenuService, MenuItem } from '@blossom/core';
     .menu-group {
       background: transparent !important;
       box-shadow: none !important;
-      color: #a7b1c2;
+      color: #676a6c;
       border-radius: 0 !important;
     }
     ::ng-deep .menu-group .mat-expansion-panel-body { padding: 0 !important; }
     ::ng-deep .menu-group .mat-expansion-panel-header {
       padding: 0 16px !important;
       height: 44px !important;
-      color: #a7b1c2 !important;
+      color: #676a6c !important;
       font-size: 14px;
     }
     ::ng-deep .menu-group .mat-expansion-panel-header:hover {
-      background: rgba(255,255,255,0.05) !important;
+      background: #f3f3f4 !important;
     }
     ::ng-deep .menu-group .mat-expansion-indicator::after {
-      color: #a7b1c2 !important;
+      color: #999 !important;
     }
     ::ng-deep .menu-group .mat-expansion-panel-header .mat-content {
       align-items: center;
     }
     ::ng-deep .menu-group mat-panel-title {
-      color: #a7b1c2 !important;
+      color: #676a6c !important;
       font-weight: 400;
       align-items: center;
       display: flex;
@@ -103,17 +103,18 @@ import { MenuService, MenuItem } from '@blossom/core';
 
     /* Nav items */
     mat-nav-list a {
-      color: #a7b1c2 !important;
+      color: #676a6c !important;
       font-size: 13px !important;
     }
     mat-nav-list a:hover {
-      color: white !important;
-      background: rgba(255,255,255,0.05) !important;
+      color: #333 !important;
+      background: #f3f3f4 !important;
     }
     .active {
-      color: white !important;
-      background: #293846 !important;
+      color: #1ab394 !important;
+      background: #f0faf7 !important;
       border-left: 3px solid #1ab394 !important;
+      font-weight: 500;
     }
 
     /* Icons */
@@ -122,6 +123,10 @@ import { MenuService, MenuItem } from '@blossom/core';
       width: 18px;
       text-align: center;
       font-size: 14px;
+      color: #999;
+    }
+    .active i {
+      color: #1ab394 !important;
     }
   `]
 })

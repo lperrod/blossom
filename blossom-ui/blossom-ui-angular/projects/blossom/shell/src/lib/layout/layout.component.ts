@@ -31,9 +31,9 @@ import { TopbarComponent } from '../topbar/topbar.component';
     .blossom-layout .mat-drawer.blossom-sidebar,
     .blossom-sidebar {
       width: 260px;
-      background-color: #2f4050 !important;
-      border-right: none;
-      color: #a7b1c2;
+      background-color: #ffffff !important;
+      border-right: 1px solid #e7eaec;
+      color: #676a6c;
     }
     .blossom-content {
       display: flex;
