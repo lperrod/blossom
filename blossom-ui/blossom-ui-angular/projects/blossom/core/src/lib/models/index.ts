@@ -30,16 +30,14 @@ export interface AppConfiguration {
   locales: string[];
 }
 
-export interface Page<T> {
-  content: T[];
-  page: {
-    size: number;
-    number: number;
-    totalElements: number;
-    totalPages: number;
-  };
+export interface PageMetadata {
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }
 
-export interface SearchResult<T> {
-  page: Page<T>;
+export interface Page<T> {
+  content: T[];
+  page: PageMetadata;
 }

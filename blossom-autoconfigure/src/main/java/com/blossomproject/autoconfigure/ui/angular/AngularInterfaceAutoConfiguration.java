@@ -28,6 +28,8 @@ public class AngularInterfaceAutoConfiguration {
 
       @Override
       public void addViewControllers(ViewControllerRegistry registry) {
+        // Redirect root to Angular app
+        registry.addRedirectViewController("/", "/" + BLOSSOM_BASE_PATH + "/ng/");
         // Forward all Angular routes to index.html for SPA routing
         registry.addViewController("/" + BLOSSOM_BASE_PATH + "/ng/")
           .setViewName("forward:/" + BLOSSOM_BASE_PATH + "/ng/index.html");

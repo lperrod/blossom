@@ -29,9 +29,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * Created by Maël Gargadennnec on 03/05/2017.
@@ -106,15 +106,10 @@ public class WebContextAutoConfiguration implements WebMvcConfigurer {
           }
 
           private RequestMappingInfo computeMapping(RequestMappingInfo mapping, String prefix) {
-            PatternsRequestCondition apiPattern = new PatternsRequestCondition(prefix)
-              .combine(
-                new PatternsRequestCondition(mapping.getPatternsCondition().getPatterns().toArray(new String[]{})));
-
-            return new RequestMappingInfo(mapping.getName(), apiPattern,
-              mapping.getMethodsCondition(),
-              mapping.getParamsCondition(), mapping.getHeadersCondition(),
-              mapping.getConsumesCondition(),
-              mapping.getProducesCondition(), null, mapping.getCustomCondition());
+            RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
+            options.setPatternParser(getPatternParser() != null ? getPatternParser() : new PathPatternParser());
+            RequestMappingInfo prefixInfo = RequestMappingInfo.paths("/" + prefix).options(options).build();
+            return prefixInfo.combine(mapping);
           }
         };
       }

@@ -1,7 +1,6 @@
 package com.blossomproject.autoconfigure.ui.web;
 
 import com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration;
-import com.blossomproject.core.association_user_role.AssociationUserRoleService;
 import com.blossomproject.core.common.PluginConstants;
 import com.blossomproject.core.common.dto.AbstractDTO;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
@@ -23,13 +22,8 @@ import com.blossomproject.ui.web.OmnisearchController;
 import com.blossomproject.ui.web.ProfileController;
 import com.blossomproject.ui.web.error.BlossomErrorViewResolver;
 import com.blossomproject.ui.web.error.ErrorControllerAdvice;
-import com.blossomproject.ui.web.utils.session.BlossomSessionRegistryImpl;
-import jakarta.servlet.ServletException;
-import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -40,13 +34,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.session.SessionInformationExpiredEvent;
-import org.springframework.security.web.session.SessionInformationExpiredStrategy;
-import org.springframework.security.web.util.UrlUtils;
-import org.springframework.util.Assert;
 /**
  * Created by Mael Gargadennnec on 04/05/2017.
  */
@@ -56,8 +43,6 @@ import org.springframework.util.Assert;
 @AutoConfigureAfter(WebContextAutoConfiguration.class)
 public class WebInterfaceAutoConfiguration {
 
-  private final AssociationUserRoleService associationUserRoleService;
-
   @Qualifier(PluginConstants.PLUGIN_ASSOCIATION_SERVICE)
   @Autowired
   private PluginRegistry<AssociationServicePlugin, Class<? extends AbstractDTO>> associationServicePlugins;
@@ -65,16 +50,6 @@ public class WebInterfaceAutoConfiguration {
   @Autowired
   @Qualifier(value = PluginConstants.PLUGIN_THEME)
   private PluginRegistry<Theme, String> themePlugins;
-
-  public WebInterfaceAutoConfiguration(
-    AssociationUserRoleService associationUserRoleService) {
-    this.associationUserRoleService = associationUserRoleService;
-  }
-
-  @Bean
-  public SessionRegistry blossomSessionRegistry() {
-    return new BlossomSessionRegistryImpl(associationUserRoleService);
-  }
 
   @Bean
   public LoginController loginController() {
@@ -142,8 +117,7 @@ public class WebInterfaceAutoConfiguration {
     private final WebProperties resourceProperties;
 
     BlossomErrorViewResolverConfiguration(ApplicationContext applicationContext,
-      WebProperties resourceProperties,
-      AssociationUserRoleService associationUserRoleService) {
+      WebProperties resourceProperties) {
       this.applicationContext = applicationContext;
       this.resourceProperties = resourceProperties;
     }
@@ -154,41 +128,4 @@ public class WebInterfaceAutoConfiguration {
     }
   }
 
-  public static class BlossomInvalidSessionStrategy implements SessionInformationExpiredStrategy {
-
-    private final Logger logger = LoggerFactory.getLogger(BlossomInvalidSessionStrategy.class);
-
-    private final String destinationUrl;
-
-    private final RedirectStrategy redirectStrategy;
-
-    public BlossomInvalidSessionStrategy(String invalidSessionUrl) {
-      this(invalidSessionUrl, new DefaultRedirectStrategy());
-    }
-
-    public BlossomInvalidSessionStrategy(String invalidSessionUrl,
-      RedirectStrategy redirectStrategy) {
-      Assert.isTrue(UrlUtils.isValidRedirectUrl(invalidSessionUrl),
-        "url must start with '/' or with 'http(s)'");
-      this.destinationUrl = invalidSessionUrl;
-      this.redirectStrategy = redirectStrategy;
-    }
-
-    @Override
-    public void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-      throws IOException, ServletException {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Redirecting to '" + destinationUrl + "'");
-      }
-      String ajaxHeader = event.getRequest().getHeader("X-Requested-With");
-
-      if (ajaxHeader != null && "XMLHttpRequest".equals(ajaxHeader)) {
-        logger.info("Ajax call detected, send {} error code", 401);
-        event.getResponse().sendError(401);
-        return;
-      }
-
-      redirectStrategy.sendRedirect(event.getRequest(), event.getResponse(), destinationUrl);
-    }
-  }
 }

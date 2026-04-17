@@ -1,14 +1,16 @@
 package com.blossomproject.autoconfigure.ui.web;
 
 import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_BASE_PATH;
+import static com.blossomproject.autoconfigure.ui.WebContextAutoConfiguration.BLOSSOM_API_BASE_PATH;
 import static com.blossomproject.autoconfigure.ui.WebSecurityAutoConfiguration.BLOSSOM_REMEMBER_ME_COOKIE_NAME;
 
+import com.blossomproject.autoconfigure.ui.WebSecurityAutoConfiguration;
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.ui.BlossomAuthenticationSuccessHandlerImpl;
 import com.blossomproject.ui.security.LimitLoginAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +28,8 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-@ConditionalOnBean(WebInterfaceAutoConfiguration.class)
-@AutoConfigureAfter(WebInterfaceAutoConfiguration.class)
+@ConditionalOnWebApplication
+@AutoConfigureAfter(WebSecurityAutoConfiguration.class)
 @Configuration
 public class FormLoginWebSecurityConfigurerAdapter {
 
@@ -93,6 +95,10 @@ public class FormLoginWebSecurityConfigurerAdapter {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+    http.securityMatcher(
+      new NegatedRequestMatcher(
+        PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/**")));
+
     http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
     http.csrf(csrf -> {
@@ -130,7 +136,7 @@ public class FormLoginWebSecurityConfigurerAdapter {
       .sessionManagement(sessionManagement -> sessionManagement
         .maximumSessions(webBackOfficeProperties.getMaxSessionsPerUser()).maxSessionsPreventsLogin(true)
         .expiredSessionStrategy(
-          new WebInterfaceAutoConfiguration.BlossomInvalidSessionStrategy(ANGULAR_LOGIN_PATH))
+          new BlossomInvalidSessionStrategy(ANGULAR_LOGIN_PATH))
         .sessionRegistry(sessionRegistry));
 
     return http.build();
