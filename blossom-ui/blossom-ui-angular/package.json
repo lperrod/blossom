@@ -10,7 +10,7 @@
     "build:features": "ng build @blossom/features",
     "build:libs": "npm run build:core && npm run build:ui && npm run build:shell && npm run build:features",
     "build:app": "ng build blossom-app",
-    "build": "ng build blossom-app",
+    "build": "npm run build:libs && npm run build:app",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

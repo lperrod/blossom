@@ -101,6 +101,40 @@
               </resources>
             </configuration>
           </execution>
+          <!-- Copy compiled Angular libraries for the libs classifier JAR -->
+          <execution>
+            <id>copy-angular-libs</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs-jar/@blossom</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/dist/blossom</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Produce a second JAR with classifier=libs containing compiled Angular libraries -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>libs-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>libs</classifier>
+              <classesDirectory>${project.build.directory}/libs-jar</classesDirectory>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
