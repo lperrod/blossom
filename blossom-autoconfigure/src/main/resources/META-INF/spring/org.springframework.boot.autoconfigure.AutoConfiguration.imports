@@ -45,6 +45,7 @@ com.blossomproject.autoconfigure.ui.web.system.WebSystemSessionsAutoConfiguratio
 com.blossomproject.autoconfigure.ui.web.system.WebSystemBPMNAutoConfiguration
 com.blossomproject.autoconfigure.ui.web.module.WebFileManagerAutoConfiguration
 com.blossomproject.autoconfigure.ui.web.module.WebArticleAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.ApiMenuItemsAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.ApiInterfaceAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.administration.ApiAdministrationGroupAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.administration.ApiAdministrationMembershipAutoConfiguration

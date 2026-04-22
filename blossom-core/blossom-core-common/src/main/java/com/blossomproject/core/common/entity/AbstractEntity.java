@@ -26,7 +26,6 @@ public abstract class AbstractEntity implements Serializable {
   private Long id;
 
   @Column(name = "creation_date", updatable = false)
-  @Temporal(TemporalType.TIMESTAMP)
   @CreatedDate
   private Date creationDate;
 
@@ -35,7 +34,6 @@ public abstract class AbstractEntity implements Serializable {
   private String creationUser;
 
   @Column(name = "modification_date")
-  @Temporal(TemporalType.TIMESTAMP)
   @LastModifiedDate
   private Date modificationDate;
 

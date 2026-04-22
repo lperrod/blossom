@@ -30,15 +30,18 @@ public class AngularInterfaceAutoConfiguration {
       public void addViewControllers(ViewControllerRegistry registry) {
         // Redirect root to Angular app
         registry.addRedirectViewController("/", "/" + BLOSSOM_BASE_PATH + "/ng/");
-        // Forward all Angular routes to index.html for SPA routing
-        registry.addViewController("/" + BLOSSOM_BASE_PATH + "/ng/")
-          .setViewName("forward:/" + BLOSSOM_BASE_PATH + "/ng/index.html");
-        registry.addViewController("/" + BLOSSOM_BASE_PATH + "/ng/{path:[^\\.]*}")
-          .setViewName("forward:/" + BLOSSOM_BASE_PATH + "/ng/index.html");
-        registry.addViewController("/" + BLOSSOM_BASE_PATH + "/ng/{path:[^\\.]*}/{subpath:[^\\.]*}")
-          .setViewName("forward:/" + BLOSSOM_BASE_PATH + "/ng/index.html");
-        registry.addViewController("/" + BLOSSOM_BASE_PATH + "/ng/{path:[^\\.]*}/{subpath:[^\\.]*}/{subsubpath:[^\\.]*}")
-          .setViewName("forward:/" + BLOSSOM_BASE_PATH + "/ng/index.html");
+
+        String forward = "forward:/" + BLOSSOM_BASE_PATH + "/ng/index.html";
+        String base = "/" + BLOSSOM_BASE_PATH + "/ng";
+        String seg = "/{s%d:[^\\.]*}";
+
+        // Forward all Angular routes (up to 7 levels deep) to index.html for SPA routing
+        registry.addViewController(base + "/").setViewName(forward);
+        StringBuilder path = new StringBuilder(base);
+        for (int i = 1; i <= 7; i++) {
+          path.append(String.format(seg, i));
+          registry.addViewController(path.toString()).setViewName(forward);
+        }
       }
     };
   }

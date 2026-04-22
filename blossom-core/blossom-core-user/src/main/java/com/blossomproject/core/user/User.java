@@ -24,7 +24,6 @@ public class User extends AbstractEntity {
   private boolean activated;
 
   @Column(name = "last_connection", nullable = true)
-  @Temporal(TemporalType.TIMESTAMP)
   private Date lastConnection;
 
   @Column(name = "civility")

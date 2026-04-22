@@ -29,6 +29,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
+import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPatternParser;
@@ -117,10 +120,41 @@ public class FilteredWebContextAutoConfiguration implements WebMvcConfigurer {
           }
 
           private RequestMappingInfo computeMapping(RequestMappingInfo mapping, String prefix) {
+            String[] currentPaths;
+            PathPatternsRequestCondition pathPatterns = mapping.getPathPatternsCondition();
+            if (pathPatterns != null) {
+              currentPaths = pathPatterns.getPatterns().stream()
+                .map(p -> p.getPatternString()).toArray(String[]::new);
+            } else {
+              PatternsRequestCondition patterns = mapping.getPatternsCondition();
+              currentPaths = patterns != null
+                ? patterns.getPatterns().toArray(new String[0])
+                : new String[]{""};
+            }
+
+            String[] prefixedPaths = java.util.Arrays.stream(currentPaths)
+              .map(p -> "/" + prefix + p).toArray(String[]::new);
+
             RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
-            options.setPatternParser(getPatternParser() != null ? getPatternParser() : new PathPatternParser());
-            RequestMappingInfo prefixInfo = RequestMappingInfo.paths("/" + prefix).options(options).build();
-            return prefixInfo.combine(mapping);
+            PathPatternParser parser = getPatternParser();
+            if (parser != null) {
+              options.setPatternParser(parser);
+            }
+
+            RequestMappingInfo.Builder builder = RequestMappingInfo.paths(prefixedPaths)
+              .methods(mapping.getMethodsCondition().getMethods().toArray(new RequestMethod[0]))
+              .params(mapping.getParamsCondition().getExpressions().stream().map(Object::toString).toArray(String[]::new))
+              .headers(mapping.getHeadersCondition().getExpressions().stream().map(Object::toString).toArray(String[]::new))
+              .consumes(mapping.getConsumesCondition().getExpressions().stream().map(Object::toString).toArray(String[]::new))
+              .produces(mapping.getProducesCondition().getExpressions().stream().map(Object::toString).toArray(String[]::new))
+              .options(options);
+            if (mapping.getName() != null) {
+              builder.mappingName(mapping.getName());
+            }
+            if (mapping.getCustomCondition() != null) {
+              builder.customCondition(mapping.getCustomCondition());
+            }
+            return builder.build();
           }
         };
       }
