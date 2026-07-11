@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   selector: 'blossom-delete-button',
   standalone: true,
   imports: [MatButtonModule, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button mat-icon-button color="warn" (click)="confirmDelete()">
       <mat-icon>delete</mat-icon>
@@ -15,9 +16,9 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   `
 })
 export class DeleteButtonComponent {
-  @Output() confirmed = new EventEmitter<void>();
+  confirmed = output<void>();
 
-  constructor(private dialog: MatDialog) {}
+  private dialog = inject(MatDialog);
 
   confirmDelete(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {

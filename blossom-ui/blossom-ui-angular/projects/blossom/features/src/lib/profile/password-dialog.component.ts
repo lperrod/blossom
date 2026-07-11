@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,11 +10,14 @@ import { ProfileService } from './profile.service';
 @Component({
   selector: 'app-password-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>Change Password</h2>
     <mat-dialog-content>
-      <div *ngIf="error" class="error">{{ error }}</div>
+      @if (error()) {
+        <div class="error">{{ error() }}</div>
+      }
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>New Password</mat-label>
         <input matInput type="password" [(ngModel)]="password">
@@ -35,18 +37,16 @@ import { ProfileService } from './profile.service';
 export class PasswordDialogComponent {
   password = '';
   passwordRepeater = '';
-  error = '';
+  error = signal('');
 
-  constructor(
-    public dialogRef: MatDialogRef<PasswordDialogComponent>,
-    private profileService: ProfileService,
-    private notify: NotificationService
-  ) {}
+  readonly dialogRef = inject(MatDialogRef<PasswordDialogComponent>);
+  private profileService = inject(ProfileService);
+  private notify = inject(NotificationService);
 
   save(): void {
     this.profileService.updatePassword(this.password, this.passwordRepeater).subscribe({
       next: () => { this.notify.success('Password updated'); this.dialogRef.close(); },
-      error: (err) => { this.error = err.error?.message || 'Failed to update password'; }
+      error: (err) => { this.error.set(err.error?.message || 'Failed to update password'); }
     });
   }
 }

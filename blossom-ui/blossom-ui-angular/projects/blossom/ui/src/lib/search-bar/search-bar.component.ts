@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,9 +9,10 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   selector: 'blossom-search-bar',
   standalone: true,
   imports: [MatFormFieldModule, MatInputModule, MatIconModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-form-field appearance="outline" class="search-bar">
-      <mat-label>{{ placeholder }}</mat-label>
+      <mat-label>{{ placeholder() }}</mat-label>
       <input matInput [ngModel]="query" (ngModelChange)="onQueryChange($event)">
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
@@ -19,9 +20,9 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   styles: [`.search-bar { width: 100%; }`]
 })
 export class SearchBarComponent implements OnInit, OnDestroy {
-  @Input() placeholder = 'Search...';
-  @Input() debounce = 300;
-  @Output() search = new EventEmitter<string>();
+  placeholder = input('Search...');
+  debounce = input(300);
+  search = output<string>();
 
   query = '';
   private searchSubject = new Subject<string>();
@@ -29,7 +30,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscription = this.searchSubject.pipe(
-      debounceTime(this.debounce),
+      debounceTime(this.debounce()),
       distinctUntilChanged()
     ).subscribe(q => this.search.emit(q));
   }

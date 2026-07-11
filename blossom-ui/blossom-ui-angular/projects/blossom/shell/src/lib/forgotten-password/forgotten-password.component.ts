@@ -1,7 +1,6 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,8 +11,9 @@ import { ActivationService } from '@blossom/core';
 @Component({
   selector: 'blossom-forgotten-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="login-container">
       <mat-card class="login-card">
@@ -22,20 +22,26 @@ import { ActivationService } from '@blossom/core';
           <mat-card-subtitle>Reset your password</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div *ngIf="success" class="success-message">
-            If an account exists with this identifier, a password reset email has been sent.
-          </div>
-          <div *ngIf="error" class="error-message">{{ error }}</div>
-          <form *ngIf="!success" (ngSubmit)="submit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Username or Email</mat-label>
-              <input matInput [(ngModel)]="loginOrEmail" name="loginOrEmail" required>
-              <mat-icon matSuffix>person</mat-icon>
-            </mat-form-field>
-            <button mat-flat-button color="primary" type="submit" class="full-width" [disabled]="loading || !loginOrEmail">
-              {{ loading ? 'Sending...' : 'Send Reset Link' }}
-            </button>
-          </form>
+          @if (success()) {
+            <div class="success-message">
+              If an account exists with this identifier, a password reset email has been sent.
+            </div>
+          }
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
+          @if (!success()) {
+            <form (ngSubmit)="submit()">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Username or Email</mat-label>
+                <input matInput [(ngModel)]="loginOrEmail" name="loginOrEmail" required>
+                <mat-icon matSuffix>person</mat-icon>
+              </mat-form-field>
+              <button mat-flat-button color="primary" type="submit" class="full-width" [disabled]="loading() || !loginOrEmail">
+                {{ loading() ? 'Sending...' : 'Send Reset Link' }}
+              </button>
+            </form>
+          }
           <div class="back-link">
             <a routerLink="/login">Back to Sign In</a>
           </div>
@@ -58,25 +64,25 @@ import { ActivationService } from '@blossom/core';
   `]
 })
 export class ForgottenPasswordComponent {
-  loginOrEmail = '';
-  error = '';
-  success = false;
-  loading = false;
+  private readonly activationService = inject(ActivationService);
 
-  constructor(private activationService: ActivationService) {}
+  loginOrEmail = '';
+  readonly error = signal('');
+  readonly success = signal(false);
+  readonly loading = signal(false);
 
   submit(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     this.activationService.requestPasswordReset(this.loginOrEmail).subscribe({
       next: () => {
-        this.success = true;
-        this.loading = false;
+        this.success.set(true);
+        this.loading.set(false);
       },
       error: () => {
         // Always show success to avoid leaking user existence
-        this.success = true;
-        this.loading = false;
+        this.success.set(true);
+        this.loading.set(false);
       }
     });
   }

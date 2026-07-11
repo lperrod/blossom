@@ -1,17 +1,17 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MenuService, MenuItem } from '@blossom/core';
-import { Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MenuService } from '@blossom/core';
 
 @Component({
   selector: 'blossom-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatExpansionModule],
+  imports: [RouterModule, MatListModule, MatIconModule, MatExpansionModule],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="sidebar-header">
       <div class="logo-area">
@@ -19,17 +19,17 @@ import { Subscription } from 'rxjs';
       </div>
     </div>
     <mat-nav-list class="sidebar-nav">
-      <ng-container *ngFor="let item of menuItems">
+      @for (item of menuItems(); track item.link) {
         <!-- Leaf items (no children) -->
-        <ng-container *ngIf="!item.items || item.items.length === 0">
+        @if (!item.items || item.items.length === 0) {
           <a mat-list-item [routerLink]="item.link" routerLinkActive="active"
              [routerLinkActiveOptions]="item.link === '/' ? {exact: true} : {exact: false}">
             <i class="{{ item.icon }}" matListItemIcon></i>
             <span matListItemTitle>{{ item.label }}</span>
           </a>
-        </ng-container>
+        }
         <!-- Parent items (with children) -->
-        <ng-container *ngIf="item.items && item.items.length > 0">
+        @if (item.items && item.items.length > 0) {
           <mat-expansion-panel class="menu-group" [expanded]="false">
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -38,15 +38,17 @@ import { Subscription } from 'rxjs';
               </mat-panel-title>
             </mat-expansion-panel-header>
             <mat-nav-list dense>
-              <a mat-list-item *ngFor="let child of item.items"
-                 [routerLink]="child.link" routerLinkActive="active">
-                <i class="{{ child.icon }}" matListItemIcon></i>
-                <span matListItemTitle>{{ child.label }}</span>
-              </a>
+              @for (child of item.items; track child.link) {
+                <a mat-list-item
+                   [routerLink]="child.link" routerLinkActive="active">
+                  <i class="{{ child.icon }}" matListItemIcon></i>
+                  <span matListItemTitle>{{ child.label }}</span>
+                </a>
+              }
             </mat-nav-list>
           </mat-expansion-panel>
-        </ng-container>
-      </ng-container>
+        }
+      }
     </mat-nav-list>
   `,
   styles: [`
@@ -132,19 +134,7 @@ import { Subscription } from 'rxjs';
     }
   `]
 })
-export class SidebarComponent implements OnInit, OnDestroy {
-  menuItems: MenuItem[] = [];
-  private menuSub: Subscription | undefined;
-
-  constructor(private menuService: MenuService) {}
-
-  ngOnInit(): void {
-    this.menuSub = this.menuService.menu$.subscribe(menu => {
-      this.menuItems = menu;
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.menuSub?.unsubscribe();
-  }
+export class SidebarComponent {
+  private readonly menuService = inject(MenuService);
+  readonly menuItems = toSignal(this.menuService.menu$, { initialValue: [] });
 }

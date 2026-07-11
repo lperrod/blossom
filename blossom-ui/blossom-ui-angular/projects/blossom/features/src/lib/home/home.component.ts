@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,24 +8,31 @@ import { ConfigurationService, MenuItem } from '@blossom/core';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatCardModule, MatIconModule, MatListModule],
+  imports: [RouterModule, MatCardModule, MatIconModule, MatListModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2>Welcome to Blossom</h2>
     <div class="home-grid">
-      <mat-card *ngFor="let item of topMenuItems" class="home-card" (click)="navigate(item)">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="card-icon">{{ getMaterialIcon(item.icon) }}</mat-icon>
-          <mat-card-title>{{ item.label }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content *ngIf="item.items && item.items.length > 0">
-          <mat-nav-list dense>
-            <a mat-list-item *ngFor="let child of item.items" [routerLink]="child.link">
-              <i class="{{ child.icon }}" matListItemIcon></i>
-              <span matListItemTitle>{{ child.label }}</span>
-            </a>
-          </mat-nav-list>
-        </mat-card-content>
-      </mat-card>
+      @for (item of topMenuItems(); track item.label) {
+        <mat-card class="home-card" (click)="navigate(item)">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="card-icon">{{ getMaterialIcon(item.icon) }}</mat-icon>
+            <mat-card-title>{{ item.label }}</mat-card-title>
+          </mat-card-header>
+          @if (item.items && item.items.length > 0) {
+            <mat-card-content>
+              <mat-nav-list dense>
+                @for (child of item.items; track child.label) {
+                  <a mat-list-item [routerLink]="child.link">
+                    <i class="{{ child.icon }}" matListItemIcon></i>
+                    <span matListItemTitle>{{ child.label }}</span>
+                  </a>
+                }
+              </mat-nav-list>
+            </mat-card-content>
+          }
+        </mat-card>
+      }
     </div>
   `,
   styles: [`
@@ -40,20 +46,20 @@ import { ConfigurationService, MenuItem } from '@blossom/core';
   `]
 })
 export class HomeComponent implements OnInit {
-  topMenuItems: MenuItem[] = [];
+  topMenuItems = signal<MenuItem[]>([]);
 
-  constructor(private configService: ConfigurationService, private router: Router) {}
+  private configService = inject(ConfigurationService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     const config = this.configService.config;
     if (config) {
-      this.topMenuItems = config.menu;
+      this.topMenuItems.set(config.menu);
     }
   }
 
   navigate(item: MenuItem): void {
     if (item.items && item.items.length > 0) {
-      // Parent item: navigate to first child
       this.router.navigate([item.items[0].link]);
     } else if (item.link) {
       this.router.navigate([item.link]);

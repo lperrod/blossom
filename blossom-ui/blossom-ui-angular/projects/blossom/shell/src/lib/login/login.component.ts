@@ -1,5 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -13,8 +12,9 @@ import { switchMap } from 'rxjs/operators';
 @Component({
   selector: 'blossom-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="login-container">
       <mat-card class="login-card">
@@ -23,7 +23,9 @@ import { switchMap } from 'rxjs/operators';
           <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div *ngIf="error" class="error-message">{{ error }}</div>
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
           <form (ngSubmit)="login()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Username</mat-label>
@@ -35,8 +37,8 @@ import { switchMap } from 'rxjs/operators';
               <input matInput [(ngModel)]="password" name="password" type="password" required>
               <mat-icon matSuffix>lock</mat-icon>
             </mat-form-field>
-            <button mat-flat-button color="primary" type="submit" class="full-width" [disabled]="loading">
-              {{ loading ? 'Signing in...' : 'Sign In' }}
+            <button mat-flat-button color="primary" type="submit" class="full-width" [disabled]="loading()">
+              {{ loading() ? 'Signing in...' : 'Sign In' }}
             </button>
           </form>
           <div class="forgot-link">
@@ -60,27 +62,25 @@ import { switchMap } from 'rxjs/operators';
   `]
 })
 export class LoginComponent {
+  private readonly authService = inject(AuthService);
+  private readonly configService = inject(ConfigurationService);
+  private readonly router = inject(Router);
+
   username = '';
   password = '';
-  error = '';
-  loading = false;
-
-  constructor(
-    private authService: AuthService,
-    private configService: ConfigurationService,
-    private router: Router
-  ) {}
+  readonly error = signal('');
+  readonly loading = signal(false);
 
   login(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     this.authService.login(this.username, this.password).pipe(
       switchMap(() => this.configService.load())
     ).subscribe({
       next: () => this.router.navigate(['/']),
       error: (err) => {
-        this.error = err.status === 401 ? 'Invalid username or password' : 'Failed to load configuration';
-        this.loading = false;
+        this.error.set(err.status === 401 ? 'Invalid username or password' : 'Failed to load configuration');
+        this.loading.set(false);
       }
     });
   }

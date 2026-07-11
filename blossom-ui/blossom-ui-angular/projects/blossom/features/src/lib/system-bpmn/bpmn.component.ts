@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { BpmnService, ProcessDefinition } from './bpmn.service';
@@ -7,10 +6,11 @@ import { BpmnService, ProcessDefinition } from './bpmn.service';
 @Component({
   selector: 'app-bpmn',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatChipsModule],
+  imports: [MatTableModule, MatChipsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2>BPMN Process Definitions</h2>
-    <table mat-table [dataSource]="definitions" class="full-width">
+    <table mat-table [dataSource]="definitions()" class="full-width">
       <ng-container matColumnDef="key">
         <th mat-header-cell *matHeaderCellDef>Key</th>
         <td mat-cell *matCellDef="let d">{{ d.key }}</td>
@@ -40,12 +40,12 @@ import { BpmnService, ProcessDefinition } from './bpmn.service';
   styles: [`.full-width { width: 100%; }`]
 })
 export class BpmnComponent implements OnInit {
-  definitions: ProcessDefinition[] = [];
+  definitions = signal<ProcessDefinition[]>([]);
   columns = ['key', 'name', 'version', 'runningInstances', 'resourceName'];
 
-  constructor(private bpmnService: BpmnService) {}
+  private bpmnService = inject(BpmnService);
 
   ngOnInit(): void {
-    this.bpmnService.get().subscribe(data => this.definitions = data.definitions);
+    this.bpmnService.get().subscribe(data => this.definitions.set(data.definitions));
   }
 }

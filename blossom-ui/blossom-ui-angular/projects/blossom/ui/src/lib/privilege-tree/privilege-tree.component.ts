@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input, output, effect } from '@angular/core';
 import { MatTreeModule, MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +22,8 @@ interface FlatNode {
 @Component({
   selector: 'blossom-privilege-tree',
   standalone: true,
-  imports: [CommonModule, MatTreeModule, MatCheckboxModule, MatIconModule, MatButtonModule],
+  imports: [MatTreeModule, MatCheckboxModule, MatIconModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -50,13 +50,9 @@ interface FlatNode {
   `
 })
 export class PrivilegeTreeComponent {
-  @Input() set privileges(value: any[]) {
-    this.buildTree(value);
-  }
-  @Input() set selected(value: string[]) {
-    this.setSelected(value);
-  }
-  @Output() selectionChange = new EventEmitter<string[]>();
+  privileges = input<any[]>([]);
+  selected = input<string[]>([]);
+  selectionChange = output<string[]>();
 
   private transformer = (node: PrivilegeNode, level: number): FlatNode => ({
     expandable: !!node.children && node.children.length > 0,
@@ -70,6 +66,21 @@ export class PrivilegeTreeComponent {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   checklistSelection = new SelectionModel<FlatNode>(true);
   hasChild = (_: number, node: FlatNode) => node.expandable;
+
+  constructor() {
+    effect(() => {
+      const privs = this.privileges();
+      if (privs) {
+        this.buildTree(privs);
+      }
+    });
+    effect(() => {
+      const sel = this.selected();
+      if (sel) {
+        this.setSelected(sel);
+      }
+    });
+  }
 
   private buildTree(privileges: any[]): void {
     if (!privileges) return;

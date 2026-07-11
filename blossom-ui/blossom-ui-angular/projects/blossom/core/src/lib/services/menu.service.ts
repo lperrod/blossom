@@ -1,22 +1,16 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, computed, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MenuItem } from '../models';
 import { ConfigurationService } from './configuration.service';
 
 @Injectable({ providedIn: 'root' })
 export class MenuService {
-  private menuSubject = new BehaviorSubject<MenuItem[]>([]);
-  menu$ = this.menuSubject.asObservable();
+  private configService = inject(ConfigurationService);
 
-  constructor(private configService: ConfigurationService) {
-    this.configService.config$.subscribe(config => {
-      if (config) {
-        this.menuSubject.next(config.menu);
-      }
-    });
-  }
+  readonly menu = computed<MenuItem[]>(() => {
+    const config = this.configService.config();
+    return config?.menu ?? [];
+  });
 
-  get menu(): MenuItem[] {
-    return this.menuSubject.value;
-  }
+  menu$ = toObservable(this.menu);
 }

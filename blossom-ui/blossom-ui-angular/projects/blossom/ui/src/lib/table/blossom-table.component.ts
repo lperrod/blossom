@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, input, output, effect } from '@angular/core';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
@@ -12,25 +11,28 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
 @Component({
   selector: 'blossom-table',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule, MatIconModule, FormsModule],
+  imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule, MatIconModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="blossom-table-container">
-      <mat-form-field *ngIf="searchable" appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input matInput [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)" placeholder="Search...">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+      @if (searchable()) {
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search</mat-label>
+          <input matInput [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)" placeholder="Search...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      }
 
       <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
         <ng-content></ng-content>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="rowClick.emit(row)" class="clickable-row"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();" (click)="rowClick.emit(row)" class="clickable-row"></tr>
       </table>
 
       <mat-paginator
-        [length]="totalElements"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="pageSizeOptions"
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions()"
         (page)="onPageChange($event)"
         showFirstLastButtons>
       </mat-paginator>
@@ -45,20 +47,17 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   `]
 })
 export class BlossomTableComponent implements OnInit, OnDestroy {
-  @Input() displayedColumns: string[] = [];
-  @Input() searchable = true;
-  @Input() pageSize = 25;
-  @Input() pageSizeOptions = [10, 25, 50, 100];
-  @Input() totalElements = 0;
+  displayedColumns = input<string[]>([]);
+  searchable = input(true);
+  pageSize = input(25);
+  pageSizeOptions = input([10, 25, 50, 100]);
+  totalElements = input(0);
+  data = input<any[]>([]);
 
-  @Input() set data(value: any[]) {
-    this.dataSource.data = value;
-  }
-
-  @Output() search = new EventEmitter<string>();
-  @Output() pageChange = new EventEmitter<PageEvent>();
-  @Output() sortChange = new EventEmitter<Sort>();
-  @Output() rowClick = new EventEmitter<any>();
+  search = output<string>();
+  pageChange = output<PageEvent>();
+  sortChange = output<Sort>();
+  rowClick = output<any>();
 
   dataSource = new MatTableDataSource<any>();
   searchQuery = '';
@@ -67,6 +66,12 @@ export class BlossomTableComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor() {
+    effect(() => {
+      this.dataSource.data = this.data();
+    });
+  }
 
   ngOnInit(): void {
     this.searchSub = this.searchSubject.pipe(

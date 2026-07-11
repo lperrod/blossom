@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +10,8 @@ import { FileManagerService, FileDTO } from './filemanager.service';
 
 @Component({
   selector: 'app-filemanager', standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatChipsModule, SearchBarComponent],
+  imports: [MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, MatChipsModule, SearchBarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="page-header">
       <h2>File Manager</h2>
@@ -19,7 +19,7 @@ import { FileManagerService, FileDTO } from './filemanager.service';
       <input #fileInput type="file" hidden (change)="onFileSelected($event)">
     </div>
     <blossom-search-bar (search)="onSearch($event)"></blossom-search-bar>
-    <table mat-table [dataSource]="files" class="full-width">
+    <table mat-table [dataSource]="files()" class="full-width">
       <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let f">{{ f.name }}</td></ng-container>
       <ng-container matColumnDef="contentType"><th mat-header-cell *matHeaderCellDef>Type</th><td mat-cell *matCellDef="let f">{{ f.contentType }}</td></ng-container>
       <ng-container matColumnDef="size"><th mat-header-cell *matHeaderCellDef>Size</th><td mat-cell *matCellDef="let f">{{ formatSize(f.size) }}</td></ng-container>
@@ -27,15 +27,16 @@ import { FileManagerService, FileDTO } from './filemanager.service';
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr mat-row *matRowDef="let row; columns: columns;"></tr>
     </table>
-    <mat-paginator [length]="total" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>
+    <mat-paginator [length]="total()" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>
   `,
   styles: [`.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:16px;}.full-width{width:100%;}`]
 })
 export class FileManagerComponent implements OnInit {
-  files: FileDTO[] = []; columns = ['name', 'contentType', 'size', 'extension']; total = 0; private q = ''; private pg = 0;
-  constructor(private svc: FileManagerService, private notify: NotificationService) {}
+  files = signal<FileDTO[]>([]); columns = ['name', 'contentType', 'size', 'extension']; total = signal(0); private q = ''; private pg = 0;
+  private svc = inject(FileManagerService);
+  private notify = inject(NotificationService);
   ngOnInit(): void { this.load(); }
-  load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.files = p.content; this.total = p.page.totalElements; }); }
+  load(): void { this.svc.list(this.q, this.pg).subscribe(p => { this.files.set(p.content); this.total.set(p.page.totalElements); }); }
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
   onFileSelected(event: any): void {

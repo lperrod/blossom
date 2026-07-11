@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,12 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'blossom-error-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule],
+  imports: [RouterModule, MatButtonModule, MatIconModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="error-page">
-      <mat-icon class="error-icon">{{ icon }}</mat-icon>
-      <h1>{{ code }}</h1>
-      <p>{{ message }}</p>
+      <mat-icon class="error-icon">{{ icon() }}</mat-icon>
+      <h1>{{ code() }}</h1>
+      <p>{{ message() }}</p>
       <a mat-flat-button color="primary" routerLink="/">Go Home</a>
     </div>
   `,
@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
   `]
 })
 export class ErrorPageComponent {
-  @Input() code = '404';
-  @Input() message = 'Page not found';
-  @Input() icon = 'error_outline';
+  readonly code = input('404');
+  readonly message = input('Page not found');
+  readonly icon = input('error_outline');
 }

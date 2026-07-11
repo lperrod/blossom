@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatTreeModule, MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +16,8 @@ interface FlatLoggerNode { expandable: boolean; id: string; text: string; data?:
 @Component({
   selector: 'app-loggers',
   standalone: true,
-  imports: [CommonModule, MatTreeModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, FormsModule, SearchBarComponent],
+  imports: [MatTreeModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, FormsModule, SearchBarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2>Loggers</h2>
     <blossom-search-bar placeholder="Filter loggers..." (search)="onSearch($event)"></blossom-search-bar>
@@ -28,7 +28,9 @@ interface FlatLoggerNode { expandable: boolean; id: string; text: string; data?:
         <mat-form-field appearance="outline" class="level-select">
           <mat-select [value]="node.data || ''" (selectionChange)="setLevel(node.id, $event.value)">
             <mat-option value="">INHERITED</mat-option>
-            <mat-option *ngFor="let level of levels" [value]="level">{{ level }}</mat-option>
+            @for (level of levels; track level) {
+              <mat-option [value]="level">{{ level }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </mat-tree-node>
@@ -40,7 +42,9 @@ interface FlatLoggerNode { expandable: boolean; id: string; text: string; data?:
         <mat-form-field appearance="outline" class="level-select">
           <mat-select [value]="node.data || ''" (selectionChange)="setLevel(node.id, $event.value)">
             <mat-option value="">INHERITED</mat-option>
-            <mat-option *ngFor="let level of levels" [value]="level">{{ level }}</mat-option>
+            @for (level of levels; track level) {
+              <mat-option [value]="level">{{ level }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </mat-tree-node>
@@ -65,7 +69,8 @@ export class LoggersComponent implements OnInit {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   hasChild = (_: number, node: FlatLoggerNode) => node.expandable;
 
-  constructor(private loggersService: LoggersService, private notify: NotificationService) {}
+  private loggersService = inject(LoggersService);
+  private notify = inject(NotificationService);
 
   ngOnInit(): void { this.load(); }
 

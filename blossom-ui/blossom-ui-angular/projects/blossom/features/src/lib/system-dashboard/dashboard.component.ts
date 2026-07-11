@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -10,47 +10,54 @@ import { interval, Subscription } from 'rxjs';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatProgressBarModule, MatChipsModule],
+  imports: [DecimalPipe, MatCardModule, MatIconModule, MatProgressBarModule, MatChipsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2>System Dashboard</h2>
     <div class="dashboard-grid">
       <mat-card>
         <mat-card-header><mat-card-title>Health Status</mat-card-title></mat-card-header>
         <mat-card-content>
-          <div class="status-info" *ngIf="status">
-            <mat-chip [color]="status.health?.status === 'UP' ? 'primary' : 'warn'" selected>
-              {{ status.health?.status || 'UNKNOWN' }}
-            </mat-chip>
-            <p>Uptime: {{ formatUptime(status.uptime) }}</p>
-          </div>
+          @if (status()) {
+            <div class="status-info">
+              <mat-chip [color]="status().health?.status === 'UP' ? 'primary' : 'warn'" selected>
+                {{ status().health?.status || 'UNKNOWN' }}
+              </mat-chip>
+              <p>Uptime: {{ formatUptime(status().uptime) }}</p>
+            </div>
+          }
         </mat-card-content>
       </mat-card>
 
       <mat-card>
         <mat-card-header><mat-card-title>Memory</mat-card-title></mat-card-header>
-        <mat-card-content *ngIf="memory">
-          <div class="metric">
-            <span>Heap Used</span>
-            <mat-progress-bar mode="determinate" [value]="heapPercent"></mat-progress-bar>
-            <span>{{ formatBytes(memory.heap_used) }} / {{ formatBytes(memory.heap_max) }}</span>
-          </div>
-          <div class="metric">
-            <span>Total Used</span>
-            <span>{{ formatBytes(memory.total_used) }} / {{ formatBytes(memory.total_max) }}</span>
-          </div>
-        </mat-card-content>
+        @if (memory()) {
+          <mat-card-content>
+            <div class="metric">
+              <span>Heap Used</span>
+              <mat-progress-bar mode="determinate" [value]="heapPercent()"></mat-progress-bar>
+              <span>{{ formatBytes(memory().heap_used) }} / {{ formatBytes(memory().heap_max) }}</span>
+            </div>
+            <div class="metric">
+              <span>Total Used</span>
+              <span>{{ formatBytes(memory().total_used) }} / {{ formatBytes(memory().total_max) }}</span>
+            </div>
+          </mat-card-content>
+        }
       </mat-card>
 
       <mat-card>
         <mat-card-header><mat-card-title>JVM</mat-card-title></mat-card-header>
-        <mat-card-content *ngIf="jvm">
-          <div class="metric-row">
-            <div class="metric-item"><strong>{{ jvm.classes_loaded | number }}</strong><span>Classes Loaded</span></div>
-            <div class="metric-item"><strong>{{ jvm.threads_live | number }}</strong><span>Live Threads</span></div>
-            <div class="metric-item"><strong>{{ jvm.threads_daemon | number }}</strong><span>Daemon Threads</span></div>
-            <div class="metric-item"><strong>{{ jvm.processors }}</strong><span>Processors</span></div>
-          </div>
-        </mat-card-content>
+        @if (jvm()) {
+          <mat-card-content>
+            <div class="metric-row">
+              <div class="metric-item"><strong>{{ jvm().classes_loaded | number }}</strong><span>Classes Loaded</span></div>
+              <div class="metric-item"><strong>{{ jvm().threads_live | number }}</strong><span>Live Threads</span></div>
+              <div class="metric-item"><strong>{{ jvm().threads_daemon | number }}</strong><span>Daemon Threads</span></div>
+              <div class="metric-item"><strong>{{ jvm().processors }}</strong><span>Processors</span></div>
+            </div>
+          </mat-card-content>
+        }
       </mat-card>
     </div>
   `,
@@ -67,13 +74,13 @@ import { interval, Subscription } from 'rxjs';
   `]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  status: any;
-  memory: any;
-  jvm: any;
-  heapPercent = 0;
+  status = signal<any>(null);
+  memory = signal<any>(null);
+  jvm = signal<any>(null);
+  heapPercent = signal(0);
   private pollSub?: Subscription;
 
-  constructor(private dashboardService: DashboardService) {}
+  private dashboardService = inject(DashboardService);
 
   ngOnInit(): void {
     this.loadAll();
@@ -83,12 +90,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { this.pollSub?.unsubscribe(); }
 
   loadAll(): void {
-    this.dashboardService.getStatus().subscribe(d => this.status = d);
+    this.dashboardService.getStatus().subscribe(d => this.status.set(d));
     this.dashboardService.getMemory().subscribe(d => {
-      this.memory = d;
-      this.heapPercent = d.heap_max > 0 ? (d.heap_used / d.heap_max) * 100 : 0;
+      this.memory.set(d);
+      this.heapPercent.set(d.heap_max > 0 ? (d.heap_used / d.heap_max) * 100 : 0);
     });
-    this.dashboardService.getJvm().subscribe(d => this.jvm = d);
+    this.dashboardService.getJvm().subscribe(d => this.jvm.set(d));
   }
 
   formatUptime(ms: number): string {

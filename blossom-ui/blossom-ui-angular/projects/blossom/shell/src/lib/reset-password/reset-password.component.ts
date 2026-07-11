@@ -1,7 +1,6 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,8 +11,9 @@ import { ActivationService } from '@blossom/core';
 @Component({
   selector: 'blossom-reset-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [FormsModule, RouterModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="login-container">
       <mat-card class="login-card">
@@ -22,37 +22,49 @@ import { ActivationService } from '@blossom/core';
           <mat-card-subtitle>Set your new password</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div *ngIf="tokenInvalid" class="error-message">
-            This password reset link is invalid or has expired.
-            <div class="back-link"><a routerLink="/forgotten-password">Request a new one</a></div>
-          </div>
-          <div *ngIf="success" class="success-message">
-            Your password has been changed successfully.
-            <div class="back-link"><a routerLink="/login">Sign In</a></div>
-          </div>
-          <div *ngIf="error" class="error-message">{{ error }}</div>
-          <form *ngIf="!tokenInvalid && !success && tokenValidated" (ngSubmit)="submit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>New Password</mat-label>
-              <input matInput [(ngModel)]="password" name="password" type="password" required minlength="8">
-              <mat-icon matSuffix>lock</mat-icon>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Confirm Password</mat-label>
-              <input matInput [(ngModel)]="passwordRepeater" name="passwordRepeater" type="password" required>
-              <mat-icon matSuffix>lock</mat-icon>
-            </mat-form-field>
-            <div *ngIf="password && passwordRepeater && password !== passwordRepeater" class="validation-error">
-              Passwords do not match
+          @if (tokenInvalid()) {
+            <div class="error-message">
+              This password reset link is invalid or has expired.
+              <div class="back-link"><a routerLink="/forgotten-password">Request a new one</a></div>
             </div>
-            <div *ngIf="password && password.length < 8" class="validation-error">
-              Password must be at least 8 characters
+          }
+          @if (success()) {
+            <div class="success-message">
+              Your password has been changed successfully.
+              <div class="back-link"><a routerLink="/login">Sign In</a></div>
             </div>
-            <button mat-flat-button color="primary" type="submit" class="full-width"
-              [disabled]="loading || !password || !passwordRepeater || password !== passwordRepeater || password.length < 8">
-              {{ loading ? 'Changing...' : 'Change Password' }}
-            </button>
-          </form>
+          }
+          @if (error()) {
+            <div class="error-message">{{ error() }}</div>
+          }
+          @if (!tokenInvalid() && !success() && tokenValidated()) {
+            <form (ngSubmit)="submit()">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>New Password</mat-label>
+                <input matInput [(ngModel)]="password" name="password" type="password" required minlength="8">
+                <mat-icon matSuffix>lock</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Confirm Password</mat-label>
+                <input matInput [(ngModel)]="passwordRepeater" name="passwordRepeater" type="password" required>
+                <mat-icon matSuffix>lock</mat-icon>
+              </mat-form-field>
+              @if (password && passwordRepeater && password !== passwordRepeater) {
+                <div class="validation-error">
+                  Passwords do not match
+                </div>
+              }
+              @if (password && password.length < 8) {
+                <div class="validation-error">
+                  Password must be at least 8 characters
+                </div>
+              }
+              <button mat-flat-button color="primary" type="submit" class="full-width"
+                [disabled]="loading() || !password || !passwordRepeater || password !== passwordRepeater || password.length < 8">
+                {{ loading() ? 'Changing...' : 'Change Password' }}
+              </button>
+            </form>
+          }
         </mat-card-content>
       </mat-card>
     </div>
@@ -72,50 +84,49 @@ import { ActivationService } from '@blossom/core';
     .login-card .mat-mdc-flat-button.mat-primary { background-color: #1ab394; font-size: 14px; height: 44px; }
   `]
 })
-export class ResetPasswordComponent implements OnInit {
-  token = '';
+export class ResetPasswordComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly activationService = inject(ActivationService);
+
   password = '';
   passwordRepeater = '';
-  error = '';
-  success = false;
-  loading = false;
-  tokenInvalid = false;
-  tokenValidated = false;
+  readonly error = signal('');
+  readonly success = signal(false);
+  readonly loading = signal(false);
+  readonly tokenInvalid = signal(false);
+  readonly tokenValidated = signal(false);
 
-  constructor(
-    private route: ActivatedRoute,
-    private activationService: ActivationService
-  ) {}
+  private readonly token: string;
 
-  ngOnInit(): void {
+  constructor() {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
     if (!this.token) {
-      this.tokenInvalid = true;
+      this.tokenInvalid.set(true);
       return;
     }
     this.activationService.validateToken(this.token).subscribe({
       next: (result) => {
         if (result.valid) {
-          this.tokenValidated = true;
+          this.tokenValidated.set(true);
         } else {
-          this.tokenInvalid = true;
+          this.tokenInvalid.set(true);
         }
       },
-      error: () => this.tokenInvalid = true
+      error: () => this.tokenInvalid.set(true)
     });
   }
 
   submit(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     this.activationService.changePassword(this.token, this.password, this.passwordRepeater).subscribe({
       next: () => {
-        this.success = true;
-        this.loading = false;
+        this.success.set(true);
+        this.loading.set(false);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Failed to change password. Please try again.';
-        this.loading = false;
+        this.error.set(err.error?.message || 'Failed to change password. Please try again.');
+        this.loading.set(false);
       }
     });
   }

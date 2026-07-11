@@ -1,24 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { AppConfiguration } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ConfigurationService {
   private readonly API_URL = '/blossom/api/configuration';
-  private configSubject = new BehaviorSubject<AppConfiguration | null>(null);
-  config$ = this.configSubject.asObservable();
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private _config = signal<AppConfiguration | null>(null);
+  readonly config = this._config.asReadonly();
+  config$ = toObservable(this._config);
 
   load(): Observable<AppConfiguration> {
     return this.http.get<AppConfiguration>(this.API_URL).pipe(
-      tap(config => this.configSubject.next(config))
+      tap(config => this._config.set(config))
     );
-  }
-
-  get config(): AppConfiguration | null {
-    return this.configSubject.value;
   }
 }

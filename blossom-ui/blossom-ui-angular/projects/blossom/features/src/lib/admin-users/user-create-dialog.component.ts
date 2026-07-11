@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +11,8 @@ import { UsersService } from './users.service';
 @Component({
   selector: 'app-user-create-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule],
+  imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>Create User</h2>
     <mat-dialog-content>
@@ -35,7 +35,9 @@ import { UsersService } from './users.service';
 export class UserCreateDialogComponent {
   form: any = { identifier: '', password: '', firstname: '', lastname: '', email: '', civility: 'MAN' };
 
-  constructor(public dialogRef: MatDialogRef<UserCreateDialogComponent>, private usersService: UsersService, private notify: NotificationService) {}
+  readonly dialogRef = inject(MatDialogRef<UserCreateDialogComponent>);
+  private usersService = inject(UsersService);
+  private notify = inject(NotificationService);
 
   create(): void {
     this.usersService.create(this.form).subscribe({

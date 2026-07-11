@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 export interface Breadcrumb {
@@ -10,15 +9,19 @@ export interface Breadcrumb {
 @Component({
   selector: 'blossom-breadcrumb',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="breadcrumb">
-      <a *ngFor="let item of items; let last = last"
-         [routerLink]="item.link"
-         [class.active]="last">
-        {{ item.label }}
-        <span *ngIf="!last" class="separator">/</span>
-      </a>
+      @for (item of items(); track item.label; let last = $last) {
+        <a [routerLink]="item.link"
+           [class.active]="last">
+          {{ item.label }}
+          @if (!last) {
+            <span class="separator">/</span>
+          }
+        </a>
+      }
     </nav>
   `,
   styles: [`
@@ -29,5 +32,5 @@ export interface Breadcrumb {
   `]
 })
 export class BreadcrumbComponent {
-  @Input() items: Breadcrumb[] = [];
+  items = input<Breadcrumb[]>([]);
 }

@@ -1,28 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService, ConfigurationService, UserInfo } from '@blossom/core';
+import { AuthService, ConfigurationService } from '@blossom/core';
 
 @Component({
   selector: 'blossom-topbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [RouterModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-toolbar class="blossom-topbar">
       <span class="spacer"></span>
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="user" class="user-btn" aria-label="User menu">
-        <mat-icon>account_circle</mat-icon>
-        <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
-      </button>
+      @if (user()) {
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn" aria-label="User menu">
+          <mat-icon>account_circle</mat-icon>
+          <span class="user-name">{{ user()!.firstname }} {{ user()!.lastname }}</span>
+        </button>
+      }
       <mat-menu #userMenu="matMenu">
-        <div class="user-info" *ngIf="user">
-          <strong>{{ user.firstname }} {{ user.lastname }}</strong>
-          <small>{{ user.email || user.identifier }}</small>
-        </div>
+        @if (user()) {
+          <div class="user-info">
+            <strong>{{ user()!.firstname }} {{ user()!.lastname }}</strong>
+            <small>{{ user()!.email || user()!.identifier }}</small>
+          </div>
+        }
         <button mat-menu-item routerLink="/profile">
           <mat-icon>person</mat-icon>
           <span>Profile</span>
@@ -64,21 +68,12 @@ import { AuthService, ConfigurationService, UserInfo } from '@blossom/core';
     .user-info small { font-size: 12px; color: #999; margin-top: 2px; }
   `]
 })
-export class TopbarComponent implements OnInit {
-  user: UserInfo | null = null;
+export class TopbarComponent {
+  private readonly authService = inject(AuthService);
+  private readonly configService = inject(ConfigurationService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private authService: AuthService,
-    private configService: ConfigurationService,
-    private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    const config = this.configService.config;
-    if (config) {
-      this.user = config.user;
-    }
-  }
+  readonly user = computed(() => this.configService.config()?.user ?? null);
 
   logout(): void {
     this.authService.logout().subscribe(() => {

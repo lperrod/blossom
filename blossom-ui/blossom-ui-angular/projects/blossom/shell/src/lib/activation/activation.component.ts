@@ -1,5 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, signal, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,8 +9,9 @@ import { ActivationService } from '@blossom/core';
 @Component({
   selector: 'blossom-activation',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [RouterModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="login-container">
       <mat-card class="login-card">
@@ -20,17 +20,23 @@ import { ActivationService } from '@blossom/core';
           <mat-card-subtitle>Account Activation</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div *ngIf="loading" class="center">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Activating your account...</p>
-          </div>
-          <div *ngIf="error" class="error-message">
-            {{ error }}
-            <div class="back-link"><a routerLink="/login">Back to Sign In</a></div>
-          </div>
-          <div *ngIf="success" class="success-message">
-            Your account has been activated. Please set your password.
-          </div>
+          @if (loading()) {
+            <div class="center">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Activating your account...</p>
+            </div>
+          }
+          @if (error()) {
+            <div class="error-message">
+              {{ error() }}
+              <div class="back-link"><a routerLink="/login">Back to Sign In</a></div>
+            </div>
+          }
+          @if (success()) {
+            <div class="success-message">
+              Your account has been activated. Please set your password.
+            </div>
+          }
         </mat-card-content>
       </mat-card>
     </div>
@@ -49,37 +55,35 @@ import { ActivationService } from '@blossom/core';
     .login-card .mat-mdc-card-subtitle { font-size: 14px; color: #999; }
   `]
 })
-export class ActivationComponent implements OnInit, OnDestroy {
-  loading = true;
-  error = '';
-  success = false;
-  private redirectTimer: any;
+export class ActivationComponent implements OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly activationService = inject(ActivationService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private activationService: ActivationService
-  ) {}
+  readonly loading = signal(true);
+  readonly error = signal('');
+  readonly success = signal(false);
+  private redirectTimer: ReturnType<typeof setTimeout> | undefined;
 
-  ngOnInit(): void {
+  constructor() {
     const token = this.route.snapshot.queryParamMap.get('token') || '';
     if (!token) {
-      this.loading = false;
-      this.error = 'Invalid activation link.';
+      this.loading.set(false);
+      this.error.set('Invalid activation link.');
       return;
     }
     this.activationService.activate(token).subscribe({
       next: (result) => {
-        this.loading = false;
-        this.success = true;
+        this.loading.set(false);
+        this.success.set(true);
         // Redirect to password reset with the token
         this.redirectTimer = setTimeout(() => {
           this.router.navigate(['/change-password'], { queryParams: { token: result.resetToken } });
         }, 2000);
       },
       error: () => {
-        this.loading = false;
-        this.error = 'Activation failed. The link may be invalid or expired.';
+        this.loading.set(false);
+        this.error.set('Activation failed. The link may be invalid or expired.');
       }
     });
   }

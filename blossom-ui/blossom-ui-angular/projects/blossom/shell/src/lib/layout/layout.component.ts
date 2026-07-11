@@ -1,5 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -9,8 +8,9 @@ import { TopbarComponent } from '../topbar/topbar.component';
 @Component({
   selector: 'blossom-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatSidenavModule, MatToolbarModule, SidebarComponent, TopbarComponent],
+  imports: [RouterModule, MatSidenavModule, MatToolbarModule, SidebarComponent, TopbarComponent],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-sidenav-container class="blossom-layout">
       <mat-sidenav mode="side" opened class="blossom-sidebar">

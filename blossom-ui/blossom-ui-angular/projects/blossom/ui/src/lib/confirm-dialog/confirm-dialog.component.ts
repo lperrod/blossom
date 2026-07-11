@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -13,6 +13,7 @@ export interface ConfirmDialogData {
   selector: 'blossom-confirm-dialog',
   standalone: true,
   imports: [MatDialogModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>{{ data.message }}</mat-dialog-content>
@@ -23,8 +24,6 @@ export interface ConfirmDialogData {
   `
 })
 export class ConfirmDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
-  ) {}
+  readonly dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
+  readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 }
