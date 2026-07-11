@@ -48,8 +48,7 @@ public class LiquibaseApiController {
   }
 
   private List<Map<String, Object>> getChangeSets(SpringLiquibase liquibase) throws Exception {
-    Connection connection = liquibase.getDataSource().getConnection();
-    try {
+    try (Connection connection = liquibase.getDataSource().getConnection()) {
       DatabaseFactory factory = DatabaseFactory.getInstance();
       Database database = factory.findCorrectDatabaseImplementation(new JdbcConnection(connection));
       try {
@@ -59,9 +58,6 @@ public class LiquibaseApiController {
       } finally {
         database.close();
       }
-    } catch (Exception e) {
-      connection.close();
-      throw e;
     }
   }
 

@@ -24,7 +24,7 @@ import { UsersService, UserDTO } from './users.service';
       <div>
         <button mat-flat-button color="primary" (click)="save()" *ngIf="editing"><mat-icon>save</mat-icon> Save</button>
         <button mat-button (click)="editing = !editing">{{ editing ? 'Cancel' : 'Edit' }}</button>
-        <button mat-icon-button color="warn" (click)="confirmDelete()"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button color="warn" (click)="confirmDelete()" aria-label="Delete"><mat-icon>delete</mat-icon></button>
       </div>
     </div>
     <mat-tab-group *ngIf="user">

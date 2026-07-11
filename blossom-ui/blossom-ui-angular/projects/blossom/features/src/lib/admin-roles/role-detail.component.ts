@@ -20,7 +20,7 @@ import { RolesService, RoleDTO } from './roles.service';
     <div class="page-header" *ngIf="role"><h2>{{ role.name }}</h2>
       <div><button mat-flat-button color="primary" (click)="save()" *ngIf="editing"><mat-icon>save</mat-icon> Save</button>
       <button mat-button (click)="editing=!editing">{{ editing ? 'Cancel' : 'Edit' }}</button>
-      <button mat-icon-button color="warn" (click)="confirmDelete()"><mat-icon>delete</mat-icon></button></div>
+      <button mat-icon-button color="warn" (click)="confirmDelete()" aria-label="Delete"><mat-icon>delete</mat-icon></button></div>
     </div>
     <mat-tab-group *ngIf="role">
       <mat-tab label="Information"><div class="tab-content"><mat-card><mat-card-content>

@@ -57,6 +57,9 @@ public class ProfileApiController {
   @PutMapping("/password")
   public ResponseEntity<Map<String, String>> updatePassword(
     @Valid @RequestBody PasswordUpdateRequest request) {
+    if (!request.getPassword().equals(request.getPasswordRepeater())) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
     CurrentUser currentUser = getCurrentUser();
     userService.updatePassword(currentUser.getUser().getId(), request.getPassword());
     Map<String, String> response = new HashMap<>();

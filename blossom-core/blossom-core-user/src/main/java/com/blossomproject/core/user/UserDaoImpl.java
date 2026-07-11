@@ -48,7 +48,7 @@ public class UserDaoImpl extends GenericSearchAndCrudDaoImpl<User> implements Us
   @Override
   @CachePut(key = "#a0+''")
   public User updateActivation(long id, boolean activated) {
-    User user = repository.findById(id).orElse(null);
+    User user = repository.findById(id).orElseThrow(() -> new java.util.NoSuchElementException("User not found: " + id));
     user.setActivated(activated);
     return repository.save(user);
   }
@@ -56,7 +56,7 @@ public class UserDaoImpl extends GenericSearchAndCrudDaoImpl<User> implements Us
   @Override
   @CachePut(key = "#a0+''")
   public User updatePassword(Long id, String encodedPassword) {
-    User user = repository.findById(id).orElse(null);
+    User user = repository.findById(id).orElseThrow(() -> new java.util.NoSuchElementException("User not found: " + id));
     user.setPasswordHash(encodedPassword);
     return repository.save(user);
   }

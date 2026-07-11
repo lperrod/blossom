@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,11 +42,11 @@ public class BpmnApiController {
       defMap.put("deploymentId", def.getDeploymentId());
       defMap.put("resourceName", def.getResourceName());
 
-      List<ProcessInstance> instances = processEngine.getRuntimeService()
+      long instanceCount = processEngine.getRuntimeService()
         .createProcessInstanceQuery()
         .processDefinitionId(def.getId())
-        .list();
-      defMap.put("runningInstances", instances.size());
+        .count();
+      defMap.put("runningInstances", instanceCount);
 
       return defMap;
     }).collect(Collectors.toList());

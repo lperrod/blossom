@@ -47,12 +47,15 @@ export function blossomDefaultRoutes(): Routes {
 }
 
 // Export a full app routes builder (login + layout + all features)
-import { LayoutComponent, LoginComponent } from '@blossom/shell';
+import { LayoutComponent, LoginComponent, ForgottenPasswordComponent, ResetPasswordComponent, ActivationComponent } from '@blossom/shell';
 import { authGuard } from '@blossom/core';
 
 export function blossomAppRoutes(extraChildren: Routes = []): Routes {
   return [
     { path: 'login', component: LoginComponent },
+    { path: 'forgotten-password', component: ForgottenPasswordComponent },
+    { path: 'change-password', component: ResetPasswordComponent },
+    { path: 'activate', component: ActivationComponent },
     {
       path: '',
       component: LayoutComponent,

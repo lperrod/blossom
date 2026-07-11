@@ -92,10 +92,7 @@ public class WebSecurityAutoConfiguration {
           responsabilityPrivilegesConfiguration.responsabilitiesChangePrivilegePlugin()
         )))) {
 
-      logger.warn("Enabling blossom '{}' account with password '{}'",
-        properties.getIdentifier(),
-        properties.getPassword()
-      );
+      logger.warn("Enabling blossom '{}' account with password '***'", properties.getIdentifier());
       return new SystemUserDetailsServiceImpl(privilegeRegistry, properties.getIdentifier(),
         passwordEncoder.encode(properties.getPassword()));
     }

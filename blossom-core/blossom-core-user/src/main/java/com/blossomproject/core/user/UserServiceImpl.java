@@ -131,6 +131,7 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
   }
 
   @Override
+  @Transactional
   public UserDTO update(Long userId, UserUpdateForm userUpdateForm) {
     UserDTO toUpdate = this.getOne(userId);
     toUpdate.setActivated(userUpdateForm.isActivated());
@@ -174,7 +175,7 @@ public class UserServiceImpl extends GenericSearchAndCrudServiceImpl<UserDTO, Us
   @Override
   @Transactional
   public void askPasswordChange(long userId) throws Exception {
-    UserDTO user = this.updatePassword(userId, passwordEncoder.encode(UUID.randomUUID().toString()));
+    UserDTO user = this.updatePassword(userId, UUID.randomUUID().toString());
     userMailService.sendChangePasswordEmail(user, generatePasswordResetToken(user));
   }
 

@@ -6,6 +6,7 @@ export * from './lib/services/configuration.service';
 export * from './lib/services/auth.service';
 export * from './lib/services/menu.service';
 export * from './lib/services/notification.service';
+export * from './lib/services/activation.service';
 
 // Interceptors
 export * from './lib/interceptors/csrf.interceptor';

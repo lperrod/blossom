@@ -64,4 +64,6 @@ com.blossomproject.autoconfigure.ui.api.system.ApiSystemSessionsAutoConfiguratio
 com.blossomproject.autoconfigure.ui.api.system.ApiSystemCachesAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.system.ApiSystemLiquibaseAutoConfiguration
 com.blossomproject.autoconfigure.ui.api.system.ApiSystemBpmnAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.ApiActivationAutoConfiguration
+com.blossomproject.autoconfigure.ui.api.content.ApiContentFileManagerAutoConfiguration
 com.blossomproject.autoconfigure.ui.angular.AngularInterfaceAutoConfiguration

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+// Intentionally available to all authenticated users (no specific @PreAuthorize required)
 @BlossomApiController
 @RequestMapping("/search")
 public class OmnisearchApiController {
@@ -50,7 +51,6 @@ public class OmnisearchApiController {
       return model;
     }
 
-    int index = 0;
     Map<String, SearchResult<SummaryDTO>> results = omnisearchService.doMultiSearch(plugins, query, pageable);
 
     Map<String, Object> model = Maps.newHashMap();

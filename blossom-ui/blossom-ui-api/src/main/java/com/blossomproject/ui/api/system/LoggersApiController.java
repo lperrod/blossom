@@ -63,7 +63,7 @@ public class LoggersApiController {
     if (loggerLevels != null) {
       loggerLevels.entrySet().stream()
         .filter(e -> !e.getKey().equals(ROOT_LOGGER))
-        .filter(e -> StringUtils.isEmpty(q) || e.getKey().contains(q))
+        .filter(e -> !StringUtils.hasText(q) || e.getKey().contains(q))
         .forEach(e -> {
           TreeNode<String> treeNode = rootNode;
           String[] keyParts = e.getKey().split("\\.");

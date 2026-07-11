@@ -10,7 +10,6 @@ import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
 import com.blossomproject.module.search.common.AbstractSearchResponse;
 import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.Map;
 import java.util.Optional;
@@ -59,14 +58,12 @@ public class ArticlesApiController {
   @PreAuthorize("hasAuthority('content:articles:create')")
   public ResponseEntity<ArticleDTO> create(
     @NotNull @Valid @RequestBody ArticleCreateForm articleCreateForm) throws Exception {
-    Preconditions.checkArgument(articleCreateForm != null);
     return new ResponseEntity<>(articleService.create(articleCreateForm), HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")
   @PreAuthorize("hasAuthority('content:articles:read')")
   public ResponseEntity<ArticleDTO> get(@PathVariable Long id) {
-    Preconditions.checkArgument(id != null);
     ArticleDTO article = articleService.getOne(id);
     if (article == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -78,7 +75,6 @@ public class ArticlesApiController {
   @PreAuthorize("hasAuthority('content:articles:write')")
   public ResponseEntity<ArticleDTO> update(@PathVariable Long id,
     @Valid @RequestBody ArticleUpdateForm articleUpdateForm) {
-    Preconditions.checkArgument(id != null);
     ArticleDTO article = articleService.getOne(id);
     if (article == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);

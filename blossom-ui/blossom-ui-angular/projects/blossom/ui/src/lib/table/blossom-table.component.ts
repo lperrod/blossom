@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'blossom-table',
@@ -44,7 +44,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
     table { width: 100%; }
   `]
 })
-export class BlossomTableComponent implements OnInit {
+export class BlossomTableComponent implements OnInit, OnDestroy {
   @Input() displayedColumns: string[] = [];
   @Input() searchable = true;
   @Input() pageSize = 25;
@@ -63,15 +63,20 @@ export class BlossomTableComponent implements OnInit {
   dataSource = new MatTableDataSource<any>();
   searchQuery = '';
   private searchSubject = new Subject<string>();
+  private searchSub: Subscription | undefined;
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
-    this.searchSubject.pipe(
+    this.searchSub = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(query => this.search.emit(query));
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub?.unsubscribe();
   }
 
   onSearchChange(query: string): void {

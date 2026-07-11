@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,12 +31,14 @@ import org.springframework.util.StringUtils;
 public class ApiInterfaceAutoConfiguration {
 
   @Bean
+  @ConditionalOnMissingBean
   public OmnisearchApiController omnisearchApiController(OmnisearchService omnisearchService,
     PluginRegistry<SearchEngine<?, ?, ?, ? extends AbstractDTO>, Class<? extends AbstractDTO>> registry) {
     return new OmnisearchApiController(omnisearchService, registry);
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public StatusApiController statusApiController(HealthEndpoint healthEndpoint) {
     return new StatusApiController(healthEndpoint);
   }
@@ -68,10 +71,12 @@ public class ApiInterfaceAutoConfiguration {
             .csrfTokenRequestHandler(requestHandler)
             .ignoringRequestMatchers(
               PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/login"),
-              PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/logout"));
+              PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/logout"),
+              PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/public/**"));
         })
         .authorizeHttpRequests(authorize -> authorize
           .requestMatchers(PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/auth/login")).permitAll()
+          .requestMatchers(PathPatternRequestMatcher.pathPattern("/" + BLOSSOM_API_BASE_PATH + "/public/**")).permitAll()
           .anyRequest().fullyAuthenticated())
         .httpBasic(basic -> {});
 

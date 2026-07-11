@@ -10,12 +10,13 @@ import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
 import com.blossomproject.module.search.common.AbstractSearchResponse;
 import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -62,14 +63,12 @@ public class RolesApiController {
   @PreAuthorize("hasAuthority('administration:roles:create')")
   public ResponseEntity<RoleDTO> create(@NotNull @Valid @RequestBody RoleCreateForm roleCreateForm)
     throws Exception {
-    Preconditions.checkArgument(roleCreateForm != null);
     return new ResponseEntity<>(roleService.create(roleCreateForm), HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")
   @PreAuthorize("hasAuthority('administration:roles:read')")
   public ResponseEntity<RoleDTO> get(@PathVariable Long id) {
-    Preconditions.checkArgument(id != null);
     RoleDTO role = roleService.getOne(id);
     if (role == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -82,7 +81,6 @@ public class RolesApiController {
   @PreAuthorize("hasAuthority('administration:roles:write')")
   public ResponseEntity<RoleDTO> update(@PathVariable Long id,
     @Valid @RequestBody RoleUpdateForm roleUpdateForm) {
-    Preconditions.checkArgument(id != null);
     RoleDTO role = roleService.getOne(id);
     if (role == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -106,5 +104,30 @@ public class RolesApiController {
     } else {
       return new ResponseEntity<>(result.get(), HttpStatus.CONFLICT);
     }
+  }
+
+  @GetMapping("/{id}/privileges")
+  @PreAuthorize("hasAuthority('administration:roles:read')")
+  public ResponseEntity<List<String>> getPrivileges(@PathVariable Long id) {
+    RoleDTO role = roleService.getOne(id);
+    if (role == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>(role.getPrivileges(), HttpStatus.OK);
+  }
+
+  @PutMapping("/{id}/privileges")
+  @PreAuthorize("hasAuthority('administration:roles:write')")
+  public ResponseEntity<RoleDTO> updatePrivileges(@PathVariable Long id,
+    @RequestBody List<String> privileges) {
+    RoleDTO role = roleService.getOne(id);
+    if (role == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    List<String> availablePrivileges = this.roleService.getAvailablePrivileges().stream()
+      .map(com.blossomproject.core.common.utils.privilege.Privilege::privilege)
+      .collect(Collectors.toList());
+    role.setPrivileges(privileges.stream().filter(availablePrivileges::contains).collect(Collectors.toList()));
+    return new ResponseEntity<>(roleService.update(id, role), HttpStatus.OK);
   }
 }

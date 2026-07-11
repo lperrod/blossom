@@ -10,7 +10,6 @@ import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
 import com.blossomproject.module.search.common.AbstractSearchResponse;
 import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.ui.stereotype.BlossomApiController;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.Map;
 import java.util.Optional;
@@ -63,14 +62,12 @@ public class GroupsApiController {
   @PreAuthorize("hasAuthority('administration:groups:create')")
   public ResponseEntity<GroupDTO> create(@NotNull @Valid @RequestBody GroupCreateForm groupCreateForm)
     throws Exception {
-    Preconditions.checkArgument(groupCreateForm != null);
     return new ResponseEntity<>(groupService.create(groupCreateForm), HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")
   @PreAuthorize("hasAuthority('administration:groups:read')")
   public ResponseEntity<GroupDTO> get(@PathVariable Long id) {
-    Preconditions.checkArgument(id != null);
     GroupDTO group = groupService.getOne(id);
     if (group == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -83,7 +80,6 @@ public class GroupsApiController {
   @PreAuthorize("hasAuthority('administration:groups:write')")
   public ResponseEntity<GroupDTO> update(@PathVariable Long id,
     @Valid @RequestBody GroupUpdateForm groupUpdateForm) {
-    Preconditions.checkArgument(id != null);
     GroupDTO group = groupService.getOne(id);
     if (group == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);

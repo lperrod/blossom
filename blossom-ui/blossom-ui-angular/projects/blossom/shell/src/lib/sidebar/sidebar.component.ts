@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MenuService, MenuItem } from '@blossom/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'blossom-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatExpansionModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="sidebar-header">
       <div class="logo-area">
@@ -78,23 +80,23 @@ import { MenuService, MenuItem } from '@blossom/core';
       color: #676a6c;
       border-radius: 0 !important;
     }
-    ::ng-deep .menu-group .mat-expansion-panel-body { padding: 0 !important; }
-    ::ng-deep .menu-group .mat-expansion-panel-header {
+    .menu-group .mat-expansion-panel-body { padding: 0 !important; }
+    .menu-group .mat-expansion-panel-header {
       padding: 0 16px !important;
       height: 44px !important;
       color: #676a6c !important;
       font-size: 14px;
     }
-    ::ng-deep .menu-group .mat-expansion-panel-header:hover {
+    .menu-group .mat-expansion-panel-header:hover {
       background: #f3f3f4 !important;
     }
-    ::ng-deep .menu-group .mat-expansion-indicator::after {
+    .menu-group .mat-expansion-indicator::after {
       color: #999 !important;
     }
-    ::ng-deep .menu-group .mat-expansion-panel-header .mat-content {
+    .menu-group .mat-expansion-panel-header .mat-content {
       align-items: center;
     }
-    ::ng-deep .menu-group mat-panel-title {
+    .menu-group mat-panel-title {
       color: #676a6c !important;
       font-weight: 400;
       align-items: center;
@@ -130,14 +132,19 @@ import { MenuService, MenuItem } from '@blossom/core';
     }
   `]
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [];
+  private menuSub: Subscription | undefined;
 
   constructor(private menuService: MenuService) {}
 
   ngOnInit(): void {
-    this.menuService.menu$.subscribe(menu => {
+    this.menuSub = this.menuService.menu$.subscribe(menu => {
       this.menuItems = menu;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.menuSub?.unsubscribe();
   }
 }

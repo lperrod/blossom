@@ -14,7 +14,7 @@ import { AuthService, ConfigurationService, UserInfo } from '@blossom/core';
   template: `
     <mat-toolbar class="blossom-topbar">
       <span class="spacer"></span>
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="user" class="user-btn">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="user" class="user-btn" aria-label="User menu">
         <mat-icon>account_circle</mat-icon>
         <span class="user-name">{{ user.firstname }} {{ user.lastname }}</span>
       </button>
