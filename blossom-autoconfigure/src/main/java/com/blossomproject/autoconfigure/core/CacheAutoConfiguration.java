@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +33,7 @@ public class CacheAutoConfiguration {
   @Bean("defaultCacheConfig")
   @ConditionalOnMissingBean(name = "defaultCacheConfig")
   public CacheConfig defaultCacheConfig() {
-    return CacheConfigBuilder.create(DEFAULT_CACHE_CONFIGURATION).specification("recordStats")
+    return CacheConfigBuilder.create(DEFAULT_CACHE_CONFIGURATION).specification("recordStats,maximumSize=10000,expireAfterWrite=3600s")
       .build();
   }
 
@@ -56,7 +56,7 @@ public class CacheAutoConfiguration {
     }
 
     @Configuration
-    public static class BlossomCachingConfigurerSupport extends CachingConfigurerSupport {
+    public static class BlossomCachingConfigurerSupport implements CachingConfigurer {
 
       @Autowired
       private CacheManager cacheManager;
