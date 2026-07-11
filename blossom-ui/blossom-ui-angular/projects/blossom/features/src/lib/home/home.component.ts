@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit {
   private router = inject(Router);
 
   ngOnInit(): void {
-    const config = this.configService.config;
+    const config = this.configService.config();
     if (config) {
       this.topMenuItems.set(config.menu);
     }
