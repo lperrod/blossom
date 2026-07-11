@@ -14,8 +14,8 @@
   <packaging>jar</packaging>
 
   <properties>
-    <node.version>v20.11.1</node.version>
-    <npm.version>10.2.4</npm.version>
+    <node.version>v22.16.0</node.version>
+    <npm.version>10.9.2</npm.version>
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
   </properties>
 
