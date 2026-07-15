@@ -20,7 +20,7 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   styles: [`.search-bar { width: 100%; }`]
 })
 export class SearchBarComponent implements OnInit, OnDestroy {
-  placeholder = input(navigator.language?.startsWith('fr') ? 'Rechercher...' : 'Search...');
+  placeholder = input(typeof navigator !== 'undefined' && navigator.language?.startsWith('fr') ? 'Rechercher...' : 'Search...');
   debounce = input(300);
   search = output<string>();
 

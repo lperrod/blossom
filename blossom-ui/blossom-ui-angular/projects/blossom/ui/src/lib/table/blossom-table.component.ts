@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild, input, output, effect } from '@angular/core';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { Component, OnInit, OnDestroy, AfterContentInit, ViewChild, ContentChildren, QueryList, input, output, effect } from '@angular/core';
+import { MatTableModule, MatTable, MatColumnDef, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,8 +12,6 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   selector: 'blossom-table',
   standalone: true,
   imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule, MatIconModule, FormsModule],
-  // Note: OnPush is NOT used here because MatTable needs default change detection
-  // to properly discover content-projected MatColumnDef directives via ng-content.
   template: `
     <div class="blossom-table-container">
       @if (searchable()) {
@@ -47,10 +45,10 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
     table { width: 100%; }
   `]
 })
-export class BlossomTableComponent implements OnInit, OnDestroy {
+export class BlossomTableComponent implements OnInit, OnDestroy, AfterContentInit {
   displayedColumns = input<string[]>([]);
   searchable = input(true);
-  searchLabel = input(navigator.language?.startsWith('fr') ? 'Rechercher...' : 'Search...');
+  searchLabel = input(typeof navigator !== 'undefined' && navigator.language?.startsWith('fr') ? 'Rechercher...' : 'Search...');
   pageSize = input(25);
   pageSizeOptions = input([10, 25, 50, 100]);
   totalElements = input(0);
@@ -66,13 +64,20 @@ export class BlossomTableComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSub: Subscription | undefined;
 
+  @ViewChild(MatTable, { static: true }) table!: MatTable<any>;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
 
   constructor() {
     effect(() => {
       this.dataSource.data = this.data();
     });
+  }
+
+  ngAfterContentInit(): void {
+    // Register content-projected column definitions with the table
+    this.columnDefs.forEach(colDef => this.table.addColumnDef(colDef));
   }
 
   ngOnInit(): void {
