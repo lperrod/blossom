@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, input, output, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, input, output, effect } from '@angular/core';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
@@ -12,7 +12,8 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   selector: 'blossom-table',
   standalone: true,
   imports: [MatTableModule, MatPaginatorModule, MatSortModule, MatFormFieldModule, MatInputModule, MatIconModule, FormsModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // Note: OnPush is NOT used here because MatTable needs default change detection
+  // to properly discover content-projected MatColumnDef directives via ng-content.
   template: `
     <div class="blossom-table-container">
       @if (searchable()) {
