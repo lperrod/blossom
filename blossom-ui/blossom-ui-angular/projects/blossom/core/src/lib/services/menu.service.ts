@@ -9,8 +9,28 @@ export class MenuService {
 
   readonly menu = computed<MenuItem[]>(() => {
     const config = this.configService.config();
-    return config?.menu ?? [];
+    if (!config) {
+      return [];
+    }
+    return this.filterByAuthorities(config.menu, config.authorities);
   });
 
   menu$ = toObservable(this.menu);
+
+  private filterByAuthorities(items: MenuItem[], authorities: string[]): MenuItem[] {
+    return items
+      .map(item => {
+        const filteredChildren = item.items
+          ? this.filterByAuthorities(item.items, authorities)
+          : undefined;
+        return { ...item, items: filteredChildren };
+      })
+      .filter(item => {
+        // Keep if no privilege required or user has the privilege
+        const hasPrivilege = !item.privilege || authorities.includes(item.privilege);
+        // For parent items (with children), also require at least one visible child
+        const hasVisibleChildren = !item.items || item.items.length > 0;
+        return hasPrivilege && hasVisibleChildren;
+      });
+  }
 }

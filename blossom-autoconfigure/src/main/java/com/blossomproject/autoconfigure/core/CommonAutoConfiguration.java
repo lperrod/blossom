@@ -1,6 +1,7 @@
 package com.blossomproject.autoconfigure.core;
 
 import com.blossomproject.autoconfigure.module.search.elasticsearch.ElasticsearchAutoConfiguration;
+import com.blossomproject.core.common.json.IdAsStringModule;
 import com.blossomproject.core.common.mapper.MapperPlugin;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
 import com.blossomproject.core.common.service.ReadOnlyServicePlugin;
@@ -146,6 +147,12 @@ public class CommonAutoConfiguration {
   @Bean
   public AuditingEntityListener createAuditingListener() {
     return new AuditingEntityListener();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(IdAsStringModule.class)
+  public IdAsStringModule idAsStringModule() {
+    return new IdAsStringModule();
   }
 
   @Bean

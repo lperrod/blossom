@@ -1,6 +1,7 @@
 package com.blossomproject.core.user;
 
 import com.blossomproject.core.common.dto.AbstractDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.Locale;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -42,6 +43,7 @@ public class UserDTO extends AbstractDTO {
     this.identifier = identifier;
   }
 
+  @JsonIgnore
   public String getPasswordHash() {
     return passwordHash;
   }
