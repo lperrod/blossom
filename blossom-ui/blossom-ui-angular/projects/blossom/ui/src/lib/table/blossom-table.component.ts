@@ -18,8 +18,8 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
     <div class="blossom-table-container">
       @if (searchable()) {
         <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search</mat-label>
-          <input matInput [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)" placeholder="Search...">
+          <mat-label>{{ searchLabel() }}</mat-label>
+          <input matInput [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       }
@@ -50,6 +50,7 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
 export class BlossomTableComponent implements OnInit, OnDestroy {
   displayedColumns = input<string[]>([]);
   searchable = input(true);
+  searchLabel = input(navigator.language?.startsWith('fr') ? 'Rechercher...' : 'Search...');
   pageSize = input(25);
   pageSizeOptions = input([10, 25, 50, 100]);
   totalElements = input(0);

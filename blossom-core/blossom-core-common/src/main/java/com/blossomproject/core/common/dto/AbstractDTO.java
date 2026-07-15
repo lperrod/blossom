@@ -13,7 +13,6 @@ import java.util.Date;
  * @author Maël Gargadennec
  */
 public abstract class AbstractDTO {
-  @JsonSerialize(using = ToStringSerializer.class)
   private Long id;
 
   private Date creationDate;
@@ -37,6 +36,7 @@ public abstract class AbstractDTO {
     this.modificationUser = toCopy.modificationUser;
   }
 
+  @JsonSerialize(using = ToStringSerializer.class)
   public Long getId() {
     return id;
   }

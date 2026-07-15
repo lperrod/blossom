@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService, ConfigurationService } from '@blossom/core';
+import { AuthService, ConfigurationService, BLOSSOM_APP_CONFIG } from '@blossom/core';
 import { switchMap } from 'rxjs/operators';
 
 @Component({
@@ -19,7 +19,7 @@ import { switchMap } from 'rxjs/operators';
     <div class="login-container">
       <mat-card class="login-card">
         <mat-card-header>
-          <mat-card-title>Blossom</mat-card-title>
+          <mat-card-title>{{ title }}</mat-card-title>
           <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
@@ -65,6 +65,9 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly configService = inject(ConfigurationService);
   private readonly router = inject(Router);
+
+  private readonly appConfig = inject(BLOSSOM_APP_CONFIG);
+  readonly title = this.appConfig.appName;
 
   username = '';
   password = '';

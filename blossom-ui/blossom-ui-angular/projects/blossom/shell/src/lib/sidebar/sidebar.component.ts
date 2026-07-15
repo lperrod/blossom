@@ -4,7 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MenuService } from '@blossom/core';
+import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
 
 @Component({
   selector: 'blossom-sidebar',
@@ -15,7 +15,7 @@ import { MenuService } from '@blossom/core';
   template: `
     <div class="sidebar-header">
       <div class="logo-area">
-        <h3 class="brand">Blossom</h3>
+        <h3 class="brand">{{ brandName }}</h3>
       </div>
     </div>
     <mat-nav-list class="sidebar-nav">
@@ -75,14 +75,27 @@ import { MenuService } from '@blossom/core';
       padding-top: 8px;
     }
 
+    /* Top-level nav items */
+    .sidebar-nav > a.mat-mdc-list-item {
+      color: #676a6c !important;
+      font-size: 14px !important;
+      height: 44px !important;
+      border-bottom: 1px solid #e7eaec;
+    }
+    .sidebar-nav > a.mat-mdc-list-item:hover {
+      color: #333 !important;
+      background: #f3f3f4 !important;
+    }
+
     /* Menu group (expansion panel) */
     .menu-group {
       background: transparent !important;
       box-shadow: none !important;
       color: #676a6c;
       border-radius: 0 !important;
+      border-bottom: 1px solid #e7eaec;
     }
-    .menu-group .mat-expansion-panel-body { padding: 0 !important; }
+    .menu-group .mat-expansion-panel-body { padding: 0 !important; background: #f8f8f9; }
     .menu-group .mat-expansion-panel-header {
       padding: 0 16px !important;
       height: 44px !important;
@@ -100,21 +113,26 @@ import { MenuService } from '@blossom/core';
     }
     .menu-group mat-panel-title {
       color: #676a6c !important;
-      font-weight: 400;
+      font-weight: 500;
       align-items: center;
       display: flex;
+      font-size: 14px;
     }
 
-    /* Nav items */
-    mat-nav-list a {
+    /* Child nav items (inside expansion panel) */
+    .menu-group mat-nav-list a.mat-mdc-list-item {
       color: #676a6c !important;
       font-size: 13px !important;
+      height: 38px !important;
+      padding-left: 32px !important;
     }
-    mat-nav-list a:hover {
+    .menu-group mat-nav-list a.mat-mdc-list-item:hover {
       color: #333 !important;
-      background: #f3f3f4 !important;
+      background: #eee !important;
     }
-    .active {
+
+    /* Active state */
+    a.active {
       color: #1ab394 !important;
       background: #f0faf7 !important;
       border-left: 3px solid #1ab394 !important;
@@ -129,12 +147,15 @@ import { MenuService } from '@blossom/core';
       font-size: 14px;
       color: #999;
     }
-    .active i {
+    a.active i {
       color: #1ab394 !important;
     }
   `]
 })
 export class SidebarComponent {
+  private readonly appConfig = inject(BLOSSOM_APP_CONFIG);
   private readonly menuService = inject(MenuService);
+
+  readonly brandName = this.appConfig.appName;
   readonly menuItems = toSignal(this.menuService.menu$, { initialValue: [] });
 }

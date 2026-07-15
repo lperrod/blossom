@@ -41,3 +41,14 @@ export interface Page<T> {
   content: T[];
   page: PageMetadata;
 }
+
+import { InjectionToken } from '@angular/core';
+
+export interface BlossomAppConfig {
+  appName: string;
+}
+
+export const BLOSSOM_APP_CONFIG = new InjectionToken<BlossomAppConfig>('BLOSSOM_APP_CONFIG', {
+  providedIn: 'root',
+  factory: () => ({ appName: 'Blossom' })
+});
