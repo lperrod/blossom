@@ -11,8 +11,11 @@ import com.blossomproject.module.filemanager.FileDaoImpl;
 import com.blossomproject.module.filemanager.FileRepository;
 import com.blossomproject.module.filemanager.FileService;
 import com.blossomproject.module.filemanager.FileServiceImpl;
+import com.blossomproject.module.filemanager.FileDTO;
 import com.blossomproject.module.filemanager.digest.DigestUtil;
 import com.blossomproject.module.filemanager.digest.DigestUtilImpl;
+import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
+import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -62,6 +65,24 @@ public class FileManagerAutoConfiguration {
   @ConditionalOnMissingBean(FileDTOMapper.class)
   public FileDTOMapper fileDTOMapper() {
     return new FileDTOMapper();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(name = "fileSearchEngineConfiguration")
+  public SearchEngineConfiguration<FileDTO> fileSearchEngineConfiguration() {
+    return new SearchEngineConfiguration<>() {
+      @Override public String getName() { return "menu.content.filemanager"; }
+      @Override public Class<FileDTO> getSupportedClass() { return FileDTO.class; }
+      @Override public String[] getFields() { return new String[]{"dto.name", "dto.contentType"}; }
+      @Override public String getAlias() { return "files"; }
+    };
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(name = "fileDefaultSearchEngine")
+  public DefaultSearchEngineImpl<FileDTO> fileDefaultSearchEngine(FileService fileService,
+      SearchEngineConfiguration<FileDTO> fileSearchEngineConfiguration) {
+    return new DefaultSearchEngineImpl<>(fileSearchEngineConfiguration, fileService);
   }
 
 }

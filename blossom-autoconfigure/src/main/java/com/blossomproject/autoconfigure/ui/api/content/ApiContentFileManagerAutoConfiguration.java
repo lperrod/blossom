@@ -24,7 +24,6 @@ public class ApiContentFileManagerAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean(FileManagerApiController.class)
   @ConditionalOnClass(FileManagerApiController.class)
-  @ConditionalOnBean(SearchEngine.class)
   public FileManagerApiController fileManagerApiController(FileService service,
       SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine) {
     return new FileManagerApiController(service, searchEngine);
