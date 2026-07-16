@@ -76,8 +76,9 @@ public class RolesApiControllerTest {
 
   @Test
   public void should_create_with_null_body() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    controller.create(null);
+    ResponseEntity<RoleDTO> response = controller.create(null);
+    Assert.assertNotNull(response);
+    Assert.assertTrue(response.getStatusCode() == HttpStatus.CREATED);
   }
 
   @Test
@@ -104,8 +105,9 @@ public class RolesApiControllerTest {
 
   @Test
   public void should_get_one_without_id() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    controller.get(null);
+    ResponseEntity<RoleDTO> response = controller.get(null);
+    Assert.assertNotNull(response);
+    Assert.assertTrue(response.getStatusCode() == HttpStatus.NOT_FOUND);
   }
 
   @Test

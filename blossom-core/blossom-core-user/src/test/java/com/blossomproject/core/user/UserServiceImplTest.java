@@ -182,7 +182,6 @@ public class UserServiceImplTest {
     userToUpdate.setId(123456789L);
     doReturn(userToUpdate).when(userService).updatePassword(anyLong(), anyString());
     doReturn("token !").when(tokenService).generateToken(any(ActionToken.class));
-    doReturn("new_password").when(passwordEncoder).encode(any(CharSequence.class));
 
     userService.askPasswordChange(123456789L);
     verify(userMailService, times(1)).sendChangePasswordEmail(any(UserDTO.class), anyString());
