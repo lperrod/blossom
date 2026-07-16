@@ -12,22 +12,27 @@ import com.blossomproject.ui.api.content.FileApiController;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnClass(FileManagerApiController.class)
 @ConditionalOnBean(FileService.class)
 @AutoConfigureAfter(ApiInterfaceAutoConfiguration.class)
 public class ApiContentFileManagerAutoConfiguration {
 
   @Bean
+  @ConditionalOnMissingBean(FileManagerApiController.class)
+  @ConditionalOnClass(FileManagerApiController.class)
+  @ConditionalOnBean(SearchEngine.class)
   public FileManagerApiController fileManagerApiController(FileService service,
       SearchEngine<? extends AbstractQueryBuilder, ? extends AbstractSearchRequestBuilder, ? extends AbstractSearchResponse, FileDTO> searchEngine) {
     return new FileManagerApiController(service, searchEngine);
   }
 
   @Bean
+  @ConditionalOnMissingBean(FileApiController.class)
+  @ConditionalOnClass(FileApiController.class)
   public FileApiController fileApiController(FileService fileService) {
     return new FileApiController(fileService);
   }
