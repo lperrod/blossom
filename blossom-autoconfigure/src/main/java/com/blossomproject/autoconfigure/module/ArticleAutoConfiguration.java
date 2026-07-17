@@ -12,6 +12,7 @@ import com.blossomproject.module.article.ArticleDaoImpl;
 import com.blossomproject.module.article.ArticleRepository;
 import com.blossomproject.module.article.ArticleService;
 import com.blossomproject.module.article.ArticleServiceImpl;
+import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
 import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,6 +72,13 @@ public class ArticleAutoConfiguration {
         return "articles";
       }
     };
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(DefaultSearchEngineImpl.class)
+  public DefaultSearchEngineImpl<ArticleDTO> articleDefaultSearchEngine(ArticleService articleService,
+    SearchEngineConfiguration<ArticleDTO> articleSearchEngineConfiguration) {
+    return new DefaultSearchEngineImpl<>(articleSearchEngineConfiguration, articleService);
   }
 
   @Bean

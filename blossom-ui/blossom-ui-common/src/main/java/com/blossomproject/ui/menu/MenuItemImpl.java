@@ -5,7 +5,7 @@ import com.blossomproject.ui.current_user.CurrentUser;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;
-import org.elasticsearch.common.Strings;
+import com.google.common.base.Strings;
 import org.springframework.plugin.core.PluginRegistry;
 
 /**

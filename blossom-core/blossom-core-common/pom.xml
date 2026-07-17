@@ -132,14 +132,7 @@
       <artifactId>commons-lang3</artifactId>
       <groupId>org.apache.commons</groupId>
     </dependency>
-    <dependency>
-      <artifactId>elasticsearch</artifactId>
-      <groupId>org.elasticsearch</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>transport</artifactId>
-      <groupId>org.elasticsearch.client</groupId>
-    </dependency>
+
     <dependency>
       <artifactId>jaxb-runtime</artifactId>
       <groupId>org.glassfish.jaxb</groupId>

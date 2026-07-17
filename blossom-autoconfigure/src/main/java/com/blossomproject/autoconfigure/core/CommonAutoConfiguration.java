@@ -1,6 +1,5 @@
 package com.blossomproject.autoconfigure.core;
 
-import com.blossomproject.autoconfigure.module.search.elasticsearch.ElasticsearchAutoConfiguration;
 import com.blossomproject.core.common.json.IdAsStringModule;
 import com.blossomproject.core.common.mapper.MapperPlugin;
 import com.blossomproject.core.common.service.AssociationServicePlugin;
@@ -26,7 +25,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
@@ -54,7 +52,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
-@AutoConfigureBefore(ElasticsearchAutoConfiguration.class)
 @EnablePluginRegistries({
   MapperPlugin.class, ReadOnlyServicePlugin.class, AssociationServicePlugin.class, Privilege.class})
 @EnableJpaAuditing

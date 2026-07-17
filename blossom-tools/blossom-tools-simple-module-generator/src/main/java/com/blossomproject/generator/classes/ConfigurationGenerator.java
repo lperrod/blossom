@@ -11,49 +11,33 @@ import com.blossomproject.generator.utils.GeneratorUtils;
 import com.blossomproject.module.search.common.AbstractQueryBuilder;
 import com.blossomproject.module.search.common.AbstractSearchRequestBuilder;
 import com.blossomproject.module.search.common.AbstractSearchResponse;
-import com.blossomproject.module.search.common.IndexationEngineConfiguration;
-import com.blossomproject.module.search.common.IndexationEngineConfigurationImpl;
+import com.blossomproject.module.search.common.DefaultSearchEngineImpl;
 import com.blossomproject.module.search.common.SearchEngine;
 import com.blossomproject.module.search.common.SearchEngineConfiguration;
 import com.blossomproject.module.search.common.SearchEngineConfigurationImpl;
-import com.blossomproject.module.search.common.SummaryDTO.SummaryDTOBuilder;
-import com.blossomproject.module.search.elasticsearch.ElasticsearchIndexationEngineImpl;
 import com.blossomproject.ui.menu.MenuItem;
 import com.blossomproject.ui.menu.MenuItemBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.helger.jcodemodel.AbstractJClass;
-import com.helger.jcodemodel.JBlock;
 import com.helger.jcodemodel.JClassAlreadyExistsException;
 import com.helger.jcodemodel.JCodeModel;
 import com.helger.jcodemodel.JDefinedClass;
 import com.helger.jcodemodel.JExpr;
 import com.helger.jcodemodel.JFieldVar;
 import com.helger.jcodemodel.JInvocation;
-import com.helger.jcodemodel.JLambda;
-import com.helger.jcodemodel.JLambdaParam;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JMod;
 import com.helger.jcodemodel.JVar;
-import java.util.function.Function;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.client.Client;
-import org.quartz.JobDetail;
-import org.quartz.SimpleTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.plugin.core.PluginRegistry;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 
 public class ConfigurationGenerator implements ClassGenerator {
 
@@ -75,8 +59,6 @@ public class ConfigurationGenerator implements ClassGenerator {
 
   private AbstractJClass controllerClass;
 
-  private AbstractJClass indexationJobClass;
-
   @Override
   public void prepare(Settings settings, JCodeModel codeModel) {
     this.entityClass = codeModel
@@ -94,7 +76,6 @@ public class ConfigurationGenerator implements ClassGenerator {
       .ref(GeneratorUtils.getServiceImplFullyQualifiedClassName(settings));
     this.controllerClass = codeModel
       .ref(GeneratorUtils.getControllerFullyQualifiedClassName(settings));
-    this.indexationJobClass = codeModel.ref(GeneratorUtils.getIndexationJobFullyQualifiedClassName(settings));
   }
 
   @Override
@@ -110,17 +91,9 @@ public class ConfigurationGenerator implements ClassGenerator {
 
       appendServiceBean(definedClass, associationRegistry);
 
-      appendIndexationConfiguration(settings, codeModel, definedClass);
-
-      appendIndexationEngineBean(settings, codeModel, definedClass);
-
       appendSearchEngineConfiguration(settings, codeModel, definedClass);
 
-      appendSearchEngineBean(settings, codeModel, definedClass);
-
-      appendIndexationFullJob(settings, codeModel, definedClass);
-
-      appendScheduledIndexationTrigger(settings, codeModel, definedClass);
+      appendDefaultSearchEngineBean(settings, codeModel, definedClass);
 
       appendModuleMenuItemBean(definedClass);
 
@@ -243,102 +216,21 @@ public class ConfigurationGenerator implements ClassGenerator {
     );
   }
 
-  private void appendSearchEngineBean(Settings settings, JCodeModel codeModel,
+  private void appendDefaultSearchEngineBean(Settings settings, JCodeModel codeModel,
     JDefinedClass definedClass) {
     JMethod searchEngineBean = definedClass
-      .method(JMod.PUBLIC, codeModel.ref(SearchEngine.class).narrow(codeModel.ref(AbstractQueryBuilder.class), codeModel.ref(
-            AbstractSearchRequestBuilder.class),
-          codeModel.ref(AbstractSearchResponse.class), dtoClass),
-        settings.getEntityNameLowerCamel() + "SearchEngine");
+      .method(JMod.PUBLIC, codeModel.ref(DefaultSearchEngineImpl.class).narrow(dtoClass),
+        settings.getEntityNameLowerCamel() + "DefaultSearchEngine");
     searchEngineBean.annotate(Bean.class);
-    JVar searchEngineBeanEsClient = searchEngineBean.param(Client.class, "client");
-    JVar searchEngineBeanObjectMapper = searchEngineBean
-      .param(ObjectMapper.class, "objectMapper");
+    JVar searchEngineBeanService = searchEngineBean.param(serviceClass, "service");
     JVar searchEngineBeanSearchEngineConfiguration = searchEngineBean
       .param(codeModel.ref(SearchEngineConfiguration.class).narrow(dtoClass),
         settings.getEntityNameLowerCamel() + "SearchEngineConfiguration");
 
     searchEngineBean.body()
-      ._return(JExpr._new(codeModel.ref(SearchEngine.class).narrow(codeModel.ref(AbstractQueryBuilder.class), codeModel.ref(
-            AbstractSearchRequestBuilder.class),
-          codeModel.ref(AbstractSearchResponse.class), dtoClass))
-        .arg(searchEngineBeanEsClient)
-        .arg(searchEngineBeanObjectMapper)
-        .arg(searchEngineBeanSearchEngineConfiguration));
-  }
-
-  private void appendIndexationEngineBean(Settings settings, JCodeModel codeModel,
-    JDefinedClass definedClass) {
-    JMethod indexationEngineBean = definedClass
-      .method(JMod.PUBLIC, codeModel.ref(ElasticsearchIndexationEngineImpl.class).narrow(dtoClass),
-        settings.getEntityNameLowerCamel() + "IndexationEngine");
-    indexationEngineBean.annotate(Bean.class);
-    JVar indexationEngineBeanEsClient = indexationEngineBean.param(Client.class, "client");
-    JVar indexationEngineBeanService = indexationEngineBean.param(serviceClass, "service");
-    JVar indexationEngineBeanBulkProcessor = indexationEngineBean
-      .param(BulkProcessor.class, "bulkProcessor");
-    JVar indexationEngineBeanObjectMapper = indexationEngineBean
-      .param(ObjectMapper.class, "objectMapper");
-    JVar indexationEngineBeanIndexationEngineConfiguration = indexationEngineBean
-      .param(codeModel.ref(
-          IndexationEngineConfiguration.class).narrow(dtoClass),
-        settings.getEntityNameLowerCamel() + "IndexationEngineConfiguration");
-
-    indexationEngineBean.body()
-      ._return(JExpr._new(codeModel.ref(ElasticsearchIndexationEngineImpl.class).narrow(dtoClass))
-        .arg(indexationEngineBeanEsClient)
-        .arg(indexationEngineBeanService)
-        .arg(indexationEngineBeanBulkProcessor)
-        .arg(indexationEngineBeanObjectMapper)
-        .arg(indexationEngineBeanIndexationEngineConfiguration));
-  }
-
-  private void appendIndexationFullJob(Settings settings, JCodeModel codeModel,
-    JDefinedClass definedClass) {
-    JMethod indexationFullJob = definedClass
-      .method(JMod.PUBLIC, codeModel.ref(JobDetailFactoryBean.class),
-        settings.getEntityNameLowerCamel() + "IndexationFullJob");
-    indexationFullJob.annotate(Bean.class);
-    indexationFullJob.annotate(Qualifier.class).param("value", settings.getEntityNameLowerCamel() + "IndexationFullJob");
-
-    JBlock body = indexationFullJob.body();
-    JVar factoryBean = body.decl(codeModel.ref(JobDetailFactoryBean.class), "factoryBean",
-      JExpr._new(codeModel.ref(JobDetailFactoryBean.class)));
-    body.add(factoryBean.invoke("setJobClass").arg(this.indexationJobClass.dotclass()));
-    body.add(factoryBean.invoke("setName").arg(settings.getEntityName() + " Indexation Job"));
-    body.add(factoryBean.invoke("setGroup").arg("Indexation"));
-    body.add(factoryBean.invoke("setDescription").arg(settings.getEntityName() + " full indexation Job"));
-    body.add(factoryBean.invoke("setDurability").arg(true));
-    body._return(factoryBean);
-
-  }
-
-  private void appendScheduledIndexationTrigger(Settings settings, JCodeModel codeModel,
-    JDefinedClass definedClass) {
-    JMethod scheduledIndexationTrigger = definedClass
-      .method(JMod.PUBLIC, codeModel.ref(SimpleTriggerFactoryBean.class),
-        settings.getEntityNameLowerCamel() + "ScheduledIndexationTrigger");
-    scheduledIndexationTrigger.annotate(Bean.class);
-    scheduledIndexationTrigger.annotate(Qualifier.class)
-      .param("value", settings.getEntityNameLowerCamel() + "ScheduledIndexationTrigger");
-
-    JVar articleIndexationFullJob = scheduledIndexationTrigger.param(codeModel.ref(JobDetail.class), "articleIndexationFullJob");
-    articleIndexationFullJob.annotate(Qualifier.class).param("value", settings.getEntityNameLowerCamel() + "IndexationFullJob");
-
-    JBlock body = scheduledIndexationTrigger.body();
-    JVar factoryBean = body.decl(codeModel.ref(SimpleTriggerFactoryBean.class), "factoryBean",
-      JExpr._new(codeModel.ref(SimpleTriggerFactoryBean.class)));
-    body.add(factoryBean.invoke("setJobDetail").arg(articleIndexationFullJob));
-    body.add(factoryBean.invoke("setName").arg(settings.getEntityName() + " re-indexation"));
-    body.add(factoryBean.invoke("setDescription").arg("Periodic re-indexation of all articles of the application"));
-    body.add(factoryBean.invoke("setStartDelay").arg((long) 30 * 1000));
-    body.add(factoryBean.invoke("setRepeatInterval").arg(1 * 60 * 60 * 1000));
-    body.add(factoryBean.invoke("setRepeatCount").arg(codeModel.ref(SimpleTrigger.class).staticRef("REPEAT_INDEFINITELY")));
-    body.add(factoryBean.invoke("setMisfireInstruction")
-      .arg(codeModel.ref(SimpleTrigger.class).staticRef("MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT")));
-
-    body._return(factoryBean);
-
+      ._return(JExpr._new(codeModel.ref(DefaultSearchEngineImpl.class).narrow(dtoClass))
+        .arg(searchEngineBeanSearchEngineConfiguration)
+        .arg(searchEngineBeanService));
   }
 
   private JDefinedClass generateClass(Settings settings, JCodeModel codeModel)
@@ -404,51 +296,5 @@ public class ConfigurationGenerator implements ClassGenerator {
 
     controllerBean.body()._return(JExpr._new(controllerClass).arg(controllerBeanService)
       .arg(controllerBeanSearchEngine));
-  }
-
-  private void appendIndexationConfiguration(Settings settings, JCodeModel codeModel,
-    JDefinedClass definedClass) {
-    JMethod indexationEngineConfigurationBean = definedClass
-      .method(JMod.PUBLIC, codeModel.ref(IndexationEngineConfiguration.class).narrow(dtoClass),
-        settings.getEntityNameLowerCamel() + "IndexationEngineConfiguration");
-    indexationEngineConfigurationBean.annotate(Bean.class);
-    JVar indexationEngineConfigurationBeanMappings = indexationEngineConfigurationBean
-      .param(Resource.class, "resource");
-    indexationEngineConfigurationBeanMappings.annotate(Value.class).param("value",
-      "classpath:/elasticsearch/" + settings.getEntityNameLowerUnderscore() + ".json");
-
-    JLambda typeLambda = new JLambda();
-    typeLambda.addParam("item");
-    typeLambda.body().lambdaExpr(JExpr.lit(settings.getEntityNameLowerUnderscore()));
-
-    JVar typeFunction = indexationEngineConfigurationBean.body().decl(
-      codeModel.ref(Function.class).narrow(dtoClass, codeModel.ref(String.class)),
-      "typeFunction", typeLambda);
-
-    JLambda summaryLambda = new JLambda();
-    JLambdaParam summaryLambdaParam = summaryLambda.addParam("item");
-
-    JInvocation summaryLambdaBody =
-      codeModel
-        .ref(SummaryDTOBuilder.class)
-        .staticInvoke("create")
-        .invoke("id").arg(summaryLambdaParam.invoke("getId"))
-        .invoke("type").arg(typeFunction.invoke("apply").arg(summaryLambdaParam))
-        .invoke("name").arg(summaryLambdaParam.invoke("getId").invoke("toString"))
-        .invoke("description").arg("")
-        .invoke("uri")
-        .arg(JExpr.lit("/modules/" + settings.getEntityNameLowerUnderscore() + "s/").plus(summaryLambdaParam.invoke("getId")))
-        .invoke("build");
-
-    summaryLambda.body().lambdaExpr(summaryLambdaBody);
-
-    indexationEngineConfigurationBean.body()._return(
-      JExpr._new(codeModel.ref(IndexationEngineConfigurationImpl.class).narrow(dtoClass))
-        .arg(dtoClass.dotclass())
-        .arg(indexationEngineConfigurationBeanMappings)
-        .arg(settings.getEntityNameLowerUnderscore() + "s")
-        .arg(typeLambda)
-        .arg(summaryLambda)
-    );
   }
 }

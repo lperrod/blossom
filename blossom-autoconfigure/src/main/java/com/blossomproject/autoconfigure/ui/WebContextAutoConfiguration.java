@@ -1,6 +1,5 @@
 package com.blossomproject.autoconfigure.ui;
 
-import com.blossomproject.autoconfigure.module.search.elasticsearch.FilteredWebContextAutoConfiguration;
 import com.blossomproject.core.common.utils.privilege.Privilege;
 import com.blossomproject.core.common.utils.privilege.SimplePrivilege;
 import com.blossomproject.ui.i18n.RestrictedSessionLocaleResolver;
@@ -41,7 +40,6 @@ import org.springframework.web.util.pattern.PathPatternParser;
  */
 @Configuration
 @ConditionalOnWebApplication
-@ConditionalOnMissingBean(FilteredWebContextAutoConfiguration.class)
 @AutoConfigureBefore({WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class})
 @EnableSpringDataWebSupport(pageSerializationMode = PageSerializationMode.VIA_DTO)
 public class WebContextAutoConfiguration implements WebMvcConfigurer {

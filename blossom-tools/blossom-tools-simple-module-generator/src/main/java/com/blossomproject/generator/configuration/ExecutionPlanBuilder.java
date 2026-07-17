@@ -27,9 +27,6 @@ public class ExecutionPlanBuilder {
   private ControllerGenerator controllerGenerator;
   private ApiControllerGenerator apiControllerGenerator;
   private ConfigurationGenerator configurationGenerator;
-  private IndexationJobGenerator indexationJobGenerator;
-
-  private ElasticSearchSourceGenerator elasticSearchSourceGenerator;
   private ChangelogGenerator changelogGenerator;
   private MessagePropertiesGenerator messagesPropertiesGenerator;
   private ListViewGenerator listViewGenerator;
@@ -43,11 +40,11 @@ public class ExecutionPlanBuilder {
   }
 
   public ExecutionPlanBuilder allClasses() {
-    return this.entity().repository().dao().dto().mapper().service().controller().apiController().configuration().indexationJob();
+    return this.entity().repository().dao().dto().mapper().service().controller().apiController().configuration();
   }
 
   public ExecutionPlanBuilder allResources() {
-    return this.messagesPropertiesGenerator().changelogGenerator().elasticSearchSourceGenerator().listViewGenerator().createViewGenerator().entityViewGenerator().entityInformationsViewGenerator().entityInformationsEditViewGenerator();
+    return this.messagesPropertiesGenerator().changelogGenerator().listViewGenerator().createViewGenerator().entityViewGenerator().entityInformationsViewGenerator().entityInformationsEditViewGenerator();
   }
 
   public ExecutionPlanBuilder entity() {
@@ -99,18 +96,8 @@ public class ExecutionPlanBuilder {
     return this;
   }
 
-  public ExecutionPlanBuilder indexationJob() {
-    this.indexationJobGenerator = new IndexationJobGenerator();
-    return this;
-  }
-
   public ExecutionPlanBuilder changelogGenerator() {
     this.changelogGenerator = new ChangelogGenerator();
-    return this;
-  }
-
-  public ExecutionPlanBuilder elasticSearchSourceGenerator() {
-    this.elasticSearchSourceGenerator = new ElasticSearchSourceGenerator();
     return this;
   }
 
@@ -149,11 +136,11 @@ public class ExecutionPlanBuilder {
     List<ClassGenerator> classGenerators = Lists
       .newArrayList(entityGenerator, repositoryGenerator, daoGenerator, daoImplGenerator,
         dtoGenerator, mapperGenerator, createFormGenerator, updateFormGenerator, serviceGenerator,
-        serviceImplGenerator, controllerGenerator, apiControllerGenerator, configurationGenerator, indexationJobGenerator);
+        serviceImplGenerator, controllerGenerator, apiControllerGenerator, configurationGenerator);
     Iterables.removeIf(classGenerators, Predicates.isNull());
 
     List<ResourceGenerator> resourceGenerators = Lists
-      .newArrayList(changelogGenerator, elasticSearchSourceGenerator, messagesPropertiesGenerator, listViewGenerator, createViewGenerator, entityViewGenerator, entityInformationsViewGenerator, entityInformationsEditViewGenerator);
+      .newArrayList(changelogGenerator, messagesPropertiesGenerator, listViewGenerator, createViewGenerator, entityViewGenerator, entityInformationsViewGenerator, entityInformationsEditViewGenerator);
     Iterables.removeIf(resourceGenerators, Predicates.isNull());
 
     return new DefaultExecutionPlan(classGenerators, resourceGenerators);

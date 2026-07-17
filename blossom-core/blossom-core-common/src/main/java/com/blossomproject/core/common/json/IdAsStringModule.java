@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.util.List;
 
 /**
- * Jackson module that serializes all bean properties named "id" of type Long/long as String.
- * This prevents JavaScript precision loss for large Long IDs (> Number.MAX_SAFE_INTEGER).
- * Other Long fields (like totalElements, size, etc.) remain as numbers.
+ * Jackson module that serializes Long/long bean properties named "id" or ending with "Id"
+ * as String. This prevents JavaScript precision loss for large Long IDs (> Number.MAX_SAFE_INTEGER).
+ * Other Long fields (like totalElements, size, quantity, etc.) remain as numbers.
  */
 public class IdAsStringModule extends SimpleModule {
 
@@ -22,7 +22,8 @@ public class IdAsStringModule extends SimpleModule {
             public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                     BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
                 for (BeanPropertyWriter writer : beanProperties) {
-                    if ("id".equals(writer.getName())) {
+                    String name = writer.getName();
+                    if ("id".equals(name) || name.endsWith("Id")) {
                         Class<?> type = writer.getType().getRawClass();
                         if (type == Long.class || type == long.class) {
                             writer.assignSerializer(ToStringSerializer.instance);

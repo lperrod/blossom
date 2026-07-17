@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>blossom-module-search-common</module>
-    <module>blossom-module-search-elasticsearch</module>
   </modules>
 
 
