@@ -26,7 +26,9 @@ public class IdAsStringModule extends SimpleModule {
                     if ("id".equals(name) || name.endsWith("Id")) {
                         Class<?> type = writer.getType().getRawClass();
                         if (type == Long.class || type == long.class) {
-                            writer.assignSerializer(ToStringSerializer.instance);
+                            if (!writer.hasSerializer()) {
+                                writer.assignSerializer(ToStringSerializer.instance);
+                            }
                         }
                     }
                 }
