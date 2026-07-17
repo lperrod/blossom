@@ -1,15 +1,15 @@
 package com.blossomproject.core.common.json;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.ValueSerializerModifier;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 import java.util.List;
 
 /**
- * Jackson module that serializes Long/long bean properties named "id" or ending with "Id"
+ * Jackson 3 module that serializes Long/long bean properties named "id" or ending with "Id"
  * as String. This prevents JavaScript precision loss for large Long IDs (> Number.MAX_SAFE_INTEGER).
  * Other Long fields (like totalElements, size, quantity, etc.) remain as numbers.
  */
@@ -17,10 +17,10 @@ public class IdAsStringModule extends SimpleModule {
 
     public IdAsStringModule() {
         super("IdAsString");
-        setSerializerModifier(new BeanSerializerModifier() {
+        setSerializerModifier(new ValueSerializerModifier() {
             @Override
             public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-                    BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+                    BeanDescription.Supplier beanDescSupplier, List<BeanPropertyWriter> beanProperties) {
                 for (BeanPropertyWriter writer : beanProperties) {
                     String name = writer.getName();
                     if ("id".equals(name) || name.endsWith("Id")) {
