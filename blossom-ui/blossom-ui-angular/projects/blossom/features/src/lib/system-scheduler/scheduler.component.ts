@@ -40,6 +40,10 @@ import { SchedulerService, JobInfo } from './scheduler.service';
               <th mat-header-cell *matHeaderCellDef>State</th>
               <td mat-cell *matCellDef="let j"><mat-chip>{{ j.state }}</mat-chip></td>
             </ng-container>
+            <ng-container matColumnDef="cronExpression">
+              <th mat-header-cell *matHeaderCellDef>Cron</th>
+              <td mat-cell *matCellDef="let j"><code>{{ j.cronExpression || '-' }}</code></td>
+            </ng-container>
             <ng-container matColumnDef="nextFireTime">
               <th mat-header-cell *matHeaderCellDef>Next Fire</th>
               <td mat-cell *matCellDef="let j">{{ j.nextFireTime | date:'medium' }}</td>
@@ -62,12 +66,18 @@ import { SchedulerService, JobInfo } from './scheduler.service';
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .full-width { width: 100%; }
+    mat-expansion-panel { margin-bottom: 8px; }
+    :host ::ng-deep .mat-expansion-panel-body { padding: 0 !important; overflow-x: auto; }
+    table { min-width: 600px; }
+    th.mat-mdc-header-cell { font-weight: 600; white-space: nowrap; }
+    td.mat-mdc-cell { white-space: nowrap; font-size: 13px; }
+    mat-chip { font-size: 12px; }
   `]
 })
 export class SchedulerComponent implements OnInit {
   groups = signal<string[]>([]);
   jobsByGroup = signal<Record<string, JobInfo[]>>({});
-  jobColumns = ['name', 'description', 'state', 'nextFireTime', 'actions'];
+  jobColumns = ['name', 'description', 'state', 'cronExpression', 'nextFireTime', 'actions'];
   schedulerActive = signal(true);
 
   private schedulerService = inject(SchedulerService);

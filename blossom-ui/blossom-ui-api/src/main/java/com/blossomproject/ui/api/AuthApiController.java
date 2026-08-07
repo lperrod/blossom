@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,9 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthApiController {
 
   private final AuthenticationManager authenticationManager;
+  private final SessionRegistry sessionRegistry;
 
   public AuthApiController(AuthenticationManager authenticationManager) {
+    this(authenticationManager, null);
+  }
+
+  public AuthApiController(AuthenticationManager authenticationManager, SessionRegistry sessionRegistry) {
     this.authenticationManager = authenticationManager;
+    this.sessionRegistry = sessionRegistry;
   }
 
   @PostMapping("/login")
@@ -46,6 +53,11 @@ public class AuthApiController {
     HttpSession session = request.getSession(true);
     session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
+    // Register session with SessionRegistry so it appears in active sessions
+    if (sessionRegistry != null) {
+      sessionRegistry.registerNewSession(session.getId(), authentication.getPrincipal());
+    }
+
     CurrentUser currentUser = (CurrentUser) authentication.getPrincipal();
     return new ResponseEntity<>(buildUserResponse(currentUser), HttpStatus.OK);
   }
@@ -54,6 +66,9 @@ public class AuthApiController {
   public ResponseEntity<Void> logout(HttpServletRequest request) {
     HttpSession session = request.getSession(false);
     if (session != null) {
+      if (sessionRegistry != null) {
+        sessionRegistry.removeSessionInformation(session.getId());
+      }
       session.invalidate();
     }
     SecurityContextHolder.clearContext();
