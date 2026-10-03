@@ -35,12 +35,14 @@ import { GroupsService, GroupDTO } from '../admin-groups/groups.service';
       <button mat-flat-button color="primary" (click)="associate()" [disabled]="!selectedUserId || !selectedGroupId"><mat-icon>link</mat-icon> Associate</button>
     </div>
     @if (memberships().length) {
-      <table mat-table [dataSource]="memberships()" class="full-width">
-        <ng-container matColumnDef="group"><th mat-header-cell *matHeaderCellDef>Group</th><td mat-cell *matCellDef="let m">{{ m.b?.name || m.id }}</td></ng-container>
-        <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let m"><button mat-icon-button color="warn" (click)="dissociate(m.id)"><mat-icon>link_off</mat-icon></button></td></ng-container>
-        <tr mat-header-row *matHeaderRowDef="['group','actions']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['group','actions'];"></tr>
-      </table>
+      <div class="table-scroll">
+        <table mat-table [dataSource]="memberships()" class="full-width">
+          <ng-container matColumnDef="group"><th mat-header-cell *matHeaderCellDef>Group</th><td mat-cell *matCellDef="let m">{{ m.b?.name || m.id }}</td></ng-container>
+          <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let m"><button mat-icon-button color="warn" (click)="dissociate(m.id)"><mat-icon>link_off</mat-icon></button></td></ng-container>
+          <tr mat-header-row *matHeaderRowDef="['group','actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['group','actions'];"></tr>
+        </table>
+      </div>
     }
   `,
   styles: [`.controls{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;margin-bottom:16px;}.full-width{width:100%;}`]

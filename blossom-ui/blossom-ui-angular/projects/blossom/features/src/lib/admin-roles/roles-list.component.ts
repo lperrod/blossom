@@ -29,8 +29,8 @@ export class RoleCreateDialogComponent {
 @Component({ selector: 'app-roles-list', standalone: true,
   imports: [MatTableModule, MatPaginatorModule, MatButtonModule, MatIconModule, SearchBarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<div class="page-header"><h2>Roles</h2><button mat-flat-button color="primary" (click)="openCreate()"><mat-icon>add</mat-icon> Create Role</button></div><blossom-search-bar (search)="onSearch($event)"></blossom-search-bar><table mat-table [dataSource]="roles()" class="full-width"><ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let r">{{ r.name }}</td></ng-container><ng-container matColumnDef="description"><th mat-header-cell *matHeaderCellDef>Description</th><td mat-cell *matCellDef="let r">{{ r.description }}</td></ng-container><tr mat-header-row *matHeaderRowDef="columns"></tr><tr mat-row *matRowDef="let row; columns: columns;" (click)="goTo(row.id)" class="clickable"></tr></table><mat-paginator [length]="total()" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>`,
-  styles: [`.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}.full-width{width:100%;}.clickable{cursor:pointer;}.clickable:hover{background:rgba(0,0,0,0.04);}`]
+  template: `<div class="page-header"><h2>Roles</h2><button mat-flat-button color="primary" (click)="openCreate()"><mat-icon>add</mat-icon> Create Role</button></div><blossom-search-bar (search)="onSearch($event)"></blossom-search-bar><div class="table-scroll"><table mat-table [dataSource]="roles()" class="full-width"><ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let r">{{ r.name }}</td></ng-container><ng-container matColumnDef="description"><th mat-header-cell *matHeaderCellDef>Description</th><td mat-cell *matCellDef="let r">{{ r.description }}</td></ng-container><tr mat-header-row *matHeaderRowDef="columns"></tr><tr mat-row *matRowDef="let row; columns: columns;" (click)="goTo(row.id)" class="clickable"></tr></table></div><mat-paginator [length]="total()" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>`,
+  styles: [`.page-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;}.full-width{width:100%;}.clickable{cursor:pointer;}.clickable:hover{background:rgba(0,0,0,0.04);}`]
 })
 export class RolesListComponent implements OnInit {
   roles = signal<RoleDTO[]>([]); columns = ['name', 'description']; total = signal(0); private q = ''; private pg = 0;
@@ -42,5 +42,5 @@ export class RolesListComponent implements OnInit {
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
   goTo(id: string): void { this.router.navigate(['/administration/roles', id]); }
-  openCreate(): void { this.dialog.open(RoleCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
+  openCreate(): void { this.dialog.open(RoleCreateDialogComponent, { width: '500px', maxWidth: '95vw' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
 }

@@ -50,7 +50,7 @@ import { switchMap } from 'rxjs/operators';
   `,
   styles: [`
     .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #2f4050; }
-    .login-card { width: 400px; padding: 32px; border-radius: 4px; }
+    .login-card { width: 100%; max-width: 400px; box-sizing: border-box; padding: 32px; border-radius: 4px; }
     .full-width { width: 100%; margin-bottom: 8px; }
     .error-message { background: #ed5565; color: white; padding: 12px; border-radius: 4px; margin-bottom: 16px; font-size: 13px; }
     mat-card-header { margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; }

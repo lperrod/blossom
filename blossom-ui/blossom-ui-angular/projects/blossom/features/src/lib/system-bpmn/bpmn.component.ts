@@ -10,32 +10,34 @@ import { BpmnService, ProcessDefinition } from './bpmn.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2>BPMN Process Definitions</h2>
-    <table mat-table [dataSource]="definitions()" class="full-width">
-      <ng-container matColumnDef="key">
-        <th mat-header-cell *matHeaderCellDef>Key</th>
-        <td mat-cell *matCellDef="let d">{{ d.key }}</td>
-      </ng-container>
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let d">{{ d.name }}</td>
-      </ng-container>
-      <ng-container matColumnDef="version">
-        <th mat-header-cell *matHeaderCellDef>Version</th>
-        <td mat-cell *matCellDef="let d">{{ d.version }}</td>
-      </ng-container>
-      <ng-container matColumnDef="runningInstances">
-        <th mat-header-cell *matHeaderCellDef>Running Instances</th>
-        <td mat-cell *matCellDef="let d">
-          <mat-chip [color]="d.runningInstances > 0 ? 'primary' : 'accent'" selected>{{ d.runningInstances }}</mat-chip>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="resourceName">
-        <th mat-header-cell *matHeaderCellDef>Resource</th>
-        <td mat-cell *matCellDef="let d">{{ d.resourceName }}</td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-    </table>
+    <div class="table-scroll">
+      <table mat-table [dataSource]="definitions()" class="full-width">
+        <ng-container matColumnDef="key">
+          <th mat-header-cell *matHeaderCellDef>Key</th>
+          <td mat-cell *matCellDef="let d">{{ d.key }}</td>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let d">{{ d.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="version">
+          <th mat-header-cell *matHeaderCellDef>Version</th>
+          <td mat-cell *matCellDef="let d">{{ d.version }}</td>
+        </ng-container>
+        <ng-container matColumnDef="runningInstances">
+          <th mat-header-cell *matHeaderCellDef>Running Instances</th>
+          <td mat-cell *matCellDef="let d">
+            <mat-chip [color]="d.runningInstances > 0 ? 'primary' : 'accent'" selected>{{ d.runningInstances }}</mat-chip>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="resourceName">
+          <th mat-header-cell *matHeaderCellDef>Resource</th>
+          <td mat-cell *matCellDef="let d">{{ d.resourceName }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+      </table>
+    </div>
   `,
   styles: [`.full-width { width: 100%; }`]
 })

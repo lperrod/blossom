@@ -33,16 +33,18 @@ export class ArticleCreateDialogComponent {
   template: `
     <div class="page-header"><h2>Articles</h2><button mat-flat-button color="primary" (click)="openCreate()"><mat-icon>add</mat-icon> Create Article</button></div>
     <blossom-search-bar (search)="onSearch($event)"></blossom-search-bar>
-    <table mat-table [dataSource]="articles()" class="full-width">
-      <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let a">{{ a.name }}</td></ng-container>
-      <ng-container matColumnDef="summary"><th mat-header-cell *matHeaderCellDef>Summary</th><td mat-cell *matCellDef="let a">{{ a.summary }}</td></ng-container>
-      <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let a"><mat-chip>{{ a.status }}</mat-chip></td></ng-container>
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;" (click)="goTo(row.id)" class="clickable"></tr>
-    </table>
+    <div class="table-scroll">
+      <table mat-table [dataSource]="articles()" class="full-width">
+        <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let a">{{ a.name }}</td></ng-container>
+        <ng-container matColumnDef="summary"><th mat-header-cell *matHeaderCellDef>Summary</th><td mat-cell *matCellDef="let a">{{ a.summary }}</td></ng-container>
+        <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let a"><mat-chip>{{ a.status }}</mat-chip></td></ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;" (click)="goTo(row.id)" class="clickable"></tr>
+      </table>
+    </div>
     <mat-paginator [length]="total()" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>
   `,
-  styles: [`.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}.full-width{width:100%;}.clickable{cursor:pointer;}.clickable:hover{background:rgba(0,0,0,0.04);}`]
+  styles: [`.page-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;}.full-width{width:100%;}.clickable{cursor:pointer;}.clickable:hover{background:rgba(0,0,0,0.04);}`]
 })
 export class ArticlesListComponent implements OnInit {
   articles = signal<ArticleDTO[]>([]); columns = ['name', 'summary', 'status']; total = signal(0); private q = ''; private pg = 0;
@@ -54,5 +56,5 @@ export class ArticlesListComponent implements OnInit {
   onSearch(q: string): void { this.q = q; this.pg = 0; this.load(); }
   onPage(e: PageEvent): void { this.pg = e.pageIndex; this.load(); }
   goTo(id: string): void { this.router.navigate(['/content/articles', id]); }
-  openCreate(): void { this.dialog.open(ArticleCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
+  openCreate(): void { this.dialog.open(ArticleCreateDialogComponent, { width: '500px', maxWidth: '95vw' }).afterClosed().subscribe(r => { if (r) this.load(); }); }
 }

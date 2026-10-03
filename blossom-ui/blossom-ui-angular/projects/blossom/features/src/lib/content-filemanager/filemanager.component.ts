@@ -19,17 +19,19 @@ import { FileManagerService, FileDTO } from './filemanager.service';
       <input #fileInput type="file" hidden (change)="onFileSelected($event)">
     </div>
     <blossom-search-bar (search)="onSearch($event)"></blossom-search-bar>
-    <table mat-table [dataSource]="files()" class="full-width">
-      <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let f">{{ f.name }}</td></ng-container>
-      <ng-container matColumnDef="contentType"><th mat-header-cell *matHeaderCellDef>Type</th><td mat-cell *matCellDef="let f">{{ f.contentType }}</td></ng-container>
-      <ng-container matColumnDef="size"><th mat-header-cell *matHeaderCellDef>Size</th><td mat-cell *matCellDef="let f">{{ formatSize(f.size) }}</td></ng-container>
-      <ng-container matColumnDef="extension"><th mat-header-cell *matHeaderCellDef>Extension</th><td mat-cell *matCellDef="let f"><mat-chip>{{ f.extension }}</mat-chip></td></ng-container>
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-    </table>
+    <div class="table-scroll">
+      <table mat-table [dataSource]="files()" class="full-width">
+        <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let f">{{ f.name }}</td></ng-container>
+        <ng-container matColumnDef="contentType"><th mat-header-cell *matHeaderCellDef>Type</th><td mat-cell *matCellDef="let f">{{ f.contentType }}</td></ng-container>
+        <ng-container matColumnDef="size"><th mat-header-cell *matHeaderCellDef>Size</th><td mat-cell *matCellDef="let f">{{ formatSize(f.size) }}</td></ng-container>
+        <ng-container matColumnDef="extension"><th mat-header-cell *matHeaderCellDef>Extension</th><td mat-cell *matCellDef="let f"><mat-chip>{{ f.extension }}</mat-chip></td></ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+      </table>
+    </div>
     <mat-paginator [length]="total()" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>
   `,
-  styles: [`.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:16px;}.full-width{width:100%;}`]
+  styles: [`.page-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;gap:16px;}.full-width{width:100%;}`]
 })
 export class FileManagerComponent implements OnInit {
   files = signal<FileDTO[]>([]); columns = ['name', 'contentType', 'size', 'extension']; total = signal(0); private q = ''; private pg = 0;

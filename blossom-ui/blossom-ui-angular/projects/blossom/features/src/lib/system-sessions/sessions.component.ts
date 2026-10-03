@@ -14,38 +14,40 @@ import { SessionsService, SessionInfo } from './sessions.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2>Active Sessions</h2>
-    <table mat-table [dataSource]="sessions()" class="full-width">
-      <ng-container matColumnDef="principal">
-        <th mat-header-cell *matHeaderCellDef>User</th>
-        <td mat-cell *matCellDef="let s">{{ s.principal }}</td>
-      </ng-container>
-      <ng-container matColumnDef="sessionId">
-        <th mat-header-cell *matHeaderCellDef>Session ID</th>
-        <td mat-cell *matCellDef="let s">{{ s.sessionId }}</td>
-      </ng-container>
-      <ng-container matColumnDef="lastRequest">
-        <th mat-header-cell *matHeaderCellDef>Last Request</th>
-        <td mat-cell *matCellDef="let s">{{ s.lastRequest | date:'medium' }}</td>
-      </ng-container>
-      <ng-container matColumnDef="expired">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let s">
-          <mat-chip [color]="s.expired ? 'warn' : 'primary'" selected>{{ s.expired ? 'Expired' : 'Active' }}</mat-chip>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let s">
-          @if (!s.expired) {
-            <button mat-icon-button color="warn" (click)="invalidate(s.sessionId)">
-              <mat-icon>block</mat-icon>
-            </button>
-          }
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+    <div class="table-scroll">
+      <table mat-table [dataSource]="sessions()" class="full-width">
+        <ng-container matColumnDef="principal">
+          <th mat-header-cell *matHeaderCellDef>User</th>
+          <td mat-cell *matCellDef="let s">{{ s.principal }}</td>
+        </ng-container>
+        <ng-container matColumnDef="sessionId">
+          <th mat-header-cell *matHeaderCellDef>Session ID</th>
+          <td mat-cell *matCellDef="let s">{{ s.sessionId }}</td>
+        </ng-container>
+        <ng-container matColumnDef="lastRequest">
+          <th mat-header-cell *matHeaderCellDef>Last Request</th>
+          <td mat-cell *matCellDef="let s">{{ s.lastRequest | date:'medium' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="expired">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let s">
+            <mat-chip [color]="s.expired ? 'warn' : 'primary'" selected>{{ s.expired ? 'Expired' : 'Active' }}</mat-chip>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let s">
+            @if (!s.expired) {
+              <button mat-icon-button color="warn" (click)="invalidate(s.sessionId)">
+                <mat-icon>block</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
   `,
   styles: [`.full-width { width: 100%; }`]
 })

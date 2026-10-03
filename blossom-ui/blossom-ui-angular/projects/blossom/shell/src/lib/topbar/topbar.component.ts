@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,9 @@ import { AuthService, ConfigurationService } from '@blossom/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-toolbar class="blossom-topbar">
+      <button mat-icon-button class="menu-toggle" aria-label="Menu" (click)="menuToggle.emit()">
+        <mat-icon>menu</mat-icon>
+      </button>
       <span class="spacer"></span>
       @if (user()) {
         <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn" aria-label="User menu">
@@ -57,6 +60,14 @@ import { AuthService, ConfigurationService } from '@blossom/core';
     .user-name {
       font-size: 13px;
       font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 40vw;
+    }
+    @media (max-width: 599.98px) {
+      .blossom-topbar { padding: 0 8px; }
+      .user-name { display: none; }
     }
     .user-info {
       padding: 12px 16px;
@@ -72,6 +83,9 @@ export class TopbarComponent {
   private readonly authService = inject(AuthService);
   private readonly configService = inject(ConfigurationService);
   private readonly router = inject(Router);
+
+  /** Emitted when the hamburger button is clicked, so the layout can open or close the menu. */
+  readonly menuToggle = output<void>();
 
   readonly user = computed(() => this.configService.config()?.user ?? null);
 

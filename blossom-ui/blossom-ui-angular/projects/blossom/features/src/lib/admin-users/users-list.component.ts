@@ -22,18 +22,20 @@ import { UserCreateDialogComponent } from './user-create-dialog.component';
       <button mat-flat-button color="primary" (click)="openCreateDialog()"><mat-icon>add</mat-icon> Create User</button>
     </div>
     <blossom-search-bar (search)="onSearch($event)"></blossom-search-bar>
-    <table mat-table [dataSource]="users()" class="full-width">
-      <ng-container matColumnDef="identifier"><th mat-header-cell *matHeaderCellDef>Identifier</th><td mat-cell *matCellDef="let u">{{ u.identifier }}</td></ng-container>
-      <ng-container matColumnDef="firstname"><th mat-header-cell *matHeaderCellDef>First Name</th><td mat-cell *matCellDef="let u">{{ u.firstname }}</td></ng-container>
-      <ng-container matColumnDef="lastname"><th mat-header-cell *matHeaderCellDef>Last Name</th><td mat-cell *matCellDef="let u">{{ u.lastname }}</td></ng-container>
-      <ng-container matColumnDef="email"><th mat-header-cell *matHeaderCellDef>Email</th><td mat-cell *matCellDef="let u">{{ u.email }}</td></ng-container>
-      <ng-container matColumnDef="activated"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let u"><mat-chip [color]="u.activated ? 'primary' : 'warn'" selected>{{ u.activated ? 'Active' : 'Inactive' }}</mat-chip></td></ng-container>
-      <tr mat-header-row *matHeaderRowDef="columns"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns;" (click)="goToDetail(row.id)" class="clickable"></tr>
-    </table>
+    <div class="table-scroll">
+      <table mat-table [dataSource]="users()" class="full-width">
+        <ng-container matColumnDef="identifier"><th mat-header-cell *matHeaderCellDef>Identifier</th><td mat-cell *matCellDef="let u">{{ u.identifier }}</td></ng-container>
+        <ng-container matColumnDef="firstname"><th mat-header-cell *matHeaderCellDef>First Name</th><td mat-cell *matCellDef="let u">{{ u.firstname }}</td></ng-container>
+        <ng-container matColumnDef="lastname"><th mat-header-cell *matHeaderCellDef>Last Name</th><td mat-cell *matCellDef="let u">{{ u.lastname }}</td></ng-container>
+        <ng-container matColumnDef="email"><th mat-header-cell *matHeaderCellDef>Email</th><td mat-cell *matCellDef="let u">{{ u.email }}</td></ng-container>
+        <ng-container matColumnDef="activated"><th mat-header-cell *matHeaderCellDef>Status</th><td mat-cell *matCellDef="let u"><mat-chip [color]="u.activated ? 'primary' : 'warn'" selected>{{ u.activated ? 'Active' : 'Inactive' }}</mat-chip></td></ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;" (click)="goToDetail(row.id)" class="clickable"></tr>
+      </table>
+    </div>
     <mat-paginator [length]="totalElements()" [pageSize]="25" (page)="onPage($event)" showFirstLastButtons></mat-paginator>
   `,
-  styles: [`.page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; } .full-width { width:100%; } .clickable { cursor:pointer; } .clickable:hover { background:rgba(0,0,0,0.04); }`]
+  styles: [`.page-header { display:flex; justify-content:space-between;flex-wrap:wrap;gap:8px; align-items:center; margin-bottom:16px; } .full-width { width:100%; } .clickable { cursor:pointer; } .clickable:hover { background:rgba(0,0,0,0.04); }`]
 })
 export class UsersListComponent implements OnInit {
   users = signal<UserDTO[]>([]);
@@ -58,6 +60,6 @@ export class UsersListComponent implements OnInit {
   goToDetail(id: string): void { this.router.navigate(['/administration/users', id]); }
 
   openCreateDialog(): void {
-    this.dialog.open(UserCreateDialogComponent, { width: '500px' }).afterClosed().subscribe(r => { if (r) this.load(); });
+    this.dialog.open(UserCreateDialogComponent, { width: '500px', maxWidth: '95vw' }).afterClosed().subscribe(r => { if (r) this.load(); });
   }
 }

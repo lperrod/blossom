@@ -43,6 +43,7 @@ import { PasswordDialogComponent } from './password-dialog.component';
   `,
   styles: [`
     .profile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 16px 0; }
+    @media (max-width: 599.98px) { .profile-grid { grid-template-columns: 1fr; } }
     .field label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
     .field span { font-size: 14px; }
   `]
@@ -58,6 +59,6 @@ export class ProfileComponent implements OnInit {
   }
 
   openPasswordDialog(): void {
-    this.dialog.open(PasswordDialogComponent, { width: '400px' });
+    this.dialog.open(PasswordDialogComponent, { width: '400px', maxWidth: '95vw' });
   }
 }

@@ -34,12 +34,14 @@ import { RolesService, RoleDTO } from '../admin-roles/roles.service';
       <button mat-flat-button color="primary" (click)="associate()" [disabled]="!selectedUserId || !selectedRoleId"><mat-icon>link</mat-icon> Associate</button>
     </div>
     @if (responsibilities().length) {
-      <table mat-table [dataSource]="responsibilities()" class="full-width">
-        <ng-container matColumnDef="role"><th mat-header-cell *matHeaderCellDef>Role</th><td mat-cell *matCellDef="let r">{{ r.b?.name || r.id }}</td></ng-container>
-        <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let r"><button mat-icon-button color="warn" (click)="dissociate(r.id)"><mat-icon>link_off</mat-icon></button></td></ng-container>
-        <tr mat-header-row *matHeaderRowDef="['role','actions']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['role','actions'];"></tr>
-      </table>
+      <div class="table-scroll">
+        <table mat-table [dataSource]="responsibilities()" class="full-width">
+          <ng-container matColumnDef="role"><th mat-header-cell *matHeaderCellDef>Role</th><td mat-cell *matCellDef="let r">{{ r.b?.name || r.id }}</td></ng-container>
+          <ng-container matColumnDef="actions"><th mat-header-cell *matHeaderCellDef>Actions</th><td mat-cell *matCellDef="let r"><button mat-icon-button color="warn" (click)="dissociate(r.id)"><mat-icon>link_off</mat-icon></button></td></ng-container>
+          <tr mat-header-row *matHeaderRowDef="['role','actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['role','actions'];"></tr>
+        </table>
+      </div>
     }
   `,
   styles: [`.controls{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;margin-bottom:16px;}.full-width{width:100%;}`]

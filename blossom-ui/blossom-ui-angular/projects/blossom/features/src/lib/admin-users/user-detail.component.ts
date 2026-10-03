@@ -56,9 +56,10 @@ import { UsersService, UserDTO } from './users.service';
     }
   `,
   styles: [`
-    .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .page-header { display:flex; justify-content:space-between;flex-wrap:wrap;gap:8px; align-items:center; margin-bottom:16px; }
     .tab-content { padding:16px 0; }
     .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 16px; }
+    @media (max-width: 599.98px) { .form-grid { grid-template-columns:1fr; } }
     .full-span { grid-column:span 2; }
   `]
 })

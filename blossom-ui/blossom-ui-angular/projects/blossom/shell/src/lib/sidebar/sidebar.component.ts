@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject, output } from '@angular/core';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter, map } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
+import { MenuService, MenuItem, BLOSSOM_APP_CONFIG } from '@blossom/core';
 
 @Component({
   selector: 'blossom-sidebar',
@@ -23,14 +24,15 @@ import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
         <!-- Leaf items (no children) -->
         @if (!item.items || item.items.length === 0) {
           <a mat-list-item [routerLink]="item.link" routerLinkActive="active"
-             [routerLinkActiveOptions]="item.link === '/' ? {exact: true} : {exact: false}">
+             [routerLinkActiveOptions]="item.link === '/' ? {exact: true} : {exact: false}"
+             (click)="navigate.emit()">
             <i class="{{ item.icon }}" matListItemIcon></i>
             <span matListItemTitle>{{ item.label }}</span>
           </a>
         }
         <!-- Parent items (with children) -->
         @if (item.items && item.items.length > 0) {
-          <mat-expansion-panel class="menu-group" [expanded]="false">
+          <mat-expansion-panel class="menu-group" [expanded]="containsActiveLink(item)">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 <i class="{{ item.icon }}"></i>
@@ -40,7 +42,8 @@ import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
             <mat-nav-list dense>
               @for (child of item.items; track child.link) {
                 <a mat-list-item
-                   [routerLink]="child.link" routerLinkActive="active">
+                   [routerLink]="child.link" routerLinkActive="active"
+                   (click)="navigate.emit()">
                   <i class="{{ child.icon }}" matListItemIcon></i>
                   <span matListItemTitle>{{ child.label }}</span>
                 </a>
@@ -52,7 +55,7 @@ import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
     </mat-nav-list>
   `,
   styles: [`
-    :host {
+    blossom-sidebar {
       display: block;
       height: 100%;
       color: #a7b1c2;
@@ -131,8 +134,8 @@ import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
       background: #eee !important;
     }
 
-    /* Active state */
-    a.active {
+    /* Active state (scoped: this component is not encapsulated) */
+    blossom-sidebar a.active {
       color: #1ab394 !important;
       background: #f0faf7 !important;
       border-left: 3px solid #1ab394 !important;
@@ -140,14 +143,14 @@ import { MenuService, BLOSSOM_APP_CONFIG } from '@blossom/core';
     }
 
     /* Icons */
-    i {
+    blossom-sidebar i {
       margin-right: 10px;
       width: 18px;
       text-align: center;
       font-size: 14px;
       color: #999;
     }
-    a.active i {
+    blossom-sidebar a.active i {
       color: #1ab394 !important;
     }
   `]
@@ -158,4 +161,18 @@ export class SidebarComponent {
 
   readonly brandName = this.appConfig.appName;
   readonly menuItems = toSignal(this.menuService.menu$, { initialValue: [] });
+
+  /** Emitted when a menu link is clicked, so the layout can close the menu on small screens. */
+  readonly navigate = output<void>();
+
+  private readonly router = inject(Router);
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd), map(() => this.router.url)),
+    { initialValue: this.router.url }
+  );
+
+  containsActiveLink(item: MenuItem): boolean {
+    const url = this.currentUrl();
+    return (item.items ?? []).some(child => !!child.link && (url === child.link || url.startsWith(child.link + '/')));
+  }
 }

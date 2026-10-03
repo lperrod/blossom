@@ -38,7 +38,7 @@ import { RolesService, RoleDTO } from './roles.service';
       </mat-tab-group>
     }
   `,
-  styles: [`.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}.tab-content{padding:16px 0;}.full-width{width:100%;}`]
+  styles: [`.page-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;}.tab-content{padding:16px 0;}.full-width{width:100%;}`]
 })
 export class RoleDetailComponent implements OnInit {
   role = signal<RoleDTO | null>(null);

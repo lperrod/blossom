@@ -33,7 +33,7 @@ import { GroupsService, GroupDTO } from './groups.service';
       </mat-card-content></mat-card>
     }
   `,
-  styles: [`.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}.full-width{width:100%;}`]
+  styles: [`.page-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;}.full-width{width:100%;}`]
 })
 export class GroupDetailComponent implements OnInit {
   group = signal<GroupDTO | null>(null);

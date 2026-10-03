@@ -64,7 +64,7 @@ import { SchedulerService, JobInfo } from './scheduler.service';
     </mat-accordion>
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .page-header { display: flex; justify-content: space-between;flex-wrap:wrap;gap:8px; align-items: center; margin-bottom: 16px; }
     .full-width { width: 100%; }
     mat-expansion-panel { margin-bottom: 8px; }
     :host ::ng-deep .mat-expansion-panel-body { padding: 0 !important; overflow-x: auto; }

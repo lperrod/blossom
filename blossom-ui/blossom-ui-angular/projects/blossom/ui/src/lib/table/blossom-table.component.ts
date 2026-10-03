@@ -22,11 +22,13 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
         </mat-form-field>
       }
 
-      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
-        <ng-content></ng-content>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns();" (click)="rowClick.emit(row)" class="clickable-row"></tr>
-      </table>
+      <div class="table-scroll">
+        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
+          <ng-content></ng-content>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns();" (click)="rowClick.emit(row)" class="clickable-row"></tr>
+        </table>
+      </div>
 
       <mat-paginator
         [length]="totalElements()"
@@ -39,6 +41,7 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
   `,
   styles: [`
     .blossom-table-container { width: 100%; }
+    .table-scroll { width: 100%; overflow-x: auto; }
     .search-field { width: 100%; margin-bottom: 16px; }
     .clickable-row { cursor: pointer; }
     .clickable-row:hover { background-color: rgba(0, 0, 0, 0.04); }

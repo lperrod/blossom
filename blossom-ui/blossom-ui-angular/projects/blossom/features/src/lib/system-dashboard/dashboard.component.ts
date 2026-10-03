@@ -62,12 +62,13 @@ import { interval, Subscription } from 'rxjs';
     </div>
   `,
   styles: [`
-    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr)); gap: 16px; }
     .status-info { display: flex; align-items: center; gap: 16px; }
     .metric { margin: 12px 0; }
     .metric span { display: block; font-size: 13px; color: #666; }
     .metric mat-progress-bar { margin: 4px 0; }
     .metric-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 599.98px) { .metric-row { grid-template-columns: 1fr; } }
     .metric-item { text-align: center; }
     .metric-item strong { display: block; font-size: 24px; }
     .metric-item span { font-size: 12px; color: #666; }

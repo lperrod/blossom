@@ -21,43 +21,45 @@ import { CachesService, CacheInfo } from './caches.service';
       </button>
     </div>
     <blossom-search-bar placeholder="Filter caches..." (search)="onSearch($event)"></blossom-search-bar>
-    <table mat-table [dataSource]="caches()" class="full-width">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let c">{{ c.name }}</td>
-      </ng-container>
-      <ng-container matColumnDef="enabled">
-        <th mat-header-cell *matHeaderCellDef>Enabled</th>
-        <td mat-cell *matCellDef="let c">
-          <mat-slide-toggle [checked]="c.enabled" (change)="toggleCache(c)"></mat-slide-toggle>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="size">
-        <th mat-header-cell *matHeaderCellDef>Size</th>
-        <td mat-cell *matCellDef="let c">{{ c.size }}</td>
-      </ng-container>
-      <ng-container matColumnDef="hits">
-        <th mat-header-cell *matHeaderCellDef>Hits</th>
-        <td mat-cell *matCellDef="let c">{{ c.hits }}</td>
-      </ng-container>
-      <ng-container matColumnDef="misses">
-        <th mat-header-cell *matHeaderCellDef>Misses</th>
-        <td mat-cell *matCellDef="let c">{{ c.misses }}</td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let c">
-          <button mat-icon-button color="warn" (click)="emptyCache(c.name)" matTooltip="Empty cache">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+    <div class="table-scroll">
+      <table mat-table [dataSource]="caches()" class="full-width">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let c">{{ c.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="enabled">
+          <th mat-header-cell *matHeaderCellDef>Enabled</th>
+          <td mat-cell *matCellDef="let c">
+            <mat-slide-toggle [checked]="c.enabled" (change)="toggleCache(c)"></mat-slide-toggle>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="size">
+          <th mat-header-cell *matHeaderCellDef>Size</th>
+          <td mat-cell *matCellDef="let c">{{ c.size }}</td>
+        </ng-container>
+        <ng-container matColumnDef="hits">
+          <th mat-header-cell *matHeaderCellDef>Hits</th>
+          <td mat-cell *matCellDef="let c">{{ c.hits }}</td>
+        </ng-container>
+        <ng-container matColumnDef="misses">
+          <th mat-header-cell *matHeaderCellDef>Misses</th>
+          <td mat-cell *matCellDef="let c">{{ c.misses }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let c">
+            <button mat-icon-button color="warn" (click)="emptyCache(c.name)" matTooltip="Empty cache">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .page-header { display: flex; justify-content: space-between;flex-wrap:wrap;gap:8px; align-items: center; margin-bottom: 16px; }
     .full-width { width: 100%; }
   `]
 })
