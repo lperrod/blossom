@@ -4,3 +4,4 @@ export * from './lib/delete-button/delete-button.component';
 export * from './lib/search-bar/search-bar.component';
 export * from './lib/breadcrumb/breadcrumb.component';
 export * from './lib/privilege-tree/privilege-tree.component';
+export * from './lib/skeleton/blossom-skeleton.component';
